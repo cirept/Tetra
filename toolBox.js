@@ -65,8 +65,6 @@ var QAtoolbox = {
             $otherToolsContainer: jQuery('<div>').attr({
                 class: 'toolBox',
                 id: 'otherToolsContainer'
-            }).css({ // new
-                display: 'none'
             }),
             $otherToolsPanel: jQuery('<div>').attr({
                 id: 'otherToolsPanel'
