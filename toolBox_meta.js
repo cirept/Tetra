@@ -3,7 +3,7 @@
 // @namespace www.cobaltgroup.com/
 // @include http:*
 // @version 2.7.2
-// @downloadURL https://rawgit.com/cirept/Tetra/master/toolBox_meta.js
+// @updateURL https://rawgit.com/cirept/Tetra/master/toolBox_meta.js
 // @run-at document-end
 // @description Makes life easier... I hope.
 // @require http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js

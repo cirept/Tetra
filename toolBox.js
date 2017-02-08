@@ -1551,9 +1551,9 @@ var refreshPage = {
             }).css({
                 background: 'linear-gradient(to left, #FBD3E9 , #BB377D)',
                 width: '75px',
-                position: 'fixed',
+                position: 'absolute',
                 left: '0px',
-                top: '0px',
+                top: '-470px',
                 'z-index': '1000000',
                 display: 'none'
             }),
