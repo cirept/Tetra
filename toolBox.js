@@ -1,25 +1,3 @@
-// ==UserScript==
-// @name QA Toolbox 2.7.2
-// @namespace www.cobaltgroup.com/
-// @include http:*
-// @version 2.7.2
-// @updateURL https://media-dmg.assets-cdk.com/teams/repository/export/460/264509aae1005845e0050568ba825/460264509aae1005845e0050568ba825.js
-// @downloadURL https://media-dmg.assets-cdk.com/teams/repository/export/460/264509aae1005845e0050568ba825/460264509aae1005845e0050568ba825.js
-// @run-at document-idle
-// @description Makes life easier... I hope.
-// @require https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js
-// @require https://use.fontawesome.com/3953f47d82.js
-// @resource https://fonts.googleapis.com/css?family=Montserrat
-// @author Eric Tanaka
-// @grant GM_openInTab
-// @grant GM_setClipboard
-// @grant unsafeWindow
-// @grant GM_setValue
-// @grant GM_getValue
-// @grant GM_info
-// @noframes
-// ==/UserScript==
-
 /*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, document */
 
 /*
@@ -87,6 +65,8 @@ var QAtoolbox = {
             $otherToolsContainer: jQuery('<div>').attr({
                 class: 'toolBox',
                 id: 'otherToolsContainer'
+            }).css({ // new
+                display: 'none'
             }),
             $otherToolsPanel: jQuery('<div>').attr({
                 id: 'otherToolsPanel'
@@ -1686,7 +1666,7 @@ var seoSimplify = {
     createElements: function () {
         seoSimplify.config = {
             $activateButt: jQuery('<button>').attr({
-                class: 'myEDOBut',
+                class: 'myEDOBut notWorking',
                 id: 'simpleSEO',
                 title: 'Simplify My SEO Text (has some bugs)'
             }).text('SEO Simplify'),
