@@ -1,0 +1,46 @@
+{
+    "hyundai": [{
+            "name": "Elantra",
+            "url": "models/hyundai-elantra"
+        },
+        {
+            "name": "Elantra_GT",
+            "url": "models/hyundai-elantragt"
+        },
+        {
+            "name": "Genesis",
+            "url": "models/hyundai-genesis"
+        },
+        {
+            "name": "Genesis_Coupe",
+            "url": "models/hyundai-genesiscoupe"
+        },
+        {
+            "name": "Sonata",
+            "url": "models/hyundai-sonata"
+        },
+        {
+            "name": "Sonata_Hybrid",
+            "url": "models/hyundai-sonatahybrid"
+        },
+        {
+            "name": "Sonata_Plug_In_Hybrid",
+            "url": "models/hyundai-sonatapluginhybrid"
+        },
+        {
+            "name": "Veloster",
+            "url": "models/hyundai-veloster"
+        },
+        {
+            "name": "Santa_Fe",
+            "url": "models/hyundai-santafe"
+        },
+        {
+            "name": "Santa_Fe_Sport",
+            "url": "models/hyundai-santafesport"
+        },
+        {
+            "name": "Tucson",
+            "url": "models/hyundai-tucson"
+        }]
+}

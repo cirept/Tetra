@@ -1,0 +1,54 @@
+{
+    "volkswagen": [{
+            "name": "Beetle_Convertible",
+            "url": "models/volkswagen-beetleconvertible"
+        },
+        {
+            "name": "Beetle_Coupe",
+            "url": "models/volkswagen-beetlecoupe"
+        },
+        {
+            "name": "CC",
+            "url": "models/volkswagen-cc"
+        },
+        {
+            "name": "Eos",
+            "url": "models/volkswagen-eos"
+        },
+        {
+            "name": "Golf",
+            "url": "models/volkswagen-golf"
+        },
+        {
+            "name": "Golf_GTI",
+            "url": "models/volkswagen-golfgti"
+        },
+        {
+            "name": "Golf_R",
+            "url": "models/volkswagen-golfr"
+        },
+        {
+            "name": "Jetta_Sedan",
+            "url": "models/volkswagen-jettasedan"
+        },
+        {
+            "name": "Passat",
+            "url": "models/volkswagen-passat"
+        },
+        {
+            "name": "e_Golf",
+            "url": "models/volkswagen-egolf"
+        },
+        {
+            "name": "Tiguan",
+            "url": "models/volkswagen-tiguan"
+        },
+        {
+            "name": "Touareg",
+            "url": "models/volkswagen-touareg"
+        },
+        {
+            "name": "Golf_SportWagen",
+            "url": "models/volkswagen-golfsportwagen"
+        }]
+}

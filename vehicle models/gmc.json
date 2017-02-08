@@ -1,0 +1,38 @@
+{
+    "gmc": [{
+            "name": "Savana_Cargo_Van",
+            "url": "models/gmc-savanacargovan"
+        },
+        {
+            "name": "Savana_Commercial_Cutaway",
+            "url": "models/gmc-savanacommercialcutaway"
+        },
+        {
+            "name": "Savana_Passenger",
+            "url": "models/gmc-savanapassenger"
+        },
+        {
+            "name": "Sierra_1500",
+            "url": "models/gmc-sierra1500"
+        },
+        {
+            "name": "Sierra_2500HD",
+            "url": "models/gmc-sierra2500hd"
+        },
+        {
+            "name": "Sierra_3500HD",
+            "url": "models/gmc-sierra3500hd"
+        },
+        {
+            "name": "Terrain",
+            "url": "models/gmc-terrain"
+        },
+        {
+            "name": "Yukon",
+            "url": "models/gmc-yukon"
+        },
+        {
+            "name": "Yukon_XL",
+            "url": "models/gmc-yukonxl"
+        }]
+}

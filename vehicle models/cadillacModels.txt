@@ -1,0 +1,47 @@
+name ::: ATS_Coupe
+-=-=
+url ::: models/cadillac-atscoupe
+-=-=
+name ::: ATS_Sedan
+-=-=
+url ::: models/cadillac-atssedan
+-=-=
+name ::: ATS_V_Coupe
+-=-=
+url ::: models/cadillac-atsvcoupe
+-=-=
+name ::: ATS_V_Sedan
+-=-=
+url ::: models/cadillac-atsvsedan
+-=-=
+name ::: CT6_Sedan
+-=-=
+url ::: models/cadillac-ct6sedan
+-=-=
+name ::: CTS_Sedan
+-=-=
+url ::: models/cadillac-ctssedan
+-=-=
+name ::: CTS_V_Sedan
+-=-=
+url ::: models/cadillac-ctsvsedan
+-=-=
+name ::: ELR
+-=-=
+url ::: models/cadillac-elr
+-=-=
+name ::: Escalade
+-=-=
+url ::: models/cadillac-escalade
+-=-=
+name ::: Escalade_ESV
+-=-=
+url ::: models/cadillac-escaladeesv
+-=-=
+name ::: SRX
+-=-=
+url ::: models/cadillac-srx
+-=-=
+name ::: XTS
+-=-=
+url ::: models/cadillac-xts
