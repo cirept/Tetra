@@ -2,8 +2,8 @@
 // @name QA Toolbox - TESTING
 // @namespace www.cobaltgroup.com/
 // @include http:*
-// @version 2.7.6
-// @updateURL https://rawgit.com/cirept/Tetra/master/toolBox_meta_TampermonkeyTESTING.js
+// @version 2.7.7
+// @downloadURL https://rawgit.com/cirept/Tetra/master/toolBox_meta_TampermonkeyTESTING.js
 // @run-at document-end
 // @description Makes life easier... I hope.
 // @require https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js
@@ -24,4 +24,7 @@
 // ----------------------------------------
 // things to note:
 // MAKE SURE THE jquery file is 1.12
+// MASTER FILE LINKS WORK
+// version 2.7.7
+// USE DOWNLOAD URL NOT UPDATE URL
 // ----------------------------------------
