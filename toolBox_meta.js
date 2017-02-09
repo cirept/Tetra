@@ -2,7 +2,7 @@
 // @name QA Toolbox
 // @namespace www.cobaltgroup.com/
 // @include http:*
-// @version 2.7.5
+// @version 2.7.6
 // @downloadURL https://cdn.rawgit.com/cirept/Tetra/master/toolBox_meta.js
 // @run-at document-end
 // @description Makes life easier... I hope.
