@@ -1,31 +1,5 @@
 /*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, document */
 
-/*
-
-TO DO LIST:
-1. re-do link checker, see if i can consolidate functions // half done
-2. re-do image checker, see if i can consolidate functions // half done
-3. consolidate all the toggle functions into one generic tog funtion.
-11. Make SEO convertor work
----- Move vehicle arrays into separate files
--------- chev, buick, vw, hyundai, cadi
-4. Look into Next GEN toolbar; caching issue with browser.
--- if viewing next gen, simply removing the URL parameter doesn't erase the next gen page from being viewed.
--- location.reload(true);  // to trigger a reload
-5. MOVE ALL STYLES TO CLASS STYLES is possible
-10. Combine next gen and Tetra toolbar into one
-6. ADD SEO h Tag counter
-7. Split up toolbox into right and left
----- right side has the tools & legend
----- left side page information
-
-8. after code is converted to module style, update to revealing module pattern
-9. Add listeners to make tool fully customizable
----- Setting Tab to turn tools on and off
----- Create settings tab
-
-*/
-
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- Build container for toolbox ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
@@ -346,9 +320,10 @@ var m4Check = {
                 cursor: 'pointer'
             }),
             $m4CheckTitle: jQuery('<div>').css({
-                    color: 'black'
+                    color: 'black',
+                    'line-height': '15px'
                 })
-                .text('Apply M4 Parameters?'),
+                .text('M4 Parameters?'),
             $m4Checkbox: jQuery('<div>').attr({
                 id: 'm4toggle'
             }),
@@ -1401,123 +1376,262 @@ var speedtestPage = {
 };
 
 // ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- autofill toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+
+var autofillToggle = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.setToggle();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        autofillToggle.config = {
+            $autofillToggleContainer: jQuery('<div>').attr({
+                id: 'autofillToggleInput'
+            }).css({
+                background: 'linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255))',
+                cursor: 'pointer'
+            }),
+            $autofillToggleTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('autofill Parameters?'),
+            $autofillToggleIcon: jQuery('<div>').attr({
+                id: 'autofillToggleIcon'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        autofillToggle.config.$autofillToggleIcon
+            .append(autofillToggle.config.$FAtoggle);
+        autofillToggle.config.$autofillToggleContainer
+            .append(autofillToggle.config.$autofillToggleTitle)
+            .append(autofillToggle.config.$autofillToggleIcon);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#toolsPanel');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(autofillToggle.config.$autofillToggleContainer);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        autofillToggle.config.$autofillToggleContainer.on('click', this.flipTheSwitch.bind(this));
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            autofillToggle.config.$autofillToggleContainer.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs applyAutofill value
+        var a = GM_getValue('applyAutofill', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = autofillToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    applyParameters: function () {
+        var hasParameters = this.hasParameters();
+        var siteState = this.siteState();
+        var applyAutofill = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if ((!hasParameters) && (siteState !== 'LIVE') && (applyAutofill)) {
+            window.location.search += '&disableAutofill=true';
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = autofillToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&disableAutofill=true') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets usingM4 value
+        GM_setValue('applyAutofill', bool);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- OTHER TOOLS ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- Show Possible Autofill ----------------------------------------
-// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- next gen toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
-var $haf_butt = jQuery('<button>').attr({
-    class: 'myEDOBut notWorking',
-    id: 'highlightAutofills',
-    title: 'Highlight Autofills (has some bugs)'
-}).text('highlight autofills');
-
-var cm = unsafeWindow.ContextManager;
-
-$haf_butt.click(function () {
-
-    var $search = {
-        dealername: cm.getDealershipName(),
-        city: cm.getCity(),
-        street: cm.getAddressLine1(),
-        address2: cm.getAddressLine2(),
-        collision: cm.getCollisionPhone(),
-        fleet: cm.getFleetPhone(),
-        new: cm.getNewPhone(),
-        parts: cm.getPartsPhone(),
-        primary: cm.getPrimaryPhone(),
-        service: cm.getServicePhone(),
-        used: cm.getUsedPhone(),
-        finance: cm.getFinancePhone(),
-        state: cm.getPreferredState(),
-        zip: cm.getZip(),
-        franchise: cm.getFranchises(),
-    };
-
-
-    var visibleText = jQuery('#content').find('.cell').find('.cblt-container');
-    jQuery.each($search, function (key, searchText) {
-
-        var regexp = '';
-
-        // skip interation if value is null
-        if (searchText === null) {
-            console.log(key + ' value is null');
-            return true;
-        }
-
-        console.log('find this : key : ' + key + ' : ' + searchText);
-        console.log(jQuery.type(searchText));
-        console.log('is array? : ', jQuery.isArray(searchText));
-
-        // regex for phone numbers
-        var phoneNo = /^\(?[0-9]{3}(\-|\)) ?[0-9]{3}-[0-9]{4}$/;
-
-        // special check for the franchises object
-        if (!jQuery.isArray(searchText)) {
-
-            regexp = new RegExp(searchText, "gi");
-
-            // check if value is a phone number
-            if (searchText.match(phoneNo)) {
-                var leftParen = '\u0028'; // regex match for "("
-                var rightParen = '\u0029'; // regex match for ")"
-                console.log('phone number found');
-                console.log(leftParen);
-                console.log(rightParen);
-                //                var newSearchThis = searchText;
-
-                var newText = searchText;
-
-                console.log(regexp);
-                //                jQuery(regexp).text().replace('(', leftParen);
-                jQuery(regexp).text().replace('(', '\u0028');
-                //                jQuery(regexp).text().replace(')', rightParen);
-                jQuery(regexp).text().replace(')', '\u0029');
-                console.log('replaced parenthesis :', regexp);
-
-                console.log('checking phone number match');
-                //                if (jQuery(newText).text() === jQuery(searchText).text()) {
-                if (newText === searchText) {
-                    console.log('phone number : it matches');
-                } else {
-                    console.log('phone number : it dont macth');
-                }
-                console.log('regex inserted into search string : ', searchText);
-                //                regexp = new RegExp(searchText, "gi");
-
-            }
-            // if value is NOT a phone number
+var nextGenToggle = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.setToggle();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        nextGenToggle.config = {
+            $nextGenToggleContainer: jQuery('<div>').attr({
+                id: 'nextGenToggleInput'
+            }).css({
+                background: 'linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255))',
+                cursor: 'pointer'
+            }),
+            $nextGenToggleTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('nextGen Parameters?'),
+            $nextGenToggleIcon: jQuery('<div>').attr({
+                id: 'nextGenToggleIcon'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        nextGenToggle.config.$nextGenToggleIcon
+            .append(nextGenToggle.config.$FAtoggle);
+        nextGenToggle.config.$nextGenToggleContainer
+            .append(nextGenToggle.config.$nextGenToggleTitle)
+            .append(nextGenToggle.config.$nextGenToggleIcon);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
         } else {
-
-            regexp = new RegExp(searchText, "gi");
+            this.toggleOff();
         }
-
-        // what is the value of the regex
-        console.log('value of regex expressions : ', regexp);
-
-        jQuery.each(visibleText, function (index, element) {
-
-            var text = jQuery(element).children(':visible').text();
-            //            var findMe = '^' + searchText + '$';
-            //            var regexp = new RegExp(searchText, "gi");
-
-
-            jQuery(element).children(':visible').html(function () {
-                //                return jQuery(this).html().replace(regexp, '<span style="background: yellow;">' + searchText + '</span>');
-                console.log(regexp);
-                return jQuery(this).html().replace(regexp, '<span style="background: yellow; color: black;">' + searchText + '</span>');
-            });
-
-            if (text.indexOf(searchText) >= 0) {
-                console.log('match found');
-                return false;
-            }
-        });
-    });
-});
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#otherToolsPanel');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(nextGenToggle.config.$nextGenToggleContainer);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        nextGenToggle.config.$nextGenToggleContainer.on('click', this.flipTheSwitch.bind(this));
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            nextGenToggle.config.$nextGenToggleContainer.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs isNextGen value
+        var a = GM_getValue('isNextGen', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = nextGenToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    applyParameters: function () {
+        var hasParameters = this.hasParameters();
+        var siteState = this.siteState();
+        var isNextGen = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
+            window.location.search += '&nextGen=true';
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = nextGenToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&nextGen=true') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets usingM4 value
+        GM_setValue('isNextGen', bool);
+    }
+};
 
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- Refresh Page ----------------------------------------
@@ -1561,7 +1675,8 @@ var refreshPage = {
                 'margin-left': '-10px'
             }),
             $refreshTitle: jQuery('<div>').css({
-                    color: 'black'
+                    color: 'black',
+                    'line-height': '15px'
                 })
                 .text('Toggle Refresh Button'),
             $refreshCheckbox: jQuery('<div>').attr({
@@ -1648,346 +1763,674 @@ var refreshPage = {
 // ---------------------------------------- SEO Simplify ----------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------
 
-var seoSimplify = {
-    init: function () {
-        this.createElements();
-        this.buildElements();
-        this.getData();
-        this.cacheDOM();
-        this.addStyles();
-        this.addTool();
-        this.bindEvents();
-    },
-    // ----------------------------------------
-    // tier 1 functions
-    // ----------------------------------------
-    createElements: function () {
-        seoSimplify.config = {
-            $activateButt: jQuery('<button>').attr({
-                class: 'myEDOBut notWorking',
-                id: 'simpleSEO',
-                title: 'Simplify My SEO Text (has some bugs)'
-            }).text('SEO Simplify'),
-            $removeBut: jQuery('<input>').attr({
-                type: 'button',
-                class: 'myEDOBut',
-                value: 'REMOVE',
-                id: 'removeDiv'
-            }),
-            $seoDisplay: jQuery('<div>').attr({
-                id: 'inputDisplay'
-            }),
-            $seoContainer: jQuery('<div>').attr({
-                id: 'inputContainer'
-            }).css({
-                background: 'white',
-                color: 'black'
-            }),
-            oems: ['Chevrolet', 'Buick', 'Cadillac', 'GMC', 'Hyundai', 'Volkswagen'],
-            vehicles: [],
-            seoText: ''
+var $seo_butt = jQuery('<button>').attr({
+    class: 'myEDOBut',
+    id: 'simpleSEO',
+    title: 'Simplify My SEO Text'
+}).text('SEO Simplify');
+
+$seo_butt.click(function () {
+    var seoSimplify = (function () {
+        var oems = [
+                "Buick",
+                "Cadillac",
+                "Chevrolet",
+                "GMC",
+                "Hyundai",
+                "Volkswagen"
+            ];
+        var chevrolet = [];
+        var Camaro = {
+            name: "Camaro",
+            url: "models/chevrolet-camaro"
         };
-    },
-    buildElements: function () {
-        // attach seo display and remove button to container
-        seoSimplify.config.$seoContainer
-            .append(seoSimplify.config.$seoDisplay)
-            .append(seoSimplify.config.$removeBut);
-    },
-    getData: function () {
-        var filePath = '';
-        jQuery(seoSimplify.config.oems).each(function (index, model) {
-            switch (model) {
-            case 'Chevrolet':
-                // vehicles/chevrolet.json
-                filePath = 'https://media-dmg.assets-cdk.com/teams/repository/export/e2e/45858a25d100580860050568bfc31/e2e45858a25d100580860050568bfc31.json';
-                seoSimplify.loadArray(filePath);
-                break;
-            case 'Buick':
-                // vehicles/buick.json
-                filePath = 'https://media-dmg.assets-cdk.com/teams/repository/export/e2e/3cfa0a25d100581330050568b6442/e2e3cfa0a25d100581330050568b6442.json';
-                seoSimplify.loadArray(filePath);
-                break;
-            case 'Cadillac':
-                // vehicles/cadillac.json
-                filePath = 'https://media-dmg.assets-cdk.com/teams/repository/export/e2e/421a8a25d100582540050568ba825/e2e421a8a25d100582540050568ba825.json';
-                seoSimplify.loadArray(filePath);
-                break;
-            case 'GMC':
-                // vehicles/gmc.json
-                filePath = 'https://media-dmg.assets-cdk.com/teams/repository/export/e2e/3a4a8a25d100584040050568b5709/e2e3a4a8a25d100584040050568b5709.json';
-                seoSimplify.loadArray(filePath);
-                break;
-            case 'Hyundai':
-                // vehicles/hyundai.json
-                filePath = 'https://media-dmg.assets-cdk.com/teams/repository/export/e2e/41208a25d100584040050568b5709/e2e41208a25d100584040050568b5709.json';
-                seoSimplify.loadArray(filePath);
-                break;
-            case 'Volkswagen':
-                // vehicles/volkswagen.json
-                filePath = 'https://media-dmg.assets-cdk.com/teams/repository/export/e2e/421a8a25d100584040050568b5709/e2e421a8a25d100584040050568b5709.json';
-                seoSimplify.loadArray(filePath);
-                break;
-            }
-        });
-    },
-    cacheDOM: function () {
-        this.$otherToolsPanel = jQuery('#otherToolsPanel');
-        this.$toolbarStyles = jQuery('#qa_toolbox');
-        this.body = jQuery('#content');
-    },
-    addStyles: function () {
-        // apply module styles to main tool bar style tag
-        this.$toolbarStyles
-            // styles of colored overlay placed on images
-            .append('#inputDisplay { padding: 10px; }')
-            // end of addStyles
-        ; // end
-    },
-    addTool: function () {
-        this.$otherToolsPanel.append(seoSimplify.config.$activateButt);
-    },
-    bindEvents: function () {
-        seoSimplify.config.$activateButt.on('click', this.simplifySEO.bind(this));
-        seoSimplify.config.$removeBut.on('click', this.removeDisplay.bind(this));
-        // add change to text area function
-        seoSimplify.config.$seoDisplay.on('click', this.changeToTextarea.bind(this));
-    },
-    // ----------------------------------------
-    // tier 2 functions
-    // ----------------------------------------
-    loadArray: function (filePath) {
-        jQuery.getJSON(filePath, function (data) {
-            seoSimplify.config.vehicles.push(data);
-        });
-    },
-    simplifySEO: function () {
-        this.getInput();
-        this.cleanUpTags();
-        this.cleanUpLinks();
-        this.attachDisplayArea();
-        this.displayText();
-    },
-    removeDisplay: function () {
-        // remove display container
-        seoSimplify.config.$seoContainer.remove();
-    },
-    changeToTextarea: function (event) {
-        var $this = jQuery(event.currentTarget);
-        var input = seoSimplify.config.$seoDisplay.html(),
-            $seoTextArea = jQuery('<textarea>').css({
-                width: '100%',
-                height: '300px'
-            });
-        $seoTextArea.html(input);
-        jQuery($this).replaceWith($seoTextArea);
-        $seoTextArea.focus();
-        $seoTextArea.blur(this.revertDiv.bind(this));
-    },
-    // ----------------------------------------
-    // tier 3 functions
-    // ----------------------------------------
-    getInput: function () {
-        // clear data
-        seoSimplify.config.seoText = '';
-        //seoSimplify.config.seoText = "<div><span title='' class='f-xx-small'>&nbsp;Welcome to %DEALER_NAME%, you're one-stop-%CITY%-GM-shop! We are proud to offer our huge selection of new and used vehicles to %CITY%, %STATE% and %DEALER_GEO_ONE% Chevrolet, Buick and GMC customers.<br> Laplante Auto also has GM-certified service, <a href='%LINKPAGENAME_PartsDepartment_LINKCONTEXTNAME_%'><u title=''>parts</u></a> and <a href='%LINKPAGENAME_Accessories_LINKCONTEXTNAME_%'><u>accessories</u></a>. Don't forget our financing options. We even sell tires to help you keep up with the changing seasons. Here at %DEALER_NAME% in %CITY% we are committed to helping you find the car of your dreams and keep it running for a long time. We also serve as a great dealer alternative for %DEALER_GEO_ONE% Chevrolet, Buick and GMC shoppers.&nbsp;</span></div>";
-        // prompt user for input
-        seoSimplify.config.seoText = jQuery.trim(prompt('Enter Your SEO Text - HTML format'));
-    },
-    cleanUpTags: function () { // get rid of repeat functionality
-        var input = seoSimplify.config.seoText,
-            $input = jQuery(input);
+        chevrolet.push(Camaro);
+        var SS = {
+            name: "SS",
+            url: "models/chevrolet-ss"
+        };
+        chevrolet.push(SS);
+        var City_Express_Cargo_Van = {
+            name: "City_Express_Cargo_Van",
+            url: "models/chevrolet-cityexpresscargovan"
+        };
+        chevrolet.push(City_Express_Cargo_Van);
+        var Colorado = {
+            name: "Colorado",
+            url: "models/chevrolet-colorado"
+        };
+        chevrolet.push(Colorado);
+        var Corvette = {
+            name: "Corvette",
+            url: "models/chevrolet-corvette"
+        };
+        chevrolet.push(Corvette);
+        var Cruze = {
+            name: "Cruze",
+            url: "models/chevrolet-cruze"
+        };
+        chevrolet.push(Cruze);
+        var Cruze_Limited = {
+            name: "Cruze_Limited",
+            url: "models/chevrolet-cruzelimited"
+        };
+        chevrolet.push(Cruze_Limited);
+        var Equinox = {
+            name: "Equinox",
+            url: "models/chevrolet-equinox"
+        };
+        chevrolet.push(Equinox);
+        var Express_Cargo_Van = {
+            name: "Express_Cargo_Van",
+            url: "models/chevrolet-expresscargovan"
+        };
+        chevrolet.push(Express_Cargo_Van);
+        var Express_Commercial_Cutaway = {
+            name: "Express_Commercial_Cutaway",
+            url: "models/chevrolet-expresscommercialcutaway"
+        };
+        chevrolet.push(Express_Commercial_Cutaway);
+        var Express_Passenger = {
+            name: "Express_Passenger",
+            url: "models/chevrolet-expresspassenger"
+        };
+        chevrolet.push(Express_Passenger);
+        var Impala = {
+            name: "Impala",
+            url: "models/chevrolet-impala"
+        };
+        chevrolet.push(Impala);
+        var Malibu = {
+            name: "Malibu",
+            url: "models/chevrolet-malibu"
+        };
+        chevrolet.push(Malibu);
+        var Malibu_Limited = {
+            name: "Malibu_Limited",
+            url: "models/chevrolet-malibulimited"
+        };
+        chevrolet.push(Malibu_Limited);
+        var Silverado_1500 = {
+            name: "Silverado_1500",
+            url: "models/chevrolet-silverado1500"
+        };
+        chevrolet.push(Silverado_1500);
+        var Silverado_2500HD = {
+            name: "Silverado_2500HD",
+            url: "models/chevrolet-silverado2500hd"
+        };
+        chevrolet.push(Silverado_2500HD);
+        var Silverado_3500HD = {
+            name: "Silverado_3500HD",
+            url: "models/chevrolet-silverado3500hd"
+        };
+        chevrolet.push(Silverado_3500HD);
+        var Sonic = {
+            name: "Sonic",
+            url: "models/chevrolet-sonic"
+        };
+        chevrolet.push(Sonic);
+        var Spark = {
+            name: "Spark",
+            url: "models/chevrolet-spark"
+        };
+        chevrolet.push(Spark);
+        var Suburban = {
+            name: "Suburban",
+            url: "models/chevrolet-suburban"
+        };
+        chevrolet.push(Suburban);
+        var Tahoe = {
+            name: "Tahoe",
+            url: "models/chevrolet-tahoe"
+        };
+        chevrolet.push(Tahoe);
+        var Traverse = {
+            name: "Traverse",
+            url: "models/chevrolet-traverse"
+        };
+        chevrolet.push(Traverse);
+        var Trax = {
+            name: "Trax",
+            url: "models/chevrolet-trax"
+        };
+        chevrolet.push(Trax);
+        var Volt = {
+            name: "Volt",
+            url: "models/chevrolet-volt"
+        };
+        chevrolet.push(Volt);
+        var volkswagen = [];
+        var Beetle_Convertible = {
+            name: "Beetle_Convertible",
+            url: "models/volkswagen-beetleconvertible"
+        };
+        volkswagen.push(Beetle_Convertible);
+        var Beetle_Coupe = {
+            name: "Beetle_Coupe",
+            url: "models/volkswagen-beetlecoupe"
+        };
+        volkswagen.push(Beetle_Coupe);
+        var CC = {
+            name: "CC",
+            url: "models/volkswagen-cc"
+        };
+        volkswagen.push(CC);
+        var Eos = {
+            name: "Eos",
+            url: "models/volkswagen-eos"
+        };
+        volkswagen.push(Eos);
+        var Golf = {
+            name: "Golf",
+            url: "models/volkswagen-golf"
+        };
+        volkswagen.push(Golf);
+        var Golf_GTI = {
+            name: "Golf_GTI",
+            url: "models/volkswagen-golfgti"
+        };
+        volkswagen.push(Golf_GTI);
+        var Golf_R = {
+            name: "Golf_R",
+            url: "models/volkswagen-golfr"
+        };
+        volkswagen.push(Golf_R);
+        var Jetta_Sedan = {
+            name: "Jetta_Sedan",
+            url: "models/volkswagen-jettasedan"
+        };
+        volkswagen.push(Jetta_Sedan);
+        var Passat = {
+            name: "Passat",
+            url: "models/volkswagen-passat"
+        };
+        volkswagen.push(Passat);
+        var e_Golf = {
+            name: "e_Golf",
+            url: "models/volkswagen-egolf"
+        };
+        volkswagen.push(e_Golf);
+        var Tiguan = {
+            name: "Tiguan",
+            url: "models/volkswagen-tiguan"
+        };
+        volkswagen.push(Tiguan);
+        var Touareg = {
+            name: "Touareg",
+            url: "models/volkswagen-touareg"
+        };
+        volkswagen.push(Touareg);
+        var Golf_SportWagen = {
+            name: "Golf_SportWagen",
+            url: "models/volkswagen-golfsportwagen"
+        };
+        volkswagen.push(Golf_SportWagen);
+        var cadillac = [];
+        var ATS_Coupe = {
+            name: "ATS_Coupe",
+            url: "models/cadillac-atscoupe"
+        };
+        cadillac.push(ATS_Coupe);
+        var ATS_Sedan = {
+            name: "ATS_Sedan",
+            url: "models/cadillac-atssedan"
+        };
+        cadillac.push(ATS_Sedan);
+        var ATS_V_Coupe = {
+            name: "ATS_V_Coupe",
+            url: "models/cadillac-atsvcoupe"
+        };
+        cadillac.push(ATS_V_Coupe);
+        var ATS_V_Sedan = {
+            name: "ATS_V_Sedan",
+            url: "models/cadillac-atsvsedan"
+        };
+        cadillac.push(ATS_V_Sedan);
+        var CT6_Sedan = {
+            name: "CT6_Sedan",
+            url: "models/cadillac-ct6sedan"
+        };
+        cadillac.push(CT6_Sedan);
+        var CTS_Sedan = {
+            name: "CTS_Sedan",
+            url: "models/cadillac-ctssedan"
+        };
+        cadillac.push(CTS_Sedan);
+        var CTS_V_Sedan = {
+            name: "CTS_V_Sedan",
+            url: "models/cadillac-ctsvsedan"
+        };
+        cadillac.push(CTS_V_Sedan);
+        var ELR = {
+            name: "ELR",
+            url: "models/cadillac-elr"
+        };
+        cadillac.push(ELR);
+        var Escalade = {
+            name: "Escalade",
+            url: "models/cadillac-escalade"
+        };
+        cadillac.push(Escalade);
+        var Escalade_ESV = {
+            name: "Escalade_ESV",
+            url: "models/cadillac-escaladeesv"
+        };
+        cadillac.push(Escalade_ESV);
+        var SRX = {
+            name: "SRX",
+            url: "models/cadillac-srx"
+        };
+        cadillac.push(SRX);
+        var XTS = {
+            name: "XTS",
+            url: "models/cadillac-xts"
+        };
+        cadillac.push(XTS);
+        var buick = [];
+        var Cascada = {
+            name: "Cascada",
+            url: "models/buick-cascada"
+        };
+        buick.push(Cascada);
+        var Enclave = {
+            name: "Enclave",
+            url: "models/buick-enclave"
+        };
+        buick.push(Enclave);
+        var Encore = {
+            name: "Encore",
+            url: "models/buick-encore"
+        };
+        buick.push(Encore);
+        var Envision = {
+            name: "Envision",
+            url: "models/buick-envision"
+        };
+        buick.push(Envision);
+        var LaCrosse = {
+            name: "LaCrosse",
+            url: "models/buick-lacrosse"
+        };
+        buick.push(LaCrosse);
+        var Regal = {
+            name: "Regal",
+            url: "models/buick-regal"
+        };
+        buick.push(Regal);
+        var Verano = {
+            name: "Verano",
+            url: "models/buick-verano"
+        };
+        buick.push(Verano);
+        var gmc = [];
+        var Acadia = {
+            name: "Acadia",
+            url: "models/gmc-acadia"
+        };
+        gmc.push(Acadia);
+        var Canyon = {
+            name: "Canyon",
+            url: "models/gmc-canyon"
+        };
+        gmc.push(Canyon);
+        var Savana_Cargo_Van = {
+            name: "Savana_Cargo_Van",
+            url: "models/gmc-savanacargovan"
+        };
+        gmc.push(Savana_Cargo_Van);
+        var Savana_Commercial_Cutaway = {
+            name: "Savana_Commercial_Cutaway",
+            url: "models/gmc-savanacommercialcutaway"
+        };
+        gmc.push(Savana_Commercial_Cutaway);
+        var Savana_Passenger = {
+            name: "Savana_Passenger",
+            url: "models/gmc-savanapassenger"
+        };
+        gmc.push(Savana_Passenger);
+        var Sierra_1500 = {
+            name: "Sierra_1500",
+            url: "models/gmc-sierra1500"
+        };
+        gmc.push(Sierra_1500);
+        var Sierra_2500HD = {
+            name: "Sierra_2500HD",
+            url: "models/gmc-sierra2500hd"
+        };
+        gmc.push(Sierra_2500HD);
+        var Sierra_3500HD = {
+            name: "Sierra_3500HD",
+            url: "models/gmc-sierra3500hd"
+        };
+        gmc.push(Sierra_3500HD);
+        var Terrain = {
+            name: "Terrain",
+            url: "models/gmc-terrain"
+        };
+        gmc.push(Terrain);
+        var Yukon = {
+            name: "Yukon",
+            url: "models/gmc-yukon"
+        };
+        gmc.push(Yukon);
+        var Yukon_XL = {
+            name: "Yukon_XL",
+            url: "models/gmc-yukonxl"
+        };
+        gmc.push(Yukon_XL);
+        var hyundai = [];
+        var Accent = {
+            name: "Accent",
+            url: "models/hyundai-accent"
+        };
+        hyundai.push(Accent);
+        var Azera = {
+            name: "Azera",
+            url: "models/hyundai-azera"
+        };
+        hyundai.push(Azera);
+        var Elantra = {
+            name: "Elantra",
+            url: "models/hyundai-elantra"
+        };
+        hyundai.push(Elantra);
+        var Elantra_GT = {
+            name: "Elantra_GT",
+            url: "models/hyundai-elantragt"
+        };
+        hyundai.push(Elantra_GT);
+        var Genesis = {
+            name: "Genesis",
+            url: "models/hyundai-genesis"
+        };
+        hyundai.push(Genesis);
+        var Genesis_Coupe = {
+            name: "Genesis_Coupe",
+            url: "models/hyundai-genesiscoupe"
+        };
+        hyundai.push(Genesis_Coupe);
+        var Sonata = {
+            name: "Sonata",
+            url: "models/hyundai-sonata"
+        };
+        hyundai.push(Sonata);
+        var Sonata_Hybrid = {
+            name: "Sonata_Hybrid",
+            url: "models/hyundai-sonatahybrid"
+        };
+        hyundai.push(Sonata_Hybrid);
+        var Sonata_Plug_In_Hybrid = {
+            name: "Sonata_Plug_In_Hybrid",
+            url: "models/hyundai-sonatapluginhybrid"
+        };
+        hyundai.push(Sonata_Plug_In_Hybrid);
+        var Veloster = {
+            name: "Veloster",
+            url: "models/hyundai-veloster"
+        };
+        hyundai.push(Veloster);
+        var Santa_Fe = {
+            name: "Santa_Fe",
+            url: "models/hyundai-santafe"
+        };
+        hyundai.push(Santa_Fe);
+        var Santa_Fe_Sport = {
+            name: "Santa_Fe_Sport",
+            url: "models/hyundai-santafesport"
+        };
+        hyundai.push(Santa_Fe_Sport);
+        var Tucson = {
+            name: "Tucson",
+            url: "models/hyundai-tucson"
+        };
+        hyundai.push(Tucson);
 
-        // remove all empty elements
-        $input.find('*:empty').remove();
-        $input.find('*').each(function (index, value) {
-            if (jQuery.trim(jQuery(value).html()) === '') {
-                jQuery(value).remove();
+        function getURL(makeModel) {
+            var mArr = makeModel.split(' ');
+            var make = "no match found",
+                model = "",
+                modelURL = "",
+                len = "",
+                ar = oems,
+                oLen = oems.length,
+                i = 0,
+                x = 0;
+            if (mArr.length >= 3) {
+                for (var b = 1; b < mArr.length; b++) {
+                    model += mArr[b];
+                }
+            } else {
+                model = mArr[mArr.length - 1];
             }
-        });
-        // remove all style attributes
-        $input.find('*').removeAttr('style');
-        // remove all br elements
-        $input.find('br').remove();
-        // remove all font tags
-        $input.find('font').replaceWith(function () {
-            return jQuery(this).html();
-        });
-        // remove all &nbsp; with ' '
-        $input.html($input.html().replace(/&nbsp;/gi, ' '));
-        // remove all span tags
-        $input.find('span').replaceWith(function () {
-            return jQuery(this).html();
-        });
-        // remove all u tags
-        $input.find('u').replaceWith(function () {
-            return jQuery(this).html();
-        });
-        // remove all b tags
-        $input.find('b').replaceWith(function () {
-            return jQuery(this).html();
-        });
-        // remove all strong tags
-        $input.find('strong').replaceWith(function () {
-            return jQuery(this).html();
-        });
-        // remove all i tags
-        $input.find('i').replaceWith(function () {
-            return jQuery(this).html();
-        });
-        // replace all div tags with p tags
-        $input.find('center').replaceWith(function () {
-            return jQuery('<p/>').append(jQuery(this).html());
-        });
-        // save cleaner input
-        seoSimplify.config.seoText = $input;
-    },
-    cleanUpLinks: function () {
-        var $input = seoSimplify.config.seoText,
-            allLinks = $input.find('a'),
-            len = allLinks.length,
-            i = 0;
-
-        for (i; i < len; i++) {
-            var $this = jQuery(allLinks[i]);
-            // check if title is empty or undefined
-            if (seoSimplify.isUndefined($this, 'title') || seoSimplify.isEmpty($this, 'title')) {
-                // sets title to link text
-                var titleText = $this.text().toString().trim();
-                $this.attr('title', titleText.substr(0, 1).toUpperCase() + titleText.substr(1));
+            for (x; x < oLen; x++) {
+                if (mArr[0].indexOf(ar[x]) >= 0) {
+                    make = ar[x];
+                    break;
+                }
             }
-            // check if href is empty or undefined
-            if (seoSimplify.isUndefined($this, 'href') || seoSimplify.isEmpty($this, 'href')) {
-                // sets href to # if none exists
-                $this.attr('href', '#');
+            model = model.trim().toLowerCase();
+            switch (make) {
+            case "Chevrolet":
+                len = chevrolet.length;
+                i = 0;
+                for (i; i < len; i++) {
+                    if (chevrolet[i].url.indexOf(model) >= 0) {
+                        modelURL = chevrolet[i].url;
+                        break;
+                    }
+                }
+                return modelURL;
+            case "GMC":
+                len = gmc.length;
+                i = 0;
+                for (i; i < len; i++) {
+                    if (gmc[i].url.indexOf(model) >= 0) {
+                        modelURL = gmc[i].url;
+                        break;
+                    }
+                }
+                return modelURL;
+            case "Cadillac":
+                len = cadillac.length;
+                i = 0;
+                for (i; i < len; i++) {
+                    if (cadillac[i].url.indexOf(model) >= 0) {
+                        modelURL = cadillac[i].url;
+                        break;
+                    }
+                }
+                return modelURL;
+            case "Hyundai":
+                len = hyundai.length;
+                i = 0;
+                for (i; i < len; i++) {
+                    if (hyundai[i].url.indexOf(model) >= 0) {
+                        modelURL = hyundai[i].url;
+                        break;
+                    }
+                }
+                return modelURL;
+            case "Volkswagen":
+                len = volkswagen.length;
+                i = 0;
+                for (i; i < len; i++) {
+                    if (volkswagen[i].url.indexOf(model) >= 0) {
+                        modelURL = volkswagen[i].url;
+                        break;
+                    }
+                }
+                return modelURL;
+            case "Buick":
+                len = buick.length;
+                i = 0;
+                for (i; i < len; i++) {
+                    if (buick[i].url.indexOf(model) >= 0) {
+                        modelURL = buick[i].url;
+                        break;
+                    }
+                }
+                return modelURL;
+            default:
             }
-
-            var linkURL = $this.attr('href');
-            $this.attr('href', seoSimplify.refineURL(linkURL));
-            seoSimplify.emptyTarget($this);
         }
-        // save cleaner input
-        seoSimplify.config.seoText = $input;
-    },
-    attachDisplayArea: function () {
-        this.body.prepend(seoSimplify.config.$seoContainer);
-    },
-    displayText: function () {
-        // attach input to display
-        seoSimplify.config.$seoDisplay.append(seoSimplify.config.seoText);
-    },
-    revertDiv: function (event) {
-        var $this = jQuery(event.target),
-            $thisText = jQuery(event.target).text();
-        var $replacementArea = jQuery('<div>').attr({
+
+        function isUndefined(elem) {
+            if (jQuery(elem).attr("title") !== undefined) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function titleEmpty(elem) {
+            if (jQuery(elem).attr("title") === "") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function isURLUndefined(elem) {
+            if (jQuery(elem).attr("href") !== undefined) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function isURLEmpty(elem) {
+            if (jQuery(elem).attr("href") === "") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function emptyTarget(elem) {
+            if ((jQuery(elem).attr("target") !== undefined) ||
+                (jQuery(elem).attr("target") === "")) {
+                jQuery(elem).removeAttr("target");
+            }
+        }
+
+        function refineURL(url) {
+            var ezURL = url.split('%'),
+                removeThese = ["LINKCONTEXTNAME", "LINKPAGENAME"],
+                nURL;
+            ezURL = ezURL.filter(Boolean);
+            nURL = ezURL[0].split('_');
+            for (var i = 0; i < nURL.length; i++) {
+                for (var j = 0; j < removeThese.length; j++) {
+                    if (nURL[i] === removeThese[j]) {
+                        nURL.splice(i, 1);
+                    }
+                }
+            }
+            var len = nURL.length,
+                x = 0,
+                findThis = "ModelDetails",
+                actualURL;
+            for (x; x < len; x++) {
+                if (nURL[x] === findThis) {
+                    actualURL = getURL(nURL[len - 1]);
+                    return actualURL;
+                } else {
+                    actualURL = nURL[0];
+                    return actualURL;
+                }
+            }
+        }
+        return {
+            isUndefined: isUndefined,
+            titleEmpty: titleEmpty,
+            isURLUndefined: isURLUndefined,
+            isURLEmpty: isURLEmpty,
+            emptyTarget: emptyTarget,
+            refineURL: refineURL
+        };
+    })();
+    var ui = jQuery.trim(prompt('Enter Your SEO Text - HTML format')),
+        $removeBut = jQuery('<input>').attr({
+            type: 'button',
+            value: 'REMOVE',
+            id: 'removeDiv'
+        }),
+        $id = jQuery('<div>').attr({
             id: 'inputDisplay'
         }).css({
             padding: '10px'
-        }).text('');
-
-        $replacementArea.html($thisText);
-
-        jQuery($this).replaceWith($replacementArea);
-
-        $replacementArea.click(this.changeToTextarea.bind(this));
-    },
-    // ----------------------------------------
-    // tier 4 functions
-    // ----------------------------------------
-    isUndefined: function (elem, attr) {
-        if (jQuery(elem).attr(attr) !== undefined) {
-            return false;
-        } else {
-            return true;
-        }
-    },
-    isEmpty: function (elem, attr) {
-        if (jQuery(elem).attr(attr) === '') {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    refineURL: function (url) {
-        var ezURL = url.split('%'),
-            removeThese = ['LINKCONTEXTNAME', 'LINKPAGENAME'],
-            nURL;
-        ezURL = ezURL.filter(Boolean);
-        nURL = ezURL[0].split('_');
-        for (var i = 0; i < nURL.length; i++) {
-            for (var j = 0; j < removeThese.length; j++) {
-                if (nURL[i] === removeThese[j]) {
-                    nURL.splice(i, 1);
-                }
-            }
-        }
-        var len = nURL.length,
-            x = 0,
-            findThis = 'ModelDetails',
-            actualURL;
-        for (x; x < len; x++) {
-            if (nURL[x] === findThis) {
-                actualURL = this.getURL(nURL[len - 1]);
-                return actualURL;
-            } else {
-                actualURL = nURL[0];
-                return actualURL;
-            }
-        }
-    },
-    emptyTarget: function (elem) {
-        var $this = elem;
-        // if target is undefined or empty remove target attribute
-        if (seoSimplify.isUndefined($this, 'target') || seoSimplify.isEmpty($this, 'target')) {
-            jQuery(elem).removeAttr('target');
-        }
-    },
-    // ----------------------------------------
-    // tier 5 functions
-    // ----------------------------------------
-    getURL: function (vehicle) {
-        var vehicleArray = vehicle.split(' ');
-        var make = 'no match found',
-            model = '',
-            oems = seoSimplify.config.oems,
-            oemsLen = oems.length,
-            x = 0;
-        if (vehicleArray.length >= 3) {
-            for (var b = 1; b < vehicleArray.length; b++) {
-                model += vehicleArray[b];
-            }
-        } else {
-            model = vehicleArray[vehicleArray.length - 1];
-        }
-        for (x; x < oemsLen; x++) {
-            if (vehicleArray[0].indexOf(oems[x]) >= 0) {
-                make = oems[x];
-                break;
-            }
-        }
-
-        model = model.trim();
-        make = make.toLowerCase();
-
-        var vehiclesArr = seoSimplify.config.vehicles,
-            detailsURL = '';
-
-        // fix this if possible
-        jQuery.each(vehiclesArr, function (index, oemArray) {
-            jQuery.each(oemArray, function (oem, vehiclesArray) {
-                if (oem === make) {
-                    jQuery.each(vehiclesArray, function (index, vehicleArray) {
-                        if (model === vehicleArray.name) {
-                            detailsURL = vehicleArray.url;
-                            return false; // break out of loop
-                        }
-                    });
-                }
-            });
+        }),
+        $ic = jQuery('<div>').attr({
+            id: 'inputContainer'
+        }).css({
+            background: 'white',
+            color: 'black'
         });
-        return detailsURL;
+    jQuery($id)
+        .append(ui)
+        .prependTo(jQuery($ic)
+            .prepend($removeBut)
+            .prependTo('#content'));
+    jQuery("#inputDisplay *").removeAttr("style");
+    jQuery("#inputDisplay br").remove();
+    jQuery("#inputDisplay").find("font").replaceWith(function () {
+        return jQuery(this).html();
+    });
+    jQuery("#inputDisplay").find("span").replaceWith(function () {
+        return jQuery(this).html();
+    });
+    jQuery("#inputDisplay").find("u").replaceWith(function () {
+        return jQuery(this).html();
+    });
+    jQuery("#inputDisplay").find("center").replaceWith(function () {
+        return jQuery("<p/>").append(jQuery(this).html());
+    });
+    jQuery("#inputDisplay *").find(":empty").remove();
+    var ar = jQuery("#inputDisplay a"),
+        len = ar.length,
+        i = 0;
+    for (i; i < len; i++) {
+        if (seoSimplify.isUndefined(ar[i]) || seoSimplify.titleEmpty(ar[i])) {
+            var titleText = jQuery(ar[i]).text().toString().trim();
+            jQuery(ar[i]).attr('title', titleText.substr(0, 1).toUpperCase() + titleText.substr(1));
+        }
+        if (seoSimplify.isURLUndefined(ar[i]) || seoSimplify.isURLEmpty(ar[i])) {
+            jQuery(ar[i]).attr('href', '#');
+        }
+        var tu = jQuery(ar[i]).attr('href');
+        jQuery(ar[i]).attr('href', seoSimplify.refineURL(tu));
+        seoSimplify.emptyTarget(ar[i]);
     }
-};
+
+    function changeToTextarea() {
+        var divHTML = jQuery(this).html(),
+            $et = jQuery('<textarea>').css({
+                width: '100%',
+                height: '300px'
+            });
+        $et.html(divHTML);
+        jQuery(this).replaceWith($et);
+        $et.focus();
+        $et.blur(revertDiv);
+    }
+
+    function revertDiv() {
+        var textareaHTML = jQuery(this).val(),
+            $vt = jQuery('<div>').attr({
+                id: 'inputDisplay'
+            }).css({
+                padding: '10px'
+            });
+        $vt.html(textareaHTML);
+        jQuery(this).replaceWith($vt);
+        $vt.click(changeToTextarea);
+    }
+    $id.click(changeToTextarea);
+    jQuery($removeBut).click(function () {
+        jQuery("#inputContainer").remove();
+    });
+});
 
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- add widget outlines ----------------------------------------
@@ -2069,261 +2512,9 @@ $wo_butt.click(function () {
     }
 });
 
-// ----------------------------------------
-// title text checker
-// ----------------------------------------
-var $titleChecker = jQuery('<button>').attr({
-    class: 'myEDOBut notWorking',
-    id: 'titleChecker',
-    title: 'title checker',
-    disabled: true
-}).text('title checker');
-
-
-jQuery($titleChecker).on('click', function () {
-
-    var $toolbarStyles = jQuery('#qa_toolbox');
-
-    $toolbarStyles
-    // styles of colored overlay placed on images
-        .append('.answerTypeIndicator { position: absolute; font-size: 10pt; background-color: rgba(255, 128, 0, 0.3); color: rgb(200, 0, 0); padding: 0.2em 0.5em 0.1em; border: solid rgb(200, 0, 0) 1px; fill-opacity: 0.2; display: block; z-index: -1;}')
-        .append('.showing { display: block !important; }')
-        // end of addStyles
-    ; // end
-
-});
-
-jQuery($titleChecker).on('click', function () {
-    // the positioning of each indicator relative its corresponding answer text
-    //    var indicOffsetTop = 10;
-    //    var indicOffsetLeft = 5;
-    var indicOffsetTop = 0;
-    var indicOffsetLeft = 0;
-
-    // retrieve all the answer paragraphs from the DOM
-    var answers = jQuery('body [title]');
-    console.log(answers);
-    // original
-    //    var answers = document.querySelectorAll('[title]');
-
-    // build but don't yet show the answer-type indicators
-
-    // loop over each answer paragraph
-    jQuery.each(answers, function (index, answer) {
-        console.log('index : ', index);
-        console.log('value : ', answer);
-        // create a new div element that will contain the answer-type text
-        var indic = document.createElement('div');
-
-        // style this div so it stands out and also so that it starts out hidden
-        indic.classList.add('answerTypeIndicator');
-
-        // get the position of the original answer paragraph so that
-        // the new answer-type indicator can be positioned near it
-        //        var posn = answer.getBoundingClientRect();
-
-        var obj = jQuery(answer);
-        var position = obj.position();
-
-        // slightly offset the position of the answer-type indicator relative to
-        // its corresponding answer text so that both can be seen simultaneously
-        indic.style.top = position.top + indicOffsetTop + 'px';
-        indic.style.left = position.left + indicOffsetLeft + 'px';
-
-        // take the value (i.e. the text) from the title attribute of the answer paragraph
-        // and put it into the content of the answer-type indicator
-        indic.innerHTML = answer.getAttribute('title');
-
-        // place the new indicator into the DOM, but note that it is still hidden at this point
-        document.body.appendChild(indic);
-    });
-
-    // put all the newly created answer-type indicator divs into a variable for later access
-    var indics = document.querySelectorAll('.answerTypeIndicator');
-
-    // determine what code to call when starting and stopping hovering over an answer
-    // do this by adding hover listeners to each 'answer' paragraph
-    jQuery.each(answers, function (answer) {
-        jQuery(answer).on('mouseover', showTitleInfo);
-        jQuery(answer).on('mouseout', hideTitleInfo);
-
-        //        answer.addEventListener('mouseover', showTitleInfo);
-        //        answer.addEventListener('mouseout', hideTitleInfo);
-    });
-
-    // do this when starting to hover over an answer
-    function showTitleInfo() {
-
-        // loop through each answer-style indicator div
-        jQuery.each(indics, function (indic) {
-
-            // make each indicator visible
-            indic.classList.add('showing');
-        });
-    }
-
-    // do this when stopping hovering over an answer
-    function hideTitleInfo() {
-
-        // loop through each answer-style indicator div
-        jQuery.each(indics, function (indic) {
-
-            // hide each indicator
-            indic.classList.remove('showing');
-        });
-    }
-});
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- broken link checker ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-// will show LIVE SITE functionality
-// on proof some links may result in 404 errors.
-// not sure why this is.
-// change up functionality to Cache once button is clicked
-// 1.  add undefined styles
-// 2. add format styles
-/* ----------------------------------------
-
-to do:
-1. remove all the comments
-2. check with board
-
----------------------------------------- */
-
-//var brokenLinkChecker = {
-//    init: function () {
-//        this.createElements();
-//        this.buildElements();
-//        this.getData();
-//        this.cacheDOM();
-//        this.addStyles();
-//        this.addTool();
-//        this.bindEvents();
-//    },
-//    createElemenets: function () {
-//        brokenLinkChecker.config = {
-//            $activateButt: jQuery('<button>').attr({
-//                class: 'myEDOBut',
-//                id: 'brokenLinkChecker',
-//                title: 'Broken Link Checker'
-//            }).text('Broken Link Checker'),
-//            $legend: jQuery('<div>').attr({
-//                class: 'legend'
-//            }),
-//            $legendTitle: jQuery('<div>').attr({
-//                class: 'legendTitle'
-//            }).text('404 Link Legend'),
-//            $legendList: jQuery('<ul>').attr({
-//                class: 'legendList'
-//            }),
-//            $legendContent: {
-//                'otherDomain': 'Leads to other domain',
-//                'framedIn': 'f_ link',
-//                'brokenURL': 'Empty URL',
-//                'success': 'Link is Real',
-//                'error': '404 Link',
-//            },
-//            $offButt: jQuery('<input>').attr({
-//                type: 'button',
-//                class: 'myEDOBut offButt',
-//                value: 'remove legend'
-//            }),
-//            cm: unsafeWindow.ContextManager,
-//            webID: cm.getWebId(),
-//            siteID: cm.getSiteId(),
-//            baseURL: cm.getUrl(),
-//            //            wid: z(webID),
-//            $pageLinks: jQuery('a'),
-//            $container: jQuery('<div>').attr({
-//                id: 'checkContainer',
-//            }),
-//            $message: jQuery('<div>').attr({
-//                id: 'checkMessage'
-//            }),
-//            $counter: jQuery('<div>').attr({
-//                id: 'count404'
-//            }),
-//            $iconContainer: jQuery('<div>').attr({
-//                id: 'iconContainer'
-//            }),
-//            $thinking: jQuery('<i id="loading" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'),
-//            $done: jQuery('<i class="fa fa-check-circle fa-3x fa-fw"></i>'),
-//            $hint: jQuery('<div>').attr({
-//                class: 'hint'
-//            }).text('refresh page before running checker again')
-//        };
-//    },
-//    buildElements: function () {
-//        brokenLinkChecker.config.$legend
-//            // attach legend title
-//            .append(brokenLinkChecker.config.$legendTitle)
-//            // attach list
-//            .append(brokenLinkChecker.config.$legendList)
-//            // attach turn off button
-//            .append(brokenLinkChecker.config.$offButt);
-//        // fill list
-//        this.buildLegendContent();
-//    },
-//    buildLegendContent: function () {
-//        var $contentArray = brokenLinkChecker.config.$legendContent,
-//            key;
-//
-//        // loop through Legend Content list
-//        for (key in $contentArray) {
-//            var value = $contentArray[key];
-//            // build listing element
-//            var $listItem = jQuery('<li>').attr({
-//                class: 'legendContent ' + key
-//            }).append(value);
-//
-//            // attach to legend list
-//            brokenLinkChecker.config.$legendList.append($listItem);
-//        }
-//    },
-//    cacheDOM: function () {
-//        this.$legendContainer = jQuery('#legendContainer');
-//        this.$toolbarStyles = jQuery('#qa_toolbox');
-//    },
-//    addStyles: function () {
-//        this.$toolbarStyles
-//            // styles of colored overlay placed on images
-//            .append('.otherDomain { background: linear-gradient(to left, #00C9FF , #92FE9D) !important; -moz-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); -webkit-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); color: #000000 !important; }')
-//            .append('.framedIn { background: linear-gradient(to left, #F7971E , #FFD200) !important; color: #000000 !important; }')
-//            .append('.brokenURL { background: linear-gradient(to left, #FFAFBD , #ffc3a0) !important; color: #000000 !important; }')
-//            .append('.success { background: linear-gradient(to left, rgba(161, 255, 206, 0.75), rgba(250, 255, 209, 0.75)) !important; color: #000000 !important; }')
-//            .append('.error { background: linear-gradient(to left, #F00000 , #DC281E) !important; color: #ffffff !important; }')
-//            .append('#checkMessage { margin: 5px auto; padding: 5px; }')
-//            .append('#checkContainer { text-align: center; background: white; border: 1px solid #000000; }')
-//            // end of addStyles
-//        ; // end
-//    },
-//    addTool: function () {
-//        this.$legendContainer.append(brokenLinkChecker.config.$legend);
-//    },
-//    bindEvents: function () {
-//        brokenLinkChecker.config.$activateButt.on('click', this.checkLinks);
-//        brokenLinkChecker.config.$activateButt.on('click', this.toggleDisable);
-//        // off button
-//        brokenLinkChecker.config.$offButt.on('click', this.showLegend);
-//    },
-//    checkLinks: function () {
-//        var wid = this.separateID(brokenLinkChecker.config.webID);
-//    },
-//    toggleDisable: function () {
-//        brokenLinkChecker.config.$activateButt.prop('disabled', function (index, value) {
-//            return !value;
-//        });
-//    },
-//    showLegend: function () {
-//        brokenLinkChecker.config.$legend.slideToggle('1000');
-//    },
-//    separateID: function (webID) {
-//        var x = webID.split('-');
-//        return x[1];
-//    },
-//};
-
-// ----------------------------------------
 
 var $404checker_butt = jQuery('<button>').attr({
     class: 'myEDOBut',
@@ -2786,16 +2977,21 @@ var runProgram = {
             // initialize page test
             speedtestPage.init();
 
+            // 404 checker button
+            jQuery('#toolsPanel').append($404checker_butt);
+
+            // initialize autofill toggle
+            autofillToggle.init();
+
             // other tools
             // initialize refresh page
             refreshPage.init();
-            // initialize SEO simplify
-            seoSimplify.init();
 
-            jQuery('#otherToolsPanel').append($haf_butt);
-            jQuery('#toolsPanel').append($404checker_butt);
-            jQuery('#otherToolsPanel').append($titleChecker);
+            jQuery('#otherToolsPanel').append($seo_butt);
             jQuery('#otherToolsPanel').append($wo_butt);
+
+            // initialize nextGen toggle
+            nextGenToggle.init();
 
             // style buttons in toolbox
             QAtoolbox.styleTools();
