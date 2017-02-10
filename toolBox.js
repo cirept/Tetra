@@ -161,7 +161,51 @@ var QAtoolbox = {
         case 'togglesPanelTitle':
             return QAtoolbox.config.$togglesPanel.slideToggle('1000');
         }
-    }
+    },
+
+    // ----------------------------------------
+    displayPanels: function () {
+
+
+        // create a list of all the new variables
+        // loop through that list
+        // pass the variable name into "getChecked"
+        // return the value of that variable
+        // set that function call to a new variable
+        // create a loop to go through that list and toggle the panels on/off depending on the variable value
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+    },
+    getChecked: function () {
+        // grabs usingM4 value
+        var a = GM_getValue('usingM4', false);
+        return a;
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    setChecked: function (bool) {
+            // sets usingM4 value
+            GM_setValue('usingM4', bool);
+        }
+        // ----------------------------------------
 };
 
 // ------------------------------------------------------------------------------------------------------------------------
