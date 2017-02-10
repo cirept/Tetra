@@ -9,7 +9,6 @@
 // @require https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js
 // @require https://use.fontawesome.com/3953f47d82.js
 // @require https://cdn.rawgit.com/cirept/Tetra/2.7.6/toolBox.js
-// @resource https://fonts.googleapis.com/css?family=Montserrat
 // @author Eric Tanaka
 // @grant GM_openInTab
 // @grant GM_setClipboard

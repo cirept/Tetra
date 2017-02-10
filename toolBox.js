@@ -51,6 +51,10 @@ var QAtoolbox = {
             $toolbarStyles: jQuery('<style>').attr({
                 id: 'qa_toolbox',
                 type: 'text/css'
+            }),
+            $myFont: jQuery('<link>').attr({
+                href: 'https://fonts.googleapis.com/css?family=Montserrat',
+                rel: 'stylesheet'
             })
         };
     },
@@ -58,9 +62,9 @@ var QAtoolbox = {
         QAtoolbox.config.$toolbarStyles
             // general toolbox styles
             .append('.toolBox { text-align: center; background: linear-gradient(to left, #76b852 , #8DC26F); position: relative; border: 1px solid black; font-size: 9.5px; z-index: 100000; margin: 0 0 5px 0; }')
-            .append('#toolboxContainer { bottom: 20px; font-family: Montserrat; font-size: 9.5px; line-height: 20px; position: fixed; width: 120px; z-index: 99999999; }')
+            .append('#toolboxContainer { bottom: 20px; font-family: "Montserrat"; font-size: 9.5px; line-height: 20px; position: fixed; text-transform: lowercase; width: 120px; z-index: 99999999; }')
             // panel title styles // padding: 5px;
-            .append('.panelTitle { border-bottom: 1px solid #000000; color: white; cursor: pointer; font-size: 12px; }')
+            .append('.panelTitle { border-bottom: 1px solid #000000; color: white; cursor: pointer; font-size: 11px; text-transform: lowercase; }')
             // default highlight style
             .append('#toolboxContainer .highlight { background: linear-gradient(to right, #83a4d4 , #b6fbff) !important; color: #ffffff;}')
             // even button styles
@@ -68,15 +72,16 @@ var QAtoolbox = {
             // off button styles
             .append('.oddEDObutts {background: linear-gradient(to left, #6190E8 , #A7BFE8);}')
             // default button styles
-            .append('.myEDOBut { border: 2px solid rgb(0,0,0); border-radius: 5px; color: #ffffff !important; font-family: Montserrat; font-size: 11px; top: 15%; margin: 1px 0px 0px 10px; padding: 4px 0px; position: relative; text-transform: lowercase; width: 120px; }')
+            .append('.myEDOBut { border: 2px solid rgb(0,0,0); border-radius: 5px; color: #ffffff !important; font-family: "Montserrat"; font-size: 11px; top: 15%; margin: 1px 0px 0px 10px; padding: 4px 0px; position: relative; text-transform: lowercase; width: 120px; }')
             .append('.myEDOBut.notWorking { background: purple; }')
             .append('.myEDOBut.offButt { width: 90%; height: 50px; }')
+            .append('.offButt { background: linear-gradient(to left, #085078 , #85D8CE); }')
             .append('.myEDOBut:hover { background: linear-gradient(to left, #141E30 , #243B55); }')
             // legend styles
             .append('.legendTitle { font-weight: bold; }')
             .append('.legendContent { padding: 5px; }')
             .append('.legendList { list-style-type: none; margin: 10px 0px; padding: 0px; }')
-            .append('#legendContainer { font-family: Montserrat; font-size: 12px; position: fixed; right: 115px; bottom: 20px; width: 260px; z-index: 99999999; }')
+            .append('#legendContainer { font-family: "Montserrat"; font-size: 12px; position: fixed; right: 115px; bottom: 20px; width: 260px; z-index: 99999999; }')
             .append('.legend { background: white; border: 1px solid black; display: none; text-align: center; padding: 5px; margin: 5px 0; }')
             .append('.hint { font-size: 10px; font-style: italic; line-height: 10px; margin: 10px 0 0 0; }')
             // end of append styles
@@ -102,6 +107,7 @@ var QAtoolbox = {
     },
     attachTools: function () {
         this.head.append(QAtoolbox.config.$toolbarStyles);
+        this.head.append(QAtoolbox.config.$myFont);
         this.body.before(QAtoolbox.config.$toolbarContainer);
         this.body.before(QAtoolbox.config.$legendContainer);
     },
@@ -263,7 +269,7 @@ var pageInformation = {
     addStyles: function () {
         // apply module styles to main tool bar style tag
         this.$toolbarStyles
-            .append('.tbInfo { background: linear-gradient(to right, #ECE9E6 , #FFFFFF); color: #000000 !important; clear: both; cursor: pointer; line-height: 15px; padding: 3px 0px; border-top: 1px solid #000000; border-bottom: 1px solid #000000; }')
+            .append('.tbInfo { background: linear-gradient(to right, #ECE9E6 , #FFFFFF); color: #000000 !important; clear: both; cursor: pointer; line-height: 15px; padding: 3px 0px; text-transform: none; border-top: 1px solid #000000; border-bottom: 1px solid #000000; }')
             .append('.tbLabel { font-weight: bold; }')
             .append('.myEDOBut[disabled] { border: 2px outset ButtonFace; background: #ddd; background-color: #ddd; color: grey !important; cursor: default; }');
     },
@@ -347,7 +353,7 @@ var m4Check = {
         }
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#toolsPanel');
+        this.$toolsPanel = jQuery('#togglePanel');
     },
     addTool: function () {
         // add to main toolbox
@@ -1362,6 +1368,8 @@ var speedtestPage = {
         var desktopURL = speedtestPage.config.testURL + 'url=' + this.siteURL + this.pageName + '?device=immobile';
         var mobileURL = speedtestPage.config.testURL + 'url=' + this.siteURL + this.pageName + '?device=mobile';
 
+        GM_notification(text, title, onclick);
+
         // alert user
         if (confirm('----------------------------------------\n' +
                 'Test the Desktop and Mobile site?\n' +
@@ -1428,7 +1436,7 @@ var autofillToggle = {
         }
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#toolsPanel');
+        this.$toolsPanel = jQuery('#togglePanel');
     },
     addTool: function () {
         // add to main toolbox
@@ -1559,7 +1567,7 @@ var nextGenToggle = {
         }
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#otherToolsPanel');
+        this.$toolsPanel = jQuery('#togglePanel');
     },
     addTool: function () {
         // add to main toolbox
@@ -1598,6 +1606,9 @@ var nextGenToggle = {
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
             window.location.search += '&nextGen=true';
+        }
+        if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
+
         }
     },
     toggleOff: function () {
@@ -1665,9 +1676,9 @@ var refreshPage = {
             }).css({
                 background: 'linear-gradient(to left, #FBD3E9 , #BB377D)',
                 width: '75px',
-                position: 'absolute',
+                position: 'fixed',
                 left: '0px',
-                top: '-470px',
+                top: '60px',
                 'z-index': '1000000',
                 display: 'none'
             }),
@@ -1686,7 +1697,7 @@ var refreshPage = {
         };
     },
     cacheDOM: function () {
-        this.$otherToolsPanel = jQuery('#otherToolsPanel');
+        this.$otherToolsPanel = jQuery('#togglePanel');
         this.$toolbarStyles = jQuery('#qa_toolbox');
     },
     buildTool: function () {
@@ -1703,8 +1714,8 @@ var refreshPage = {
         this.$otherToolsPanel.append(refreshPage.config.$refreshButt);
     },
     bindEvents: function () {
-        refreshPage.config.$refreshButt.on('click', this.reloadPage);
-        refreshPage.config.$refreshCheckbox.on('click', this.flipTheSwitch.bind(this));
+        refreshPage.config.$refreshContainer.on('click', this.reloadPage);
+        refreshPage.config.$refreshContainer.on('click', this.flipTheSwitch.bind(this));
     },
     addStyles: function () {
         this.$toolbarStyles
@@ -2838,7 +2849,7 @@ $404checker_butt.on('click', function () {
 // ---------------------------------------- dynamic panel ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
 
-var dynamicDisplay = {
+var toggleDisplay = {
     init: function () {
         this.createElements();
         this.buildPanel();
@@ -2848,11 +2859,11 @@ var dynamicDisplay = {
     },
     createElements: function () {
         // main panel container
-        dynamicDisplay.config = {
-            $displayPanel: jQuery('<div>')
+        toggleDisplay.config = {
+            $togglePanel: jQuery('<div>')
                 .attr({
                     class: 'toolBox',
-                    id: 'displayPanel'
+                    id: 'togglePanel'
                 }),
             // panel title
             $displayTitle: jQuery('<div>')
@@ -2912,17 +2923,17 @@ var dynamicDisplay = {
     },
     buildPanel: function () {
         // attach panel elements to container
-        jQuery(dynamicDisplay.config.$displayPanel)
-            //.append(dynamicDisplay.config.$displayTitle)
-            .append(dynamicDisplay.config.$displayArea)
-            .append(dynamicDisplay.config.$version);
-        //            .append(dynamicDisplay.config.$hideToolbox);
+        jQuery(toggleDisplay.config.$togglePanel)
+            //.append(toggleDisplay.config.$displayTitle)
+            .append(toggleDisplay.config.$displayArea)
+            .append(toggleDisplay.config.$version);
+        //            .append(toggleDisplay.config.$hideToolbox);
         // attach icon to minimize tab
-        jQuery(dynamicDisplay.config.$showToolbox)
-            .append(dynamicDisplay.config.$icon);
+        jQuery(toggleDisplay.config.$showToolbox)
+            .append(toggleDisplay.config.$icon);
         // attach icon to minimize tab
-        jQuery(dynamicDisplay.config.$hide)
-            .append(dynamicDisplay.config.$minimizeIcon);
+        jQuery(toggleDisplay.config.$hide)
+            .append(toggleDisplay.config.$minimizeIcon);
     },
     cacheDOM: function () {
         // page info
@@ -2930,21 +2941,21 @@ var dynamicDisplay = {
     },
     addTool: function () {
         // add to main toolbox
-        this.$toolBoxContainer.append(dynamicDisplay.config.$displayPanel);
-        this.$toolBoxContainer.before(dynamicDisplay.config.$showToolbox);
+        this.$toolBoxContainer.append(toggleDisplay.config.$togglePanel);
+        this.$toolBoxContainer.before(toggleDisplay.config.$showToolbox);
 
-        this.$toolBoxContainer.append(dynamicDisplay.config.$hide);
+        this.$toolBoxContainer.append(toggleDisplay.config.$hide);
     },
     bindEvents: function () {
         // click
-        dynamicDisplay.config.$minimizeIcon.on('click', this.toggleTools.bind(this));
-        dynamicDisplay.config.$showToolbox.on('click', this.toggleTools.bind(this));
+        toggleDisplay.config.$minimizeIcon.on('click', this.toggleTools.bind(this));
+        toggleDisplay.config.$showToolbox.on('click', this.toggleTools.bind(this));
     },
     toggleTools: function () {
         // hide / show main tool box
         this.toggleBox();
         // hide / show toggle button
-        dynamicDisplay.config.$showToolbox.slideToggle('1000');
+        toggleDisplay.config.$showToolbox.slideToggle('1000');
     },
     toggleBox: function () {
         this.$toolBoxContainer.slideToggle('1000');
@@ -2962,8 +2973,6 @@ var runProgram = {
             QAtoolbox.init();
             // initialize page Information module
             pageInformation.init();
-            // initialize milestone 4 module check box
-            m4Check.init();
             // initialize image checker tool
             imageChecker.init();
             // initialize link checker tool
@@ -2980,23 +2989,24 @@ var runProgram = {
             // 404 checker button
             jQuery('#toolsPanel').append($404checker_butt);
 
-            // initialize autofill toggle
-            autofillToggle.init();
-
             // other tools
-            // initialize refresh page
-            refreshPage.init();
 
             jQuery('#otherToolsPanel').append($seo_butt);
             jQuery('#otherToolsPanel').append($wo_butt);
 
+            // initialize display information module
+            toggleDisplay.init();
             // initialize nextGen toggle
             nextGenToggle.init();
+            // initialize milestone 4 module check box
+            m4Check.init();
+            // initialize refresh page
+            refreshPage.init();
+            // initialize autofill toggle
+            autofillToggle.init();
 
             // style buttons in toolbox
             QAtoolbox.styleTools();
-            // initialize display information module
-            dynamicDisplay.init();
         }
     },
     isCDKsite: function () {
