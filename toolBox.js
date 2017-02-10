@@ -24,6 +24,9 @@ var QAtoolbox = {
             $toolbarContainer: jQuery('<div>').attr({
                 id: 'toolboxContainer'
             }),
+            // ----------------------------------------
+            // QA Tools
+            // ----------------------------------------
             $toolsContainer: jQuery('<div>').attr({
                 class: 'toolBox',
                 id: 'toolsContainer'
@@ -34,8 +37,11 @@ var QAtoolbox = {
             $toolsPanelTitle: jQuery('<div>').attr({
                 class: 'panelTitle',
                 id: 'toolsPanelTitle',
-                title: 'Click to Minimize'
+                title: 'Click to Minimize/Maximize'
             }).text('QA Tools'),
+            // ----------------------------------------
+            // Other Tools
+            // ----------------------------------------
             $otherToolsContainer: jQuery('<div>').attr({
                 class: 'toolBox',
                 id: 'otherToolsContainer'
@@ -46,8 +52,23 @@ var QAtoolbox = {
             $otherToolsPanelTitle: jQuery('<div>').attr({
                 class: 'panelTitle',
                 id: 'otherToolsPanelTitle',
-                title: 'Click to Minimize'
+                title: 'Click to Minimize/Maximize'
             }).text('Other Tools'),
+            // ----------------------------------------
+            // Toggles
+            // ----------------------------------------
+            $togglesContainer: jQuery('<div>').attr({
+                class: 'toolBox',
+                id: 'togglesContainer'
+            }),
+            $togglesPanel: jQuery('<div>').attr({
+                id: 'togglesPanel'
+            }),
+            $togglesPanelTitle: jQuery('<div>').attr({
+                class: 'panelTitle',
+                id: 'togglesPanelTitle',
+                title: 'Click to Minimize/Maximize'
+            }).text('Toggles'),
             $toolbarStyles: jQuery('<style>').attr({
                 id: 'qa_toolbox',
                 type: 'text/css'
@@ -94,9 +115,13 @@ var QAtoolbox = {
         // attach title and tools panel to other tool container
         jQuery(QAtoolbox.config.$otherToolsContainer).append(QAtoolbox.config.$otherToolsPanelTitle);
         jQuery(QAtoolbox.config.$otherToolsContainer).append(QAtoolbox.config.$otherToolsPanel);
+        // attach title and toggles panel to toggles container
+        jQuery(QAtoolbox.config.$togglesContainer).append(QAtoolbox.config.$togglesPanelTitle);
+        jQuery(QAtoolbox.config.$togglesContainer).append(QAtoolbox.config.$togglesPanel);
         // attach tools panel to tool container
         jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$toolsContainer);
         jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$otherToolsContainer);
+        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$togglesContainer);
         // attach tool container to toolbox
         //        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$toolsContainer);
     },
@@ -114,6 +139,7 @@ var QAtoolbox = {
     bindEvents: function () {
         QAtoolbox.config.$toolsPanelTitle.on('click', this.toggleFeature);
         QAtoolbox.config.$otherToolsPanelTitle.on('click', this.toggleFeature);
+        QAtoolbox.config.$togglesPanelTitle.on('click', this.toggleFeature);
     },
     // ----------------------------------------
     // tier 2 functions
@@ -132,6 +158,8 @@ var QAtoolbox = {
             return QAtoolbox.config.$toolsPanel.slideToggle('1000');
         case 'otherToolsPanelTitle':
             return QAtoolbox.config.$otherToolsPanel.slideToggle('1000');
+        case 'togglesPanelTitle':
+            return QAtoolbox.config.$togglesPanel.slideToggle('1000');
         }
     }
 };
@@ -169,7 +197,7 @@ var pageInformation = {
             $pageInfoPanelTitle: jQuery('<div>').attr({
                 class: 'panelTitle',
                 id: 'pageInfoPanelTitle',
-                title: 'Click to Minimize'
+                title: 'Click to Minimize/Maximize'
             }).text('Page Information'),
             // dealership name title
             $dealerNameTitle: jQuery('<label>')
@@ -353,7 +381,7 @@ var m4Check = {
         }
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#togglePanel');
+        this.$toolsPanel = jQuery('#togglesPanel');
     },
     addTool: function () {
         // add to main toolbox
@@ -391,7 +419,7 @@ var m4Check = {
         // site state IS NOT LIVE &&
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (usingM4)) {
-            window.location.search += '&comments=true&relative=true';
+            window.location.search += '?&comments=true&relative=true';
         }
     },
     toggleOff: function () {
@@ -1368,8 +1396,6 @@ var speedtestPage = {
         var desktopURL = speedtestPage.config.testURL + 'url=' + this.siteURL + this.pageName + '?device=immobile';
         var mobileURL = speedtestPage.config.testURL + 'url=' + this.siteURL + this.pageName + '?device=mobile';
 
-        GM_notification(text, title, onclick);
-
         // alert user
         if (confirm('----------------------------------------\n' +
                 'Test the Desktop and Mobile site?\n' +
@@ -1436,7 +1462,7 @@ var autofillToggle = {
         }
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#togglePanel');
+        this.$toolsPanel = jQuery('#togglesPanel');
     },
     addTool: function () {
         // add to main toolbox
@@ -1474,7 +1500,7 @@ var autofillToggle = {
         // site state IS NOT LIVE &&
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (applyAutofill)) {
-            window.location.search += '&disableAutofill=true';
+            window.location.search += '?&disableAutofill=true';
         }
     },
     toggleOff: function () {
@@ -1513,6 +1539,136 @@ var autofillToggle = {
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- OTHER TOOLS ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- force desktop site toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+
+var desktopToggle = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.setToggle();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        desktopToggle.config = {
+            $desktopToggleContainer: jQuery('<div>').attr({
+                id: 'desktopToggleInput'
+            }).css({
+                background: 'linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255))',
+                cursor: 'pointer'
+            }),
+            $desktopToggleTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('force desktop site?'),
+            $desktopToggleIcon: jQuery('<div>').attr({
+                id: 'desktopToggleIcon'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        desktopToggle.config.$desktopToggleIcon
+            .append(desktopToggle.config.$FAtoggle);
+        desktopToggle.config.$desktopToggleContainer
+            .append(desktopToggle.config.$desktopToggleTitle)
+            .append(desktopToggle.config.$desktopToggleIcon);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#togglesPanel');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(desktopToggle.config.$desktopToggleContainer);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        desktopToggle.config.$desktopToggleContainer.on('click', this.flipTheSwitch.bind(this));
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            desktopToggle.config.$desktopToggleContainer.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs isNextGen value
+        var a = GM_getValue('forceDesktop', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = desktopToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    applyParameters: function () {
+        var hasParameters = this.hasParameters();
+        var siteState = this.siteState();
+        var forceDesktop = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if ((!hasParameters) && (siteState !== 'LIVE') && (forceDesktop)) {
+            window.location.search += '?&device=immobile';
+        }
+        if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
+
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = desktopToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&device=immobile') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets usingM4 value
+        GM_setValue('forceDesktop', bool);
+    }
+};
 
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- next gen toggle ----------------------------------------
@@ -1567,7 +1723,7 @@ var nextGenToggle = {
         }
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#togglePanel');
+        this.$toolsPanel = jQuery('#togglesPanel');
     },
     addTool: function () {
         // add to main toolbox
@@ -1605,7 +1761,7 @@ var nextGenToggle = {
         // site state IS NOT LIVE &&
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
-            window.location.search += '&nextGen=true';
+            window.location.search += '?&nextGen=true';
         }
         if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
 
@@ -1697,7 +1853,7 @@ var refreshPage = {
         };
     },
     cacheDOM: function () {
-        this.$otherToolsPanel = jQuery('#togglePanel');
+        this.$togglesPanel = jQuery('#togglesPanel');
         this.$toolbarStyles = jQuery('#qa_toolbox');
     },
     buildTool: function () {
@@ -1710,8 +1866,8 @@ var refreshPage = {
             .append(refreshPage.config.$refreshCheckbox);
     },
     addTool: function () {
-        this.$otherToolsPanel.append(refreshPage.config.$refreshContainer);
-        this.$otherToolsPanel.append(refreshPage.config.$refreshButt);
+        this.$togglesPanel.append(refreshPage.config.$refreshContainer);
+        this.$togglesPanel.append(refreshPage.config.$refreshButt);
     },
     bindEvents: function () {
         refreshPage.config.$refreshContainer.on('click', this.reloadPage);
@@ -2524,6 +2680,52 @@ $wo_butt.click(function () {
 });
 
 // ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- View Mobile Site ----------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
+
+var viewMobile = {
+    init: function () {
+        this.createElements();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        viewMobile.config = {
+            $activateButt: jQuery('<button>').attr({
+                class: 'myEDOBut',
+                id: 'viewMobile',
+                title: 'View Mobile Site'
+            }).text('View Mobile Site')
+        };
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#otherToolsPanel');
+        this.$cm = unsafeWindow.ContextManager;
+        this.siteURL = this.$cm.getUrl();
+        this.pageName = this.$cm.getPageName();
+    },
+    addTool: function () {
+        this.$toolsPanel.append(viewMobile.config.$activateButt);
+    },
+    bindEvents: function () {
+        viewMobile.config.$activateButt.on('click', this.viewMobile.bind(this));
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    viewMobile: function () {
+        var auto = '?device=mobile',
+            openThis = this.siteURL + this.pageName + auto;
+        GM_openInTab(openThis, 'active');
+    },
+};
+
+
+// ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- broken link checker ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
 
@@ -2555,7 +2757,7 @@ $404checker_butt.on('click', function () {
             class: 'legendList'
         }),
         $legendContent = {
-            'otherDomain': 'Leads to other domain',
+            'otherDomain': 'Absolute URL*',
             'framedIn': 'f_ link',
             'brokenURL': 'Empty URL',
             'success': 'Link is Real',
@@ -2646,7 +2848,7 @@ $404checker_butt.on('click', function () {
         $done = jQuery('<i class="fa fa-check-circle fa-3x fa-fw"></i>'),
         $hint = jQuery('<div>').attr({
             class: 'hint'
-        }).text('refresh page before running checker again');
+        }).text('refresh page before running 404 checker again');
 
     // attach hint
     $legend.append($hint);
@@ -2849,7 +3051,7 @@ $404checker_butt.on('click', function () {
 // ---------------------------------------- dynamic panel ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
 
-var toggleDisplay = {
+var dynamicDisplay = {
     init: function () {
         this.createElements();
         this.buildPanel();
@@ -2859,11 +3061,11 @@ var toggleDisplay = {
     },
     createElements: function () {
         // main panel container
-        toggleDisplay.config = {
-            $togglePanel: jQuery('<div>')
+        dynamicDisplay.config = {
+            $displayPanel: jQuery('<div>')
                 .attr({
                     class: 'toolBox',
-                    id: 'togglePanel'
+                    id: 'displayPanel'
                 }),
             // panel title
             $displayTitle: jQuery('<div>')
@@ -2923,17 +3125,17 @@ var toggleDisplay = {
     },
     buildPanel: function () {
         // attach panel elements to container
-        jQuery(toggleDisplay.config.$togglePanel)
-            //.append(toggleDisplay.config.$displayTitle)
-            .append(toggleDisplay.config.$displayArea)
-            .append(toggleDisplay.config.$version);
-        //            .append(toggleDisplay.config.$hideToolbox);
+        jQuery(dynamicDisplay.config.$displayPanel)
+            //.append(dynamicDisplay.config.$displayTitle)
+            .append(dynamicDisplay.config.$displayArea)
+            .append(dynamicDisplay.config.$version);
+        //            .append(dynamicDisplay.config.$hideToolbox);
         // attach icon to minimize tab
-        jQuery(toggleDisplay.config.$showToolbox)
-            .append(toggleDisplay.config.$icon);
+        jQuery(dynamicDisplay.config.$showToolbox)
+            .append(dynamicDisplay.config.$icon);
         // attach icon to minimize tab
-        jQuery(toggleDisplay.config.$hide)
-            .append(toggleDisplay.config.$minimizeIcon);
+        jQuery(dynamicDisplay.config.$hide)
+            .append(dynamicDisplay.config.$minimizeIcon);
     },
     cacheDOM: function () {
         // page info
@@ -2941,21 +3143,21 @@ var toggleDisplay = {
     },
     addTool: function () {
         // add to main toolbox
-        this.$toolBoxContainer.append(toggleDisplay.config.$togglePanel);
-        this.$toolBoxContainer.before(toggleDisplay.config.$showToolbox);
+        this.$toolBoxContainer.append(dynamicDisplay.config.$displayPanel);
+        this.$toolBoxContainer.before(dynamicDisplay.config.$showToolbox);
 
-        this.$toolBoxContainer.append(toggleDisplay.config.$hide);
+        this.$toolBoxContainer.append(dynamicDisplay.config.$hide);
     },
     bindEvents: function () {
         // click
-        toggleDisplay.config.$minimizeIcon.on('click', this.toggleTools.bind(this));
-        toggleDisplay.config.$showToolbox.on('click', this.toggleTools.bind(this));
+        dynamicDisplay.config.$minimizeIcon.on('click', this.toggleTools.bind(this));
+        dynamicDisplay.config.$showToolbox.on('click', this.toggleTools.bind(this));
     },
     toggleTools: function () {
         // hide / show main tool box
         this.toggleBox();
         // hide / show toggle button
-        toggleDisplay.config.$showToolbox.slideToggle('1000');
+        dynamicDisplay.config.$showToolbox.slideToggle('1000');
     },
     toggleBox: function () {
         this.$toolBoxContainer.slideToggle('1000');
@@ -2981,6 +3183,8 @@ var runProgram = {
             showNavigation.init();
             // initialize show autofill tool
             showAutofill.init();
+            // initialize view mobile tool
+            viewMobile.init();
             // initialize spell check tool
             spellCheck.init();
             // initialize page test
@@ -2995,7 +3199,7 @@ var runProgram = {
             jQuery('#otherToolsPanel').append($wo_butt);
 
             // initialize display information module
-            toggleDisplay.init();
+            dynamicDisplay.init();
             // initialize nextGen toggle
             nextGenToggle.init();
             // initialize milestone 4 module check box
@@ -3004,10 +3208,20 @@ var runProgram = {
             refreshPage.init();
             // initialize autofill toggle
             autofillToggle.init();
+            // initialize desktop toggle
+            desktopToggle.init();
 
             // style buttons in toolbox
             QAtoolbox.styleTools();
+            // hide panels
+            this.togglePanels();
         }
+    },
+    togglePanels: function () {
+        pageInformation.config.$pageInfoPanel.delay('400').slideToggle('1000');
+        QAtoolbox.config.$toolsPanel.delay('500').slideToggle('1000');
+        QAtoolbox.config.$otherToolsPanel.delay('650').slideToggle('1000');
+        QAtoolbox.config.$togglesPanel.delay('750').slideToggle('1000');
     },
     isCDKsite: function () {
         var siteState = unsafeWindow.ContextManager.getVersion();
