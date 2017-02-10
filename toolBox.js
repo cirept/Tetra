@@ -419,7 +419,7 @@ var m4Check = {
         // site state IS NOT LIVE &&
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (usingM4)) {
-            window.location.search += '?&comments=true&relative=true';
+            window.location.search += '&comments=true&relative=true';
         }
     },
     toggleOff: function () {
@@ -1500,7 +1500,7 @@ var autofillToggle = {
         // site state IS NOT LIVE &&
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (applyAutofill)) {
-            window.location.search += '?&disableAutofill=true';
+            window.location.search += '&disableAutofill=true';
         }
     },
     toggleOff: function () {
@@ -1631,7 +1631,7 @@ var desktopToggle = {
         // site state IS NOT LIVE &&
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (forceDesktop)) {
-            window.location.search += '?&device=immobile';
+            window.location.search += '&device=immobile';
         }
         if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
 
@@ -1761,7 +1761,7 @@ var nextGenToggle = {
         // site state IS NOT LIVE &&
         // toggled ON
         if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
-            window.location.search += '?&nextGen=true';
+            window.location.search += '&nextGen=true';
         }
         if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
 
@@ -1847,7 +1847,7 @@ var refreshPage = {
                 })
                 .text('Toggle Refresh Button'),
             $refreshCheckbox: jQuery('<div>').attr({
-                id: 'm4toggle'
+                id: 'refreshMetoggle'
             }),
             $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
         };
