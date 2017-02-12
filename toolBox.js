@@ -1,217 +1,10 @@
 /*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, document */
 
-// ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- Build container for toolbox ----------------------------------------
-// ------------------------------------------------------------------------------------------------------------------------
-
-var QAtoolbox = {
-    init: function () {
-        this.createElements();
-        this.attachStyles();
-        this.buildPanel();
-        this.cacheDOM();
-        this.attachTools();
-        this.bindEvents();
-    },
-    // ----------------------------------------
-    // tier 1 functions
-    // ----------------------------------------
-    createElements: function () {
-        QAtoolbox.config = {
-            $legendContainer: jQuery('<div>').attr({
-                id: 'legendContainer'
-            }),
-            $toolbarContainer: jQuery('<div>').attr({
-                id: 'toolboxContainer'
-            }),
-            // ----------------------------------------
-            // QA Tools
-            // ----------------------------------------
-            $toolsContainer: jQuery('<div>').attr({
-                class: 'toolBox',
-                id: 'toolsContainer'
-            }),
-            $toolsPanel: jQuery('<div>').attr({
-                id: 'toolsPanel'
-            }),
-            $toolsPanelTitle: jQuery('<div>').attr({
-                class: 'panelTitle',
-                id: 'toolsPanelTitle',
-                title: 'Click to Minimize/Maximize'
-            }).text('QA Tools'),
-            // ----------------------------------------
-            // Other Tools
-            // ----------------------------------------
-            $otherToolsContainer: jQuery('<div>').attr({
-                class: 'toolBox',
-                id: 'otherToolsContainer'
-            }),
-            $otherToolsPanel: jQuery('<div>').attr({
-                id: 'otherToolsPanel'
-            }),
-            $otherToolsPanelTitle: jQuery('<div>').attr({
-                class: 'panelTitle',
-                id: 'otherToolsPanelTitle',
-                title: 'Click to Minimize/Maximize'
-            }).text('Other Tools'),
-            // ----------------------------------------
-            // Toggles
-            // ----------------------------------------
-            $togglesContainer: jQuery('<div>').attr({
-                class: 'toolBox',
-                id: 'togglesContainer'
-            }),
-            $togglesPanel: jQuery('<div>').attr({
-                id: 'togglesPanel'
-            }),
-            $togglesPanelTitle: jQuery('<div>').attr({
-                class: 'panelTitle',
-                id: 'togglesPanelTitle',
-                title: 'Click to Minimize/Maximize'
-            }).text('Toggles'),
-            $toolbarStyles: jQuery('<style>').attr({
-                id: 'qa_toolbox',
-                type: 'text/css'
-            }),
-            $myFont: jQuery('<link>').attr({
-                href: 'https://fonts.googleapis.com/css?family=Montserrat',
-                rel: 'stylesheet'
-            })
-        };
-    },
-    attachStyles: function () {
-        QAtoolbox.config.$toolbarStyles
-            // general toolbox styles
-            .append('.toolBox { text-align: center; background: linear-gradient(to left, #76b852 , #8DC26F); position: relative; border: 1px solid black; font-size: 9.5px; z-index: 100000; margin: 0 0 5px 0; }')
-            .append('#toolboxContainer { bottom: 20px; font-family: "Montserrat"; font-size: 9.5px; line-height: 20px; position: fixed; text-transform: lowercase; width: 120px; z-index: 99999999; }')
-            // panel title styles // padding: 5px;
-            .append('.panelTitle { border-bottom: 1px solid #000000; color: white; cursor: pointer; font-size: 11px; text-transform: lowercase; }')
-            // default highlight style
-            .append('#toolboxContainer .highlight { background: linear-gradient(to right, #83a4d4 , #b6fbff) !important; color: #ffffff;}')
-            // even button styles
-            .append('.evenEDObutts {background: linear-gradient(to left, #457fca , #5691c8);}')
-            // off button styles
-            .append('.oddEDObutts {background: linear-gradient(to left, #6190E8 , #A7BFE8);}')
-            // default button styles
-            .append('.myEDOBut { border: 2px solid rgb(0,0,0); border-radius: 5px; color: #ffffff !important; font-family: "Montserrat"; font-size: 11px; top: 15%; margin: 1px 0px 0px 10px; padding: 4px 0px; position: relative; text-transform: lowercase; width: 120px; }')
-            .append('.myEDOBut.notWorking { background: purple; }')
-            .append('.myEDOBut.offButt { width: 90%; height: 50px; }')
-            .append('.offButt { background: linear-gradient(to left, #085078 , #85D8CE); }')
-            .append('.myEDOBut:hover { background: linear-gradient(to left, #141E30 , #243B55); }')
-            // legend styles
-            .append('.legendTitle { font-weight: bold; }')
-            .append('.legendContent { padding: 5px; }')
-            .append('.legendList { list-style-type: none; margin: 10px 0px; padding: 0px; }')
-            .append('#legendContainer { font-family: "Montserrat"; font-size: 12px; position: fixed; right: 115px; bottom: 20px; width: 260px; z-index: 99999999; }')
-            .append('.legend { background: white; border: 1px solid black; display: none; text-align: center; padding: 5px; margin: 5px 0; }')
-            .append('.hint { font-size: 10px; font-style: italic; line-height: 10px; margin: 10px 0 0 0; }')
-            // end of append styles
-        ; // end
-    },
-    buildPanel: function () {
-        // attach title and tools panel to tool container
-        jQuery(QAtoolbox.config.$toolsContainer).append(QAtoolbox.config.$toolsPanelTitle);
-        jQuery(QAtoolbox.config.$toolsContainer).append(QAtoolbox.config.$toolsPanel);
-        // attach title and tools panel to other tool container
-        jQuery(QAtoolbox.config.$otherToolsContainer).append(QAtoolbox.config.$otherToolsPanelTitle);
-        jQuery(QAtoolbox.config.$otherToolsContainer).append(QAtoolbox.config.$otherToolsPanel);
-        // attach title and toggles panel to toggles container
-        jQuery(QAtoolbox.config.$togglesContainer).append(QAtoolbox.config.$togglesPanelTitle);
-        jQuery(QAtoolbox.config.$togglesContainer).append(QAtoolbox.config.$togglesPanel);
-        // attach tools panel to tool container
-        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$toolsContainer);
-        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$otherToolsContainer);
-        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$togglesContainer);
-        // attach tool container to toolbox
-        //        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$toolsContainer);
-    },
-    cacheDOM: function () {
-        this.head = jQuery('head');
-        this.body = jQuery('body');
-        this.phoneWrapper = jQuery('body .phone-wrapper');
-    },
-    attachTools: function () {
-        this.head.append(QAtoolbox.config.$toolbarStyles);
-        this.head.append(QAtoolbox.config.$myFont);
-        this.body.before(QAtoolbox.config.$toolbarContainer);
-        this.body.before(QAtoolbox.config.$legendContainer);
-    },
-    bindEvents: function () {
-        QAtoolbox.config.$toolsPanelTitle.on('click', this.toggleFeature);
-        QAtoolbox.config.$otherToolsPanelTitle.on('click', this.toggleFeature);
-        QAtoolbox.config.$togglesPanelTitle.on('click', this.toggleFeature);
-    },
-    // ----------------------------------------
-    // tier 2 functions
-    // ----------------------------------------
-    styleTools: function () {
-        QAtoolbox.config.$toolsPanel.children('.myEDOBut:even').addClass('evenEDObutts');
-        QAtoolbox.config.$toolsPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
-        QAtoolbox.config.$otherToolsPanel.children('.myEDOBut:even').addClass('evenEDObutts');
-        QAtoolbox.config.$otherToolsPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
-    },
-    toggleFeature: function (event) {
-        var id = jQuery(event.target).attr('id');
-
-        switch (id) {
-        case 'toolsPanelTitle':
-            return QAtoolbox.config.$toolsPanel.slideToggle('1000');
-        case 'otherToolsPanelTitle':
-            return QAtoolbox.config.$otherToolsPanel.slideToggle('1000');
-        case 'togglesPanelTitle':
-            return QAtoolbox.config.$togglesPanel.slideToggle('1000');
-        }
-    },
-
-    // ----------------------------------------
-    displayPanels: function () {
-
-
-        // create a list of all the new variables
-        // loop through that list
-        // pass the variable name into "getChecked"
-        // return the value of that variable
-        // set that function call to a new variable
-        // create a loop to go through that list and toggle the panels on/off depending on the variable value
-        if (this.getChecked()) {
-            this.toggleOn();
-            this.applyParameters();
-        } else {
-            this.toggleOff();
-        }
-
-    },
-    setToggle: function () {
-        // get value of custom variable and set toggles accordingly
-        if (this.getChecked()) {
-            this.toggleOn();
-            this.applyParameters();
-        } else {
-            this.toggleOff();
-        }
-    },
-    getChecked: function () {
-        // grabs usingM4 value
-        var a = GM_getValue('usingM4', false);
-        return a;
-    },
-    flipTheSwitch: function () {
-        // set saved variable to opposite of current value
-        this.setChecked(!this.getChecked());
-        // set toggle
-        this.setToggle();
-    },
-    setChecked: function (bool) {
-            // sets usingM4 value
-            GM_setValue('usingM4', bool);
-        }
-        // ----------------------------------------
-};
+// 1. reorganized code - placed code in related areas
 
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- Page Information Panel ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-
 var pageInformation = {
     init: function () {
         // initialize module
@@ -373,131 +166,314 @@ var pageInformation = {
 };
 
 // ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- m4 checkbox ----------------------------------------
+// ---------------------------------------- initialize toolbox ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-
-var m4Check = {
+var runProgram = {
     init: function () {
-        this.createElements();
-        this.buildTool();
-        this.setToggle();
-        this.cacheDOM();
-        this.addTool();
-        this.bindEvents();
-        this.hideFeature();
-    },
-    // ----------------------------------------
-    // tier 1 functions
-    // ----------------------------------------
-    createElements: function () {
-        m4Check.config = {
-            $m4Container: jQuery('<div>').attr({
-                id: 'm4Input'
-            }).css({
-                background: 'linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255))',
-                cursor: 'pointer'
-            }),
-            $m4CheckTitle: jQuery('<div>').css({
-                    color: 'black',
-                    'line-height': '15px'
-                })
-                .text('M4 Parameters?'),
-            $m4Checkbox: jQuery('<div>').attr({
-                id: 'm4toggle'
-            }),
-            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
-        };
-    },
-    buildTool: function () {
-        m4Check.config.$m4Checkbox
-            .append(m4Check.config.$FAtoggle);
-        m4Check.config.$m4Container
-            .append(m4Check.config.$m4CheckTitle)
-            .append(m4Check.config.$m4Checkbox);
-    },
-    setToggle: function () {
-        // get value of custom variable and set toggles accordingly
-        if (this.getChecked()) {
-            this.toggleOn();
-            this.applyParameters();
-        } else {
-            this.toggleOff();
+        if (!this.editMode() && this.isCDKsite() && !this.isMobile()) {
+            QAtoolbox.init(); // initialize toolbox
+            pageInformation.init(); // initialize page Information tool
+
+            // ----- main tools ----- //
+            imageChecker.init(); // initialize image checker tool
+            linkChecker.init(); // initialize link checker tool
+            showNavigation.init(); // initialize show navigation tool
+            //            showAutofill.init(); // initialize show autofill tool
+            spellCheck.init(); // initialize spell check tool
+            speedtestPage.init(); // initialize page test tool
+            // 404 checker button
+            jQuery('#mainTools').append($404checker_butt);
+
+            // ----- other tools ----- //
+            viewMobile.init(); // initialize view mobile tool
+            jQuery('#otherTools').append($seo_butt);
+            jQuery('#otherTools').append($wo_butt);
+
+            // ----- toggle tools ----- //
+            nextGenToggle.init(); // initialize nextGen toggle
+            m4Check.init(); // initialize milestone 4 module check box
+            refreshPage.init(); // initialize refresh page
+            autofillToggle.init(); // initialize autofill toggle
+            desktopToggle.init(); // initialize desktop toggle
+            previewToolbarToggle.init(); // initialize desktop toggle
+
+            dynamicDisplay.init(); // initialize display information tool
+
+            // style buttons in toolbox
+            QAtoolbox.styleTools();
+            // hide panels
+            //            this.togglePanels();
         }
     },
-    cacheDOM: function () {
-        this.$toolsPanel = jQuery('#togglesPanel');
+    //    togglePanels: function () {
+    //        pageInformation.config.$pageInfoPanel.delay('400').slideToggle('1000');
+    //        QAtoolbox.config.$mainToolsPanel.delay('500').slideToggle('1000');
+    //        QAtoolbox.config.$otherToolsPanel.delay('650').slideToggle('1000');
+    //        QAtoolbox.config.$togglesPanel.delay('750').slideToggle('1000');
+    //    },
+    isCDKsite: function () {
+        var siteState = unsafeWindow.ContextManager.getVersion();
+        // determines which state of the site you are viewing (this variable should only exist on CDK sites)
+        return ((siteState === 'WIP') || (siteState === 'PROTO') || (siteState === 'LIVE'));
     },
-    addTool: function () {
-        // add to main toolbox
-        this.$toolsPanel.append(m4Check.config.$m4Container);
-    },
-    bindEvents: function () {
-        // bind FA toggle with 'flipTheSwitch' action
-        m4Check.config.$m4Container.on('click', this.flipTheSwitch.bind(this));
-    },
-    hideFeature: function () {
-        // hides feature if viewing live site
-        if (this.siteState() === 'LIVE') {
-            m4Check.config.$m4Container.toggle();
-        }
-    },
-    // ----------------------------------------
-    // tier 2 functions
-    // ----------------------------------------
-    getChecked: function () {
-        // grabs usingM4 value
-        var a = GM_getValue('usingM4', false);
-        return a;
-    },
-    toggleOn: function () {
-        // set toggle on image
-        var $toggle = m4Check.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-off');
-        $toggle.addClass('fa-toggle-on');
-    },
-    applyParameters: function () {
-        var hasParameters = this.hasParameters();
-        var siteState = this.siteState();
-        var usingM4 = this.getChecked();
-        // apply parameters only if DOESN'T already have parameters &&
-        // site state IS NOT LIVE &&
-        // toggled ON
-        if ((!hasParameters) && (siteState !== 'LIVE') && (usingM4)) {
-            window.location.search += '&comments=true&relative=true';
-        }
-    },
-    toggleOff: function () {
-        // set toggle off image
-        var $toggle = m4Check.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-on');
-        $toggle.addClass('fa-toggle-off');
-    },
-    flipTheSwitch: function () {
-        // set saved variable to opposite of current value
-        this.setChecked(!this.getChecked());
-        // set toggle
-        this.setToggle();
-    },
-    // ----------------------------------------
-    // tier 3 functions
-    // ----------------------------------------
-    hasParameters: function () {
-        // determine if site URL already has custom parameters
-        if (window.location.href.indexOf('&comments=true&relative=true') >= 0) {
+    isMobile: function () {
+        var phoneWrapper = jQuery('body .phone-wrapper');
+        // determines if the page being viewed is meant for mobile
+        if (phoneWrapper.length > 0) {
             return true;
         } else {
             return false;
         }
     },
-    siteState: function () {
-        // return page variable
-        return unsafeWindow.ContextManager.getVersion();
-    },
-    setChecked: function (bool) {
-        // sets usingM4 value
-        GM_setValue('usingM4', bool);
+    editMode: function () {
+        // determines if site is in edit mode in WSM (this variable should only exist on CDK sites)
+        return unsafeWindow.editMode;
     }
 };
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- Build container for toolbox ----------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
+var QAtoolbox = {
+    init: function () {
+        this.createElements();
+        this.toolbarStyles();
+        this.buildPanel();
+        this.cacheDOM();
+        this.attachTools();
+        this.bindEvents();
+        this.showPanels();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        QAtoolbox.config = {
+            $legendContainer: jQuery('<div>').attr({
+                id: 'legendContainer'
+            }),
+            $toolbarContainer: jQuery('<div>').attr({
+                id: 'toolboxContainer'
+            }),
+            // ----------------------------------------
+            // QA Tools Panel
+            // ----------------------------------------
+            $mainToolsContainer: jQuery('<div>').attr({
+                class: 'toolBox',
+                id: 'mainToolsContainer'
+            }),
+            $mainToolsPanel: jQuery('<div>').attr({
+                class: 'toolsPanel',
+                id: 'mainTools'
+            }),
+            $mainToolsTitle: jQuery('<div>').attr({
+                class: 'panelTitle',
+                id: 'mainToolsTitle',
+                title: 'Click to Minimize/Maximize'
+            }).text('QA Tools'),
+            // ----------------------------------------
+            // Other Tools Panel
+            // ----------------------------------------
+            $otherToolsContainer: jQuery('<div>').attr({
+                class: 'toolBox',
+                id: 'otherToolsContainer'
+            }),
+            $otherToolsPanel: jQuery('<div>').attr({
+                class: 'toolsPanel',
+                id: 'otherTools'
+            }),
+            $otherToolsTitle: jQuery('<div>').attr({
+                class: 'panelTitle',
+                id: 'otherToolsTitle',
+                title: 'Click to Minimize/Maximize'
+            }).text('Other Tools'),
+            // ----------------------------------------
+            // Toggles Panel
+            // ----------------------------------------
+            $togglesContainer: jQuery('<div>').attr({
+                class: 'toolBox',
+                id: 'togglesContainer'
+            }),
+            $togglesPanel: jQuery('<div>').attr({
+                class: 'toolsPanel',
+                id: 'toggleTools'
+            }),
+            $togglesTitle: jQuery('<div>').attr({
+                class: 'panelTitle',
+                id: 'togglesTitle',
+                title: 'Click to Minimize/Maximize'
+            }).text('Toggles'),
+            // ----------------------------------------
+            // Toolbar Resources
+            // ----------------------------------------
+            $toolbarStyles: jQuery('<style>').attr({
+                id: 'qa_toolbox',
+                type: 'text/css'
+            }),
+            $myFont: jQuery('<link>').attr({
+                href: 'https://fonts.googleapis.com/css?family=Montserrat',
+                rel: 'stylesheet'
+            }),
+            $jQueryUI: jQuery('<link>').attr({
+                href: 'ttps://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css',
+                rel: 'stylesheet'
+            })
+        };
+    },
+    toolbarStyles: function () {
+        QAtoolbox.config.$toolbarStyles
+            // general toolbox styles
+            .append('.toolBox { text-align: center; background: linear-gradient(to left, #76b852 , #8DC26F); position: relative; border: 1px solid black; font-size: 9.5px; z-index: 100000; margin: 0 0 5px 0; }')
+            .append('#toolboxContainer { bottom: 20px; font-family: "Montserrat"; font-size: 9.5px; line-height: 20px; position: fixed; text-transform: lowercase; width: 120px; z-index: 99999999; }')
+            .append('.toolsPanel { display: none; }')
+            // panel title styles // padding: 5px;
+            .append('.panelTitle { border-bottom: 1px solid #000000; color: white; cursor: pointer; font-size: 11px; text-transform: lowercase; }')
+            // default highlight style
+            .append('#toolboxContainer .highlight { background: linear-gradient(to right, #83a4d4 , #b6fbff) !important; color: #ffffff;}')
+            // even button styles
+            .append('.evenEDObutts {background: linear-gradient(to left, #457fca , #5691c8);}')
+            // off button styles
+            .append('.oddEDObutts {background: linear-gradient(to left, #6190E8 , #A7BFE8);}')
+            // default button styles
+            .append('.myEDOBut { border: 2px solid rgb(0,0,0); border-radius: 5px; color: #ffffff !important; font-family: "Montserrat"; font-size: 11px; top: 15%; margin: 1px 0px 0px 10px; padding: 4px 0px; position: relative; text-transform: lowercase; width: 120px; }')
+            .append('.myEDOBut.notWorking { background: purple; }')
+            .append('.myEDOBut.offButt { width: 90%; height: 50px; }')
+            .append('.offButt { background: linear-gradient(to left, #085078 , #85D8CE); }')
+            .append('.myEDOBut:hover { background: linear-gradient(to left, #141E30 , #243B55); }')
+            // legend styles
+            .append('.legendTitle { font-weight: bold; }')
+            .append('.legendContent { padding: 5px; }')
+            .append('.legendList { list-style-type: none; margin: 10px 0px; padding: 0px; }')
+            .append('#legendContainer { font-family: "Montserrat"; font-size: 12px; position: fixed; right: 115px; bottom: 20px; width: 260px; z-index: 99999999; }')
+            .append('.legend { background: white; border: 1px solid black; display: none; text-align: center; padding: 5px; margin: 5px 0; }')
+            .append('.hint { font-size: 10px; font-style: italic; line-height: 10px; margin: 10px 0 0 0; }')
+            // toggle style
+            .append('.toggleTool { background: linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255)); border-top: 1px solid #999999; cursor: pointer; } ')
+            // end of append styles
+        ; // end
+    },
+    buildPanel: function () {
+        // attach title and tools panel to tool container
+        jQuery(QAtoolbox.config.$mainToolsContainer).append(QAtoolbox.config.$mainToolsTitle);
+        jQuery(QAtoolbox.config.$mainToolsContainer).append(QAtoolbox.config.$mainToolsPanel);
+        // attach title and tools panel to other tool container
+        jQuery(QAtoolbox.config.$otherToolsContainer).append(QAtoolbox.config.$otherToolsTitle);
+        jQuery(QAtoolbox.config.$otherToolsContainer).append(QAtoolbox.config.$otherToolsPanel);
+        // attach title and toggles panel to toggles container
+        jQuery(QAtoolbox.config.$togglesContainer).append(QAtoolbox.config.$togglesTitle);
+        jQuery(QAtoolbox.config.$togglesContainer).append(QAtoolbox.config.$togglesPanel);
+        // attach tools panel to tool container
+        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$mainToolsContainer);
+        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$otherToolsContainer);
+        jQuery(QAtoolbox.config.$toolbarContainer).append(QAtoolbox.config.$togglesContainer);
+    },
+    cacheDOM: function () {
+        this.head = jQuery('head');
+        this.body = jQuery('body');
+        this.phoneWrapper = jQuery('body .phone-wrapper');
+        this.variableList = this.programData();
+    },
+    attachTools: function () {
+        this.head.append(QAtoolbox.config.$toolbarStyles);
+        this.head.append(QAtoolbox.config.$myFont);
+        this.body.before(QAtoolbox.config.$toolbarContainer);
+        this.body.before(QAtoolbox.config.$legendContainer);
+    },
+    bindEvents: function () {
+        QAtoolbox.config.$mainToolsTitle.on('click', this.toggleFeature);
+        QAtoolbox.config.$mainToolsTitle.on('click', this.saveState);
+        QAtoolbox.config.$otherToolsTitle.on('click', this.toggleFeature);
+        QAtoolbox.config.$otherToolsTitle.on('click', this.saveState);
+        QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature);
+        QAtoolbox.config.$togglesTitle.on('click', this.saveState);
+    },
+    showPanels: function () {
+        // loop through variable list to find the panel title
+        var variables = this.variableList,
+            state = '';
+
+        for (key in variables) {
+            switch (key) {
+            case 'mainTools':
+                state = variables[key] ? 'show' : 'hide';
+                this.setState(QAtoolbox.config.$mainToolsPanel, state);
+                break;
+            case 'otherTools':
+                state = variables[key] ? 'show' : 'hide';
+                this.setState(QAtoolbox.config.$otherToolsPanel, state);
+                break;
+            case 'toggleTools':
+                state = variables[key] ? 'show' : 'hide';
+                this.setState(QAtoolbox.config.$togglesPanel, state);
+                break;
+            default:
+                // no match found
+                break;
+            }
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    programData: function () {
+        var allVariables = GM_listValues(),
+            length = allVariables.length,
+            a = 0,
+            varList = {};
+
+        // add variables to list
+        for (a; a < length; a++) {
+            var key = allVariables[a],
+                value = GM_getValue(key, false);
+            varList[key] = value;
+        }
+
+        return varList;
+    },
+    toggleFeature: function (event) {
+        var id = jQuery(event.target).attr('id');
+
+        switch (id) {
+        case 'mainToolsTitle':
+            return QAtoolbox.config.$mainToolsPanel.slideToggle('1000');
+            break;
+        case 'otherToolsTitle':
+            return QAtoolbox.config.$otherToolsPanel.slideToggle('1000');
+            break;
+        case 'togglesTitle':
+            return QAtoolbox.config.$togglesPanel.slideToggle('1000');
+            break;
+        }
+    },
+    saveState: function (event) {
+        // get current state
+        var vName = jQuery(event.target).siblings('.toolsPanel').attr('id');
+        var currState = GM_getValue(vName, false);
+        // sets usingM4 value
+        GM_setValue(vName, !currState);
+    },
+    setState: function ($panel, state) {
+        if (state === 'show') {
+            $panel.css({
+                display: 'block'
+            });
+        } else if (state === 'hide') {
+            $panel.css({
+                display: 'none'
+            });
+        }
+    },
+    styleTools: function () {
+        QAtoolbox.config.$mainToolsPanel.children('.myEDOBut:even').addClass('evenEDObutts');
+        QAtoolbox.config.$mainToolsPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
+        QAtoolbox.config.$otherToolsPanel.children('.myEDOBut:even').addClass('evenEDObutts');
+        QAtoolbox.config.$otherToolsPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
+    }
+};
+
+/* ************************************************************************************************************************ */
+/* **************************************** QA TOOLS **************************************** */
+/* ************************************************************************************************************************ */
 
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- image checker ----------------------------------------
@@ -537,7 +513,7 @@ var imageChecker = {
                 class: 'myEDOBut offButt',
                 value: 'Turn Off'
             }),
-            $toolsPanel: jQuery('#toolsPanel'),
+            $toolsPanel: jQuery('#mainTools'),
             $legendContainer: jQuery('#legendContainer'),
         };
     },
@@ -761,7 +737,7 @@ var linkChecker = {
             $hint: jQuery('<div>').attr({
                 class: 'hint'
             }).text('ctrl+left click to open link in a new tab'),
-            $toolsPanel: jQuery('#toolsPanel'),
+            $toolsPanel: jQuery('#mainTools'),
             $legendContainer: jQuery('#legendContainer'),
         };
     },
@@ -1116,7 +1092,7 @@ var showNavigation = {
         this.$navTabsLinks = jQuery(this.$navTabs).find('a[href]');
         this.nlLength = this.$navTabsLinks.length;
         this.$toolbarStyles = jQuery('#qa_toolbox');
-        this.$toolsPanel = jQuery('#toolsPanel');
+        this.$toolsPanel = jQuery('#mainTools');
         this.$legendContainer = jQuery('#legendContainer');
     },
     buildLegend: function () {
@@ -1211,7 +1187,6 @@ var showNavigation = {
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- Show Autofill Tags ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-
 var showAutofill = {
     init: function () {
         this.createElements();
@@ -1232,7 +1207,7 @@ var showAutofill = {
         };
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#toolsPanel');
+        this.$toolsPanel = jQuery('#mainTools');
         this.$cm = unsafeWindow.ContextManager;
         this.siteURL = this.$cm.getUrl();
         this.pageName = this.$cm.getPageName();
@@ -1256,7 +1231,6 @@ var showAutofill = {
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- Spell Check ----------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------
-
 var spellCheck = {
     init: function () {
         this.createElements();
@@ -1277,7 +1251,7 @@ var spellCheck = {
         };
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#toolsPanel');
+        this.$toolsPanel = jQuery('#mainTools');
         this.$cm = unsafeWindow.ContextManager;
         this.siteURL = this.$cm.getUrl();
         this.pageName = this.$cm.getPageName();
@@ -1314,7 +1288,6 @@ var spellCheck = {
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- Test WebPage ----------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------
-// emials won't save if viewing sites in private browser
 var speedtestPage = {
     init: function () {
         this.createElements();
@@ -1382,7 +1355,7 @@ var speedtestPage = {
         this.$cm = unsafeWindow.ContextManager;
         this.siteURL = this.$cm.getUrl();
         this.pageName = this.$cm.getPageName();
-        this.$toolsPanel = jQuery('#toolsPanel');
+        this.$toolsPanel = jQuery('#mainTools');
     },
     buildOptions: function () {
         jQuery.each(speedtestPage.config.browserOptions, function (key, text) {
@@ -1453,527 +1426,13 @@ var speedtestPage = {
     }
 };
 
-// ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- autofill toggle ----------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------
-
-var autofillToggle = {
-    init: function () {
-        this.createElements();
-        this.buildTool();
-        this.setToggle();
-        this.cacheDOM();
-        this.addTool();
-        this.bindEvents();
-        this.hideFeature();
-    },
-    // ----------------------------------------
-    // tier 1 functions
-    // ----------------------------------------
-    createElements: function () {
-        autofillToggle.config = {
-            $autofillToggleContainer: jQuery('<div>').attr({
-                id: 'autofillToggleInput'
-            }).css({
-                background: 'linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255))',
-                cursor: 'pointer'
-            }),
-            $autofillToggleTitle: jQuery('<div>').css({
-                    color: 'black',
-                    'line-height': '15px'
-                })
-                .text('autofill Parameters?'),
-            $autofillToggleIcon: jQuery('<div>').attr({
-                id: 'autofillToggleIcon'
-            }),
-            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
-        };
-    },
-    buildTool: function () {
-        autofillToggle.config.$autofillToggleIcon
-            .append(autofillToggle.config.$FAtoggle);
-        autofillToggle.config.$autofillToggleContainer
-            .append(autofillToggle.config.$autofillToggleTitle)
-            .append(autofillToggle.config.$autofillToggleIcon);
-    },
-    setToggle: function () {
-        // get value of custom variable and set toggles accordingly
-        if (this.getChecked()) {
-            this.toggleOn();
-            this.applyParameters();
-        } else {
-            this.toggleOff();
-        }
-    },
-    cacheDOM: function () {
-        this.$toolsPanel = jQuery('#togglesPanel');
-    },
-    addTool: function () {
-        // add to main toolbox
-        this.$toolsPanel.append(autofillToggle.config.$autofillToggleContainer);
-    },
-    bindEvents: function () {
-        // bind FA toggle with 'flipTheSwitch' action
-        autofillToggle.config.$autofillToggleContainer.on('click', this.flipTheSwitch.bind(this));
-    },
-    hideFeature: function () {
-        // hides feature if viewing live site
-        if (this.siteState() === 'LIVE') {
-            autofillToggle.config.$autofillToggleContainer.toggle();
-        }
-    },
-    // ----------------------------------------
-    // tier 2 functions
-    // ----------------------------------------
-    getChecked: function () {
-        // grabs applyAutofill value
-        var a = GM_getValue('applyAutofill', false);
-        return a;
-    },
-    toggleOn: function () {
-        // set toggle on image
-        var $toggle = autofillToggle.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-off');
-        $toggle.addClass('fa-toggle-on');
-    },
-    applyParameters: function () {
-        var hasParameters = this.hasParameters();
-        var siteState = this.siteState();
-        var applyAutofill = this.getChecked();
-        // apply parameters only if DOESN'T already have parameters &&
-        // site state IS NOT LIVE &&
-        // toggled ON
-        if ((!hasParameters) && (siteState !== 'LIVE') && (applyAutofill)) {
-            window.location.search += '&disableAutofill=true';
-        }
-    },
-    toggleOff: function () {
-        // set toggle off image
-        var $toggle = autofillToggle.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-on');
-        $toggle.addClass('fa-toggle-off');
-    },
-    flipTheSwitch: function () {
-        // set saved variable to opposite of current value
-        this.setChecked(!this.getChecked());
-        // set toggle
-        this.setToggle();
-    },
-    // ----------------------------------------
-    // tier 3 functions
-    // ----------------------------------------
-    hasParameters: function () {
-        // determine if site URL already has custom parameters
-        if (window.location.href.indexOf('&disableAutofill=true') >= 0) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    siteState: function () {
-        // return page variable
-        return unsafeWindow.ContextManager.getVersion();
-    },
-    setChecked: function (bool) {
-        // sets usingM4 value
-        GM_setValue('applyAutofill', bool);
-    }
-};
-
-// ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- OTHER TOOLS ----------------------------------------
-// ------------------------------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- force desktop site toggle ----------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------
-
-var desktopToggle = {
-    init: function () {
-        this.createElements();
-        this.buildTool();
-        this.setToggle();
-        this.cacheDOM();
-        this.addTool();
-        this.bindEvents();
-        this.hideFeature();
-    },
-    // ----------------------------------------
-    // tier 1 functions
-    // ----------------------------------------
-    createElements: function () {
-        desktopToggle.config = {
-            $desktopToggleContainer: jQuery('<div>').attr({
-                id: 'desktopToggleInput'
-            }).css({
-                background: 'linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255))',
-                cursor: 'pointer'
-            }),
-            $desktopToggleTitle: jQuery('<div>').css({
-                    color: 'black',
-                    'line-height': '15px'
-                })
-                .text('force desktop site?'),
-            $desktopToggleIcon: jQuery('<div>').attr({
-                id: 'desktopToggleIcon'
-            }),
-            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
-        };
-    },
-    buildTool: function () {
-        desktopToggle.config.$desktopToggleIcon
-            .append(desktopToggle.config.$FAtoggle);
-        desktopToggle.config.$desktopToggleContainer
-            .append(desktopToggle.config.$desktopToggleTitle)
-            .append(desktopToggle.config.$desktopToggleIcon);
-    },
-    setToggle: function () {
-        // get value of custom variable and set toggles accordingly
-        if (this.getChecked()) {
-            this.toggleOn();
-            this.applyParameters();
-        } else {
-            this.toggleOff();
-        }
-    },
-    cacheDOM: function () {
-        this.$toolsPanel = jQuery('#togglesPanel');
-    },
-    addTool: function () {
-        // add to main toolbox
-        this.$toolsPanel.append(desktopToggle.config.$desktopToggleContainer);
-    },
-    bindEvents: function () {
-        // bind FA toggle with 'flipTheSwitch' action
-        desktopToggle.config.$desktopToggleContainer.on('click', this.flipTheSwitch.bind(this));
-    },
-    hideFeature: function () {
-        // hides feature if viewing live site
-        if (this.siteState() === 'LIVE') {
-            desktopToggle.config.$desktopToggleContainer.toggle();
-        }
-    },
-    // ----------------------------------------
-    // tier 2 functions
-    // ----------------------------------------
-    getChecked: function () {
-        // grabs isNextGen value
-        var a = GM_getValue('forceDesktop', false);
-        return a;
-    },
-    toggleOn: function () {
-        // set toggle on image
-        var $toggle = desktopToggle.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-off');
-        $toggle.addClass('fa-toggle-on');
-    },
-    applyParameters: function () {
-        var hasParameters = this.hasParameters();
-        var siteState = this.siteState();
-        var forceDesktop = this.getChecked();
-        // apply parameters only if DOESN'T already have parameters &&
-        // site state IS NOT LIVE &&
-        // toggled ON
-        if ((!hasParameters) && (siteState !== 'LIVE') && (forceDesktop)) {
-            window.location.search += '&device=immobile';
-        }
-        if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
-
-        }
-    },
-    toggleOff: function () {
-        // set toggle off image
-        var $toggle = desktopToggle.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-on');
-        $toggle.addClass('fa-toggle-off');
-    },
-    flipTheSwitch: function () {
-        // set saved variable to opposite of current value
-        this.setChecked(!this.getChecked());
-        // set toggle
-        this.setToggle();
-    },
-    // ----------------------------------------
-    // tier 3 functions
-    // ----------------------------------------
-    hasParameters: function () {
-        // determine if site URL already has custom parameters
-        if (window.location.href.indexOf('&device=immobile') >= 0) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    siteState: function () {
-        // return page variable
-        return unsafeWindow.ContextManager.getVersion();
-    },
-    setChecked: function (bool) {
-        // sets usingM4 value
-        GM_setValue('forceDesktop', bool);
-    }
-};
-
-// ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- next gen toggle ----------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------
-
-var nextGenToggle = {
-    init: function () {
-        this.createElements();
-        this.buildTool();
-        this.setToggle();
-        this.cacheDOM();
-        this.addTool();
-        this.bindEvents();
-        this.hideFeature();
-    },
-    // ----------------------------------------
-    // tier 1 functions
-    // ----------------------------------------
-    createElements: function () {
-        nextGenToggle.config = {
-            $nextGenToggleContainer: jQuery('<div>').attr({
-                id: 'nextGenToggleInput'
-            }).css({
-                background: 'linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255))',
-                cursor: 'pointer'
-            }),
-            $nextGenToggleTitle: jQuery('<div>').css({
-                    color: 'black',
-                    'line-height': '15px'
-                })
-                .text('nextGen Parameters?'),
-            $nextGenToggleIcon: jQuery('<div>').attr({
-                id: 'nextGenToggleIcon'
-            }),
-            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
-        };
-    },
-    buildTool: function () {
-        nextGenToggle.config.$nextGenToggleIcon
-            .append(nextGenToggle.config.$FAtoggle);
-        nextGenToggle.config.$nextGenToggleContainer
-            .append(nextGenToggle.config.$nextGenToggleTitle)
-            .append(nextGenToggle.config.$nextGenToggleIcon);
-    },
-    setToggle: function () {
-        // get value of custom variable and set toggles accordingly
-        if (this.getChecked()) {
-            this.toggleOn();
-            this.applyParameters();
-        } else {
-            this.toggleOff();
-        }
-    },
-    cacheDOM: function () {
-        this.$toolsPanel = jQuery('#togglesPanel');
-    },
-    addTool: function () {
-        // add to main toolbox
-        this.$toolsPanel.append(nextGenToggle.config.$nextGenToggleContainer);
-    },
-    bindEvents: function () {
-        // bind FA toggle with 'flipTheSwitch' action
-        nextGenToggle.config.$nextGenToggleContainer.on('click', this.flipTheSwitch.bind(this));
-    },
-    hideFeature: function () {
-        // hides feature if viewing live site
-        if (this.siteState() === 'LIVE') {
-            nextGenToggle.config.$nextGenToggleContainer.toggle();
-        }
-    },
-    // ----------------------------------------
-    // tier 2 functions
-    // ----------------------------------------
-    getChecked: function () {
-        // grabs isNextGen value
-        var a = GM_getValue('isNextGen', false);
-        return a;
-    },
-    toggleOn: function () {
-        // set toggle on image
-        var $toggle = nextGenToggle.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-off');
-        $toggle.addClass('fa-toggle-on');
-    },
-    applyParameters: function () {
-        var hasParameters = this.hasParameters();
-        var siteState = this.siteState();
-        var isNextGen = this.getChecked();
-        // apply parameters only if DOESN'T already have parameters &&
-        // site state IS NOT LIVE &&
-        // toggled ON
-        if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
-            window.location.search += '&nextGen=true';
-        }
-        if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
-
-        }
-    },
-    toggleOff: function () {
-        // set toggle off image
-        var $toggle = nextGenToggle.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-on');
-        $toggle.addClass('fa-toggle-off');
-    },
-    flipTheSwitch: function () {
-        // set saved variable to opposite of current value
-        this.setChecked(!this.getChecked());
-        // set toggle
-        this.setToggle();
-    },
-    // ----------------------------------------
-    // tier 3 functions
-    // ----------------------------------------
-    hasParameters: function () {
-        // determine if site URL already has custom parameters
-        if (window.location.href.indexOf('&nextGen=true') >= 0) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    siteState: function () {
-        // return page variable
-        return unsafeWindow.ContextManager.getVersion();
-    },
-    setChecked: function (bool) {
-        // sets usingM4 value
-        GM_setValue('isNextGen', bool);
-    }
-};
-
-// ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- Refresh Page ----------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------
-
-var refreshPage = {
-    init: function () {
-        this.createElements();
-        this.cacheDOM();
-        this.buildTool();
-        this.addTool();
-        this.bindEvents();
-        this.addStyles();
-        this.setToggle();
-    },
-    // ----------------------------------------
-    // tier 1 functions
-    // ----------------------------------------
-    createElements: function () {
-        refreshPage.config = {
-            $refreshContainer: jQuery('<div>').attr({
-                id: 'refreshMe'
-            }).css({
-                background: 'linear-gradient(to right, rgb(236, 233, 230), rgb(255, 255, 255))',
-                cursor: 'pointer'
-            }),
-            $refreshButt: jQuery('<button>').attr({
-                class: 'myEDOBut',
-                id: 'refreshPage',
-                title: 'Refresh Page from Server '
-            }).css({
-                background: 'linear-gradient(to left, #FBD3E9 , #BB377D)',
-                width: '75px',
-                position: 'fixed',
-                left: '0px',
-                top: '60px',
-                'z-index': '1000000',
-                display: 'none'
-            }),
-            $refresh: jQuery('<i class="fa fa-undo fa-flip-horizontal fa-3x">&nbsp;</i>').css({
-                'margin-left': '-10px'
-            }),
-            $refreshTitle: jQuery('<div>').css({
-                    color: 'black',
-                    'line-height': '15px'
-                })
-                .text('Toggle Refresh Button'),
-            $refreshCheckbox: jQuery('<div>').attr({
-                id: 'refreshMetoggle'
-            }),
-            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
-        };
-    },
-    cacheDOM: function () {
-        this.$togglesPanel = jQuery('#togglesPanel');
-        this.$toolbarStyles = jQuery('#qa_toolbox');
-    },
-    buildTool: function () {
-        refreshPage.config.$refreshButt.html(refreshPage.config.$refresh);
-        // add icon to mock button
-        refreshPage.config.$refreshCheckbox.append(refreshPage.config.$FAtoggle);
-        // add mock button to container
-        refreshPage.config.$refreshContainer
-            .append(refreshPage.config.$refreshTitle)
-            .append(refreshPage.config.$refreshCheckbox);
-    },
-    addTool: function () {
-        this.$togglesPanel.append(refreshPage.config.$refreshContainer);
-        this.$togglesPanel.append(refreshPage.config.$refreshButt);
-    },
-    bindEvents: function () {
-        refreshPage.config.$refreshContainer.on('click', this.reloadPage);
-        refreshPage.config.$refreshContainer.on('click', this.flipTheSwitch.bind(this));
-    },
-    addStyles: function () {
-        this.$toolbarStyles
-            .append('#refreshPage:hover { color: #ffffff !important; background: linear-gradient(to left, #f4c4f3 , #fc67fa) !important; }');
-    },
-    setToggle: function () {
-        // get value of custom variable and set toggles accordingly
-        if (this.getChecked()) {
-            this.toggleOn();
-            refreshPage.config.$refreshButt.show();
-        } else {
-            this.toggleOff();
-            refreshPage.config.$refreshButt.hide();
-        }
-    },
-    // ----------------------------------------
-    // tier 2 functions
-    // ----------------------------------------
-    reloadPage: function () {
-        window.location.reload(true);
-    },
-    flipTheSwitch: function () {
-        // set saved variable to opposite of current value
-        var toggle = this.getChecked();
-        this.setChecked(!toggle);
-        // set toggle
-        this.setToggle();
-    },
-    toggleOn: function () {
-        // set toggle on image
-        var $toggle = refreshPage.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-off');
-        $toggle.addClass('fa-toggle-on');
-    },
-    toggleOff: function () {
-        // set toggle off image
-        var $toggle = refreshPage.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-on');
-        $toggle.addClass('fa-toggle-off');
-    },
-    // ----------------------------------------
-    // tier 3 functions
-    // ----------------------------------------
-    getChecked: function () {
-        // grabs usingM4 value
-        var a = GM_getValue('useRefreshButton', false);
-        return a;
-    },
-    setChecked: function (bool) {
-        // sets useRefreshButton value
-        GM_setValue('useRefreshButton', bool);
-    }
-};
+/* ************************************************************************************************************************ */
+/* **************************************** OTHER TOOLS **************************************** */
+/* ************************************************************************************************************************ */
 
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- SEO Simplify ----------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------
-
 var $seo_butt = jQuery('<button>').attr({
     class: 'myEDOBut',
     id: 'simpleSEO',
@@ -2726,7 +2185,6 @@ $wo_butt.click(function () {
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- View Mobile Site ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-
 var viewMobile = {
     init: function () {
         this.createElements();
@@ -2747,13 +2205,13 @@ var viewMobile = {
         };
     },
     cacheDOM: function () {
-        this.$toolsPanel = jQuery('#otherToolsPanel');
+        this.$otherToolsPanel = jQuery('#otherTools');
         this.$cm = unsafeWindow.ContextManager;
         this.siteURL = this.$cm.getUrl();
         this.pageName = this.$cm.getPageName();
     },
     addTool: function () {
-        this.$toolsPanel.append(viewMobile.config.$activateButt);
+        this.$otherToolsPanel.append(viewMobile.config.$activateButt);
     },
     bindEvents: function () {
         viewMobile.config.$activateButt.on('click', this.viewMobile.bind(this));
@@ -2768,11 +2226,9 @@ var viewMobile = {
     },
 };
 
-
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- broken link checker ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-
 var $404checker_butt = jQuery('<button>').attr({
     class: 'myEDOBut',
     id: '404checker',
@@ -3091,10 +2547,756 @@ $404checker_butt.on('click', function () {
     }
 });
 
+/* ************************************************************************************************************************ */
+/* **************************************** TOGGLE TOOLS **************************************** */
+/* ************************************************************************************************************************ */
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- next gen toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+var nextGenToggle = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.setToggle();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        nextGenToggle.config = {
+            $nextGenToggleContainer: jQuery('<div>').attr({
+                id: 'nextGenToggleInput',
+                class: 'toggleTool'
+            }),
+            $nextGenToggleTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('nextGen Parameters?'),
+            $nextGenToggleIcon: jQuery('<div>').attr({
+                id: 'nextGenToggleIcon'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        nextGenToggle.config.$nextGenToggleIcon
+            .append(nextGenToggle.config.$FAtoggle);
+        nextGenToggle.config.$nextGenToggleContainer
+            .append(nextGenToggle.config.$nextGenToggleTitle)
+            .append(nextGenToggle.config.$nextGenToggleIcon);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#toggleTools');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(nextGenToggle.config.$nextGenToggleContainer);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        nextGenToggle.config.$nextGenToggleContainer.on('click', this.flipTheSwitch.bind(this));
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            nextGenToggle.config.$nextGenToggleContainer.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs isNextGen value
+        var a = GM_getValue('isNextGen', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = nextGenToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    applyParameters: function () {
+        var hasParameters = this.hasParameters();
+        var siteState = this.siteState();
+        var isNextGen = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
+            window.location.search += '&nextGen=true';
+        }
+        if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
+
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = nextGenToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&nextGen=true') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets isNextGen value
+        GM_setValue('isNextGen', bool);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- m4 checkbox toggle ----------------------------------------
+// ------------------------------------------------------------------------------------------------------------------------
+var m4Check = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.setToggle();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        m4Check.config = {
+            $m4Container: jQuery('<div>').attr({
+                id: 'm4Input',
+                class: 'toggleTool'
+            }),
+            $m4CheckTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('M4 Parameters?'),
+            $m4Checkbox: jQuery('<div>').attr({
+                id: 'm4toggle'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        m4Check.config.$m4Checkbox
+            .append(m4Check.config.$FAtoggle);
+        m4Check.config.$m4Container
+            .append(m4Check.config.$m4CheckTitle)
+            .append(m4Check.config.$m4Checkbox);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#toggleTools');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(m4Check.config.$m4Container);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        m4Check.config.$m4Container.on('click', this.flipTheSwitch.bind(this));
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            m4Check.config.$m4Container.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs usingM4 value
+        var a = GM_getValue('usingM4', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = m4Check.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    applyParameters: function () {
+        var hasParameters = this.hasParameters();
+        var siteState = this.siteState();
+        var usingM4 = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if ((!hasParameters) && (siteState !== 'LIVE') && (usingM4)) {
+            window.location.search += '&comments=true&relative=true';
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = m4Check.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&comments=true&relative=true') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets usingM4 value
+        GM_setValue('usingM4', bool);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- Refresh Page toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+var refreshPage = {
+    init: function () {
+        this.createElements();
+        this.cacheDOM();
+        this.buildTool();
+        this.addTool();
+        this.bindEvents();
+        this.addStyles();
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        refreshPage.config = {
+            $refreshContainer: jQuery('<div>').attr({
+                id: 'refreshMe',
+                class: 'toggleTool'
+            }),
+            $refreshButt: jQuery('<button>').attr({
+                class: 'myEDOBut draggable ui-widget-content',
+                id: 'refreshPage',
+                title: 'Refresh Page from Server '
+            }).css({
+                background: 'linear-gradient(to left, #FBD3E9 , #BB377D)',
+                width: '75px',
+                position: 'fixed',
+                left: '0px',
+                top: '60px',
+                'z-index': '1000000',
+                display: 'none'
+            }).draggable({
+                containment: "body",
+                scroll: false
+            }),
+            $refresh: jQuery('<i class="fa fa-undo fa-flip-horizontal fa-3x">&nbsp;</i>').css({
+                'margin-left': '-10px'
+            }),
+            $refreshTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('Refresh Button'),
+            $refreshCheckbox: jQuery('<div>').attr({
+                id: 'refreshMetoggle'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    cacheDOM: function () {
+        this.$togglesPanel = jQuery('#toggleTools');
+        this.$togglesContainer = jQuery('#togglesContainer');
+        this.$toolbarStyles = jQuery('#qa_toolbox');
+    },
+    buildTool: function () {
+        refreshPage.config.$refreshButt.html(refreshPage.config.$refresh);
+        // add icon to mock button
+        refreshPage.config.$refreshCheckbox.append(refreshPage.config.$FAtoggle);
+        // add mock button to container
+        refreshPage.config.$refreshContainer
+            .append(refreshPage.config.$refreshTitle)
+            .append(refreshPage.config.$refreshCheckbox);
+    },
+    addTool: function () {
+        this.$togglesPanel.append(refreshPage.config.$refreshContainer);
+        this.$togglesContainer.append(refreshPage.config.$refreshButt);
+    },
+    bindEvents: function () {
+        refreshPage.config.$refreshButt.on('click', this.reloadPage);
+        refreshPage.config.$refreshContainer.on('click', this.flipTheSwitch.bind(this));
+    },
+    addStyles: function () {
+        this.$toolbarStyles
+            .append('#refreshPage:hover { color: #ffffff !important; background: linear-gradient(to left, #f4c4f3 , #fc67fa) !important; }');
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            refreshPage.config.$refreshButt.show();
+        } else {
+            this.toggleOff();
+            refreshPage.config.$refreshButt.hide();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    reloadPage: function () {
+        window.location.reload(true);
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        var toggle = this.getChecked();
+        this.setChecked(!toggle);
+        // set toggle
+        this.setToggle();
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = refreshPage.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = refreshPage.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs useRefreshButton value
+        var a = GM_getValue('useRefreshButton', false);
+        return a;
+    },
+    setChecked: function (bool) {
+        // sets useRefreshButton value
+        GM_setValue('useRefreshButton', bool);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- autofill toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+var autofillToggle = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.setToggle();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        autofillToggle.config = {
+            $autofillToggleContainer: jQuery('<div>').attr({
+                id: 'autofillToggleInput',
+                class: 'toggleTool'
+            }),
+            $autofillToggleTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('show autofill tags?'),
+            $autofillToggleIcon: jQuery('<div>').attr({
+                id: 'autofillToggleIcon'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        autofillToggle.config.$autofillToggleIcon
+            .append(autofillToggle.config.$FAtoggle);
+        autofillToggle.config.$autofillToggleContainer
+            .append(autofillToggle.config.$autofillToggleTitle)
+            .append(autofillToggle.config.$autofillToggleIcon);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#toggleTools');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(autofillToggle.config.$autofillToggleContainer);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        autofillToggle.config.$autofillToggleContainer.on('click', this.flipTheSwitch.bind(this));
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            autofillToggle.config.$autofillToggleContainer.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs applyAutofill value
+        var a = GM_getValue('applyAutofill', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = autofillToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    applyParameters: function () {
+        var hasParameters = this.hasParameters();
+        var siteState = this.siteState();
+        var applyAutofill = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if ((!hasParameters) && (siteState !== 'LIVE') && (applyAutofill)) {
+            window.location.search += '&disableAutofill=true';
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = autofillToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&disableAutofill=true') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets applyAutofill value
+        GM_setValue('applyAutofill', bool);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- force desktop site toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+var desktopToggle = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.setToggle();
+        this.cacheDOM();
+        this.addTool();
+        this.bindEvents();
+        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        desktopToggle.config = {
+            $desktopToggleContainer: jQuery('<div>').attr({
+                id: 'desktopToggleInput',
+                class: 'toggleTool'
+            }),
+            $desktopToggleTitle: jQuery('<div>').css({
+                    color: 'black',
+                    'line-height': '15px'
+                })
+                .text('force desktop site?'),
+            $desktopToggleIcon: jQuery('<div>').attr({
+                id: 'desktopToggleIcon'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        desktopToggle.config.$desktopToggleIcon
+            .append(desktopToggle.config.$FAtoggle);
+        desktopToggle.config.$desktopToggleContainer
+            .append(desktopToggle.config.$desktopToggleTitle)
+            .append(desktopToggle.config.$desktopToggleIcon);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.applyParameters();
+        } else {
+            this.toggleOff();
+        }
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#toggleTools');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(desktopToggle.config.$desktopToggleContainer);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        desktopToggle.config.$desktopToggleContainer.on('click', this.flipTheSwitch.bind(this));
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            desktopToggle.config.$desktopToggleContainer.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs isNextGen value
+        var a = GM_getValue('forceDesktop', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = desktopToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    applyParameters: function () {
+        var hasParameters = this.hasParameters();
+        var siteState = this.siteState();
+        var forceDesktop = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if ((!hasParameters) && (siteState !== 'LIVE') && (forceDesktop)) {
+            window.location.search += '&device=immobile';
+        }
+        if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
+
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = desktopToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&device=immobile') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets forceDesktop value
+        GM_setValue('forceDesktop', bool);
+    }
+};
+
+// ------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------- hide preview toolbar toggle ----------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+var previewToolbarToggle = {
+    init: function () {
+        this.createElements();
+        this.buildTool();
+        this.cacheDOM();
+        this.setToggle();
+        this.addTool();
+        this.bindEvents();
+        //        this.hideFeature();
+    },
+    // ----------------------------------------
+    // tier 1 functions
+    // ----------------------------------------
+    createElements: function () {
+        previewToolbarToggle.config = {
+            $previewToolbarToggleContainer: jQuery('<div>').attr({
+                id: 'previewToolbarToggleInput',
+                class: 'toggleTool'
+            }),
+            $previewToolbarToggleTitle: jQuery('<div>').css({
+                color: 'black',
+                'line-height': '15px'
+            }).text('hide preview toolbar?'),
+            $previewToolbarToggleIcon: jQuery('<div>').attr({
+                id: 'previewToolbarToggleIcon'
+            }),
+            $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+        };
+    },
+    buildTool: function () {
+        previewToolbarToggle.config.$previewToolbarToggleIcon
+            .append(previewToolbarToggle.config.$FAtoggle);
+        previewToolbarToggle.config.$previewToolbarToggleContainer
+            .append(previewToolbarToggle.config.$previewToolbarToggleTitle)
+            .append(previewToolbarToggle.config.$previewToolbarToggleIcon);
+    },
+    setToggle: function () {
+        // get value of custom variable and set toggles accordingly
+        if (this.getChecked()) {
+            this.toggleOn();
+            this.togglePreviewToolbar();
+        } else {
+            this.toggleOff();
+            this.togglePreviewToolbar();
+        }
+    },
+    cacheDOM: function () {
+        this.$toolsPanel = jQuery('#toggleTools');
+        this.$toolbarStyles = jQuery('#qa_toolbox');
+    },
+    addTool: function () {
+        // add to main toolbox
+        this.$toolsPanel.append(previewToolbarToggle.config.$previewToolbarToggleContainer);
+    },
+    bindEvents: function () {
+        // bind FA toggle with 'flipTheSwitch' action
+        previewToolbarToggle.config.$previewToolbarToggleContainer.on('click', this.flipTheSwitch.bind(this));
+        previewToolbarToggle.config.$previewToolbarToggleContainer.on('click', '#previewToolBarFrame', this.togglePreviewToolbar);
+    },
+    hideFeature: function () {
+        // hides feature if viewing live site
+        if (this.siteState() === 'LIVE') {
+            previewToolbarToggle.config.$previewToolbarToggleContainer.toggle();
+        }
+    },
+    // ----------------------------------------
+    // tier 2 functions
+    // ----------------------------------------
+    getChecked: function () {
+        // grabs isNextGen value
+        var a = GM_getValue('hidePreviewToolbar', false);
+        return a;
+    },
+    toggleOn: function () {
+        // set toggle on image
+        var $toggle = previewToolbarToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-off');
+        $toggle.addClass('fa-toggle-on');
+    },
+    togglePreviewToolbar: function () {
+        var hidePreviewToolbar = this.getChecked();
+        // apply parameters only if DOESN'T already have parameters &&
+        // site state IS NOT LIVE &&
+        // toggled ON
+        if (hidePreviewToolbar) {
+            this.$toolbarStyles.append(' #previewToolBarFrame { display: none; }')
+        } else {
+            this.$toolbarStyles.append(' #previewToolBarFrame { display: block; }')
+        }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = previewToolbarToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    setChecked: function (bool) {
+        // sets hidePreviewToolbar value
+        GM_setValue('hidePreviewToolbar', bool);
+    }
+};
+
 // ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- dynamic panel ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-
 var dynamicDisplay = {
     init: function () {
         this.createElements();
@@ -3209,86 +3411,6 @@ var dynamicDisplay = {
 };
 
 // ------------------------------------------------------------------------------------------------------------------------
-// ---------------------------------------- initialize toolbox ----------------------------------------
-// ------------------------------------------------------------------------------------------------------------------------
-
-var runProgram = {
-    init: function () {
-        if (!this.editMode() && this.isCDKsite() && !this.isMobile()) {
-            // initialize toolbox
-            QAtoolbox.init();
-            // initialize page Information module
-            pageInformation.init();
-            // initialize image checker tool
-            imageChecker.init();
-            // initialize link checker tool
-            linkChecker.init();
-            // initialize show navigation tool
-            showNavigation.init();
-            // initialize show autofill tool
-            showAutofill.init();
-            // initialize view mobile tool
-            viewMobile.init();
-            // initialize spell check tool
-            spellCheck.init();
-            // initialize page test
-            speedtestPage.init();
-
-            // 404 checker button
-            jQuery('#toolsPanel').append($404checker_butt);
-
-            // other tools
-
-            jQuery('#otherToolsPanel').append($seo_butt);
-            jQuery('#otherToolsPanel').append($wo_butt);
-
-            // initialize display information module
-            dynamicDisplay.init();
-            // initialize nextGen toggle
-            nextGenToggle.init();
-            // initialize milestone 4 module check box
-            m4Check.init();
-            // initialize refresh page
-            refreshPage.init();
-            // initialize autofill toggle
-            autofillToggle.init();
-            // initialize desktop toggle
-            desktopToggle.init();
-
-            // style buttons in toolbox
-            QAtoolbox.styleTools();
-            // hide panels
-            this.togglePanels();
-        }
-    },
-    togglePanels: function () {
-        pageInformation.config.$pageInfoPanel.delay('400').slideToggle('1000');
-        QAtoolbox.config.$toolsPanel.delay('500').slideToggle('1000');
-        QAtoolbox.config.$otherToolsPanel.delay('650').slideToggle('1000');
-        QAtoolbox.config.$togglesPanel.delay('750').slideToggle('1000');
-    },
-    isCDKsite: function () {
-        var siteState = unsafeWindow.ContextManager.getVersion();
-        // determines which state of the site you are viewing (this variable should only exist on CDK sites)
-        return ((siteState === 'WIP') || (siteState === 'PROTO') || (siteState === 'LIVE'));
-    },
-    isMobile: function () {
-        var phoneWrapper = jQuery('body .phone-wrapper');
-        // determines if the page being viewed is meant for mobile
-        if (phoneWrapper.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    editMode: function () {
-        // determines if site is in edit mode in WSM (this variable should only exist on CDK sites)
-        return unsafeWindow.editMode;
-    }
-};
-
-// ------------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------- START TOOLBOX PROGRAM ----------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------
-
 runProgram.init();
