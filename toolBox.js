@@ -2268,6 +2268,9 @@ $404checker_butt.on('click', function () {
             class: 'myEDOBut offButt',
             value: 'remove legend'
         }),
+        $subText = jQuery('<div>').attr({
+            class: 'subText hint'
+        }).text('* Manually Check Link'),
         $legendContainer = jQuery('#legendContainer'); // cache dom
 
     buildLegend();
@@ -2280,6 +2283,8 @@ $404checker_butt.on('click', function () {
             .append($legendTitle)
             // attach list
             .append($legendList)
+            // attach sub text
+            .append($subText)
             // attach turn off button
             .append($offButt);
         // fill list
