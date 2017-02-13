@@ -1,4 +1,4 @@
-/*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, document */
+/*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, GM_listValues, document */
 
 // 1. reorganized code - placed code in related areas
 
@@ -142,7 +142,7 @@ var pageInformation = {
         // hover
         pageInformation.config.$pageInfoPanel.on('mouseover mouseleave', '.tbInfo', this.hoverEffect);
         // click
-        pageInformation.config.$pageInfoPanel.on('click', '.tbInfo', this.copyToClipboard(event));
+        pageInformation.config.$pageInfoPanel.on('click', '.tbInfo', this.copyToClipboard);
         // minimize
         pageInformation.config.$pageInfoPanelTitle.on('click', this.toggleFeature);
     },
@@ -155,9 +155,10 @@ var pageInformation = {
         jQuery(element).toggleClass('highlight');
 
     },
-    copyToClipboard: function (event) {
+    copyToClipboard: function () {
         // copy page info
-        var copyThisText = event.currentTarget.innerHTML;
+        //        var copyThisText = event.currentTarget.innerHTML;
+        var copyThisText = jQuery(this).text();
         GM_setClipboard(copyThisText, 'text');
     },
     toggleFeature: function () {
@@ -380,17 +381,18 @@ var QAtoolbox = {
         this.body.before(QAtoolbox.config.$legendContainer);
     },
     bindEvents: function () {
-        QAtoolbox.config.$mainToolsTitle.on('click', this.toggleFeature(event));
+        QAtoolbox.config.$mainToolsTitle.on('click', this.toggleFeature);
         QAtoolbox.config.$mainToolsTitle.on('click', this.saveState);
-        QAtoolbox.config.$otherToolsTitle.on('click', this.toggleFeature(event));
+        QAtoolbox.config.$otherToolsTitle.on('click', this.toggleFeature);
         QAtoolbox.config.$otherToolsTitle.on('click', this.saveState);
-        QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature(event));
+        QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature);
         QAtoolbox.config.$togglesTitle.on('click', this.saveState);
     },
     showPanels: function () {
         // loop through variable list to find the panel title
         var variables = this.variableList,
-            state = '';
+            state = '',
+            key = '';
 
         for (key in variables) {
             switch (key) {
@@ -436,13 +438,10 @@ var QAtoolbox = {
         switch (id) {
         case 'mainToolsTitle':
             return QAtoolbox.config.$mainToolsPanel.slideToggle('1000');
-            break;
         case 'otherToolsTitle':
             return QAtoolbox.config.$otherToolsPanel.slideToggle('1000');
-            break;
         case 'togglesTitle':
             return QAtoolbox.config.$togglesPanel.slideToggle('1000');
-            break;
         }
     },
     saveState: function (event) {
@@ -2157,7 +2156,7 @@ $wo_butt.click(function () {
         var w = jQuery(this).width(),
             h = jQuery(this).height();
 
-        jQuery(this).on('click', copyWidgetID(event));
+        jQuery(this).on('click', copyWidgetID);
         jQuery(this).attr({
             title: 'Click to Copy Widget ID'
         });
@@ -2638,9 +2637,11 @@ var nextGenToggle = {
         $toggle.addClass('fa-toggle-on');
     },
     applyParameters: function () {
-        var hasParameters = this.hasParameters();
-        var siteState = this.siteState();
-        var isNextGen = this.getChecked();
+        var hasParameters = this.hasParameters(),
+            siteState = this.siteState(),
+            isNextGen = this.getChecked(),
+            url = '',
+            newURL = '';
         // apply parameters only if DOESN'T already have parameters &&
         // site state IS NOT LIVE &&
         // toggled ON
@@ -2653,11 +2654,11 @@ var nextGenToggle = {
 
         if ((hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
             // if the URL HAS nextGen= BUT it isn't set to true
-            var url = window.location.href;
+            url = window.location.href;
 
             if (url.indexOf('nextGen=false') > 0) {
                 // nextGen false parameter detected UPDATE to true
-                var newURL = url.replace('nextGen=false', 'nextGen=true');
+                newURL = url.replace('nextGen=false', 'nextGen=true');
                 window.location.href = newURL;
             } else if (url.indexOf('nextGen=true') > 0) {
                 // if next gen = true, do nothing
@@ -2667,11 +2668,11 @@ var nextGenToggle = {
         // view TETRA site
         if ((hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
             // if parameters FOUND IN URL and NEXTGEN turned off
-            var url = window.location.href;
+            url = window.location.href;
 
             if (url.indexOf('nextGen=true') > 0) {
                 // next gen parameter = TRUE
-                var newURL = url.replace('nextGen=true', 'nextGen=false');
+                newURL = url.replace('nextGen=true', 'nextGen=false');
                 window.location.href = newURL;
             } else if (url.indexOf('nextGen=false') > 0) {
                 // if next gen = FALSE, do nothing
@@ -3307,9 +3308,9 @@ var previewToolbarToggle = {
         // site state IS NOT LIVE &&
         // toggled ON
         if (hidePreviewToolbar) {
-            this.$toolbarStyles.append(' #previewToolBarFrame { display: none; }')
+            this.$toolbarStyles.append(' #previewToolBarFrame { display: none; }');
         } else {
-            this.$toolbarStyles.append(' #previewToolBarFrame { display: block; }')
+            this.$toolbarStyles.append(' #previewToolBarFrame { display: block; }');
         }
     },
     toggleOff: function () {
