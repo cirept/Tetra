@@ -142,7 +142,7 @@ var pageInformation = {
         // hover
         pageInformation.config.$pageInfoPanel.on('mouseover mouseleave', '.tbInfo', this.hoverEffect);
         // click
-        pageInformation.config.$pageInfoPanel.on('click', '.tbInfo', this.copyToClipboard);
+        pageInformation.config.$pageInfoPanel.on('click', '.tbInfo', this.copyToClipboard(event));
         // minimize
         pageInformation.config.$pageInfoPanelTitle.on('click', this.toggleFeature);
     },
@@ -178,7 +178,7 @@ var runProgram = {
             imageChecker.init(); // initialize image checker tool
             linkChecker.init(); // initialize link checker tool
             showNavigation.init(); // initialize show navigation tool
-            //            showAutofill.init(); // initialize show autofill tool
+            showAutofill.init(); // initialize show autofill tool
             spellCheck.init(); // initialize spell check tool
             speedtestPage.init(); // initialize page test tool
             // 404 checker button
@@ -380,11 +380,11 @@ var QAtoolbox = {
         this.body.before(QAtoolbox.config.$legendContainer);
     },
     bindEvents: function () {
-        QAtoolbox.config.$mainToolsTitle.on('click', this.toggleFeature);
+        QAtoolbox.config.$mainToolsTitle.on('click', this.toggleFeature(event));
         QAtoolbox.config.$mainToolsTitle.on('click', this.saveState);
-        QAtoolbox.config.$otherToolsTitle.on('click', this.toggleFeature);
+        QAtoolbox.config.$otherToolsTitle.on('click', this.toggleFeature(event));
         QAtoolbox.config.$otherToolsTitle.on('click', this.saveState);
-        QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature);
+        QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature(event));
         QAtoolbox.config.$togglesTitle.on('click', this.saveState);
     },
     showPanels: function () {
@@ -2157,7 +2157,7 @@ $wo_butt.click(function () {
         var w = jQuery(this).width(),
             h = jQuery(this).height();
 
-        jQuery(this).on('click', copyWidgetID);
+        jQuery(this).on('click', copyWidgetID(event));
         jQuery(this).attr({
             title: 'Click to Copy Widget ID'
         });
