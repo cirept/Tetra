@@ -2598,6 +2598,7 @@ var nextGenToggle = {
             this.applyParameters();
         } else {
             this.toggleOff();
+            this.applyParameters();
         }
     },
     cacheDOM: function () {
@@ -2638,11 +2639,44 @@ var nextGenToggle = {
         // apply parameters only if DOESN'T already have parameters &&
         // site state IS NOT LIVE &&
         // toggled ON
+
+        // view NEXTGEN site
         if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
+            // if nextgen IS NOT in the URL, add nextGen=true
             window.location.search += '&nextGen=true';
         }
-        if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
 
+        if ((hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
+            // if the URL HAS nextGen= BUT it isn't set to true
+            var url = window.location.href;
+
+            if (url.indexOf('nextGen=false') > 0) {
+                // nextGen false parameter detected UPDATE to true
+                var newURL = url.replace('nextGen=false', 'nextGen=true');
+                window.location.href = newURL;
+            } else if (url.indexOf('nextGen=true') > 0) {
+                // if next gen = true, do nothing
+            }
+        }
+
+        // view TETRA site
+        if ((hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
+            // if parameters FOUND IN URL and NEXTGEN turned off
+            var url = window.location.href;
+
+            if (url.indexOf('nextGen=true') > 0) {
+                // next gen parameter = TRUE
+                var newURL = url.replace('nextGen=true', 'nextGen=false');
+                window.location.href = newURL;
+            } else if (url.indexOf('nextGen=false') > 0) {
+                // if next gen = FALSE, do nothing
+            }
+        }
+
+        // if URL DOES NOT HAVE PARAMETERS and toggle is turned off
+        if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
+            // if nextgen IS NOT in the URL, add nextGen=false
+            window.location.search += '&nextGen=false';
         }
     },
     toggleOff: function () {
@@ -2662,7 +2696,7 @@ var nextGenToggle = {
     // ----------------------------------------
     hasParameters: function () {
         // determine if site URL already has custom parameters
-        if (window.location.href.indexOf('&nextGen=true') >= 0) {
+        if (window.location.href.indexOf('nextGen=') >= 0) {
             return true;
         } else {
             return false;
