@@ -129,8 +129,8 @@
                     .append('.myEDOBut.notWorking { background: purple; }')
                     .append('.myEDOBut.offButt { width: 90%; height: 50px; }')
                     .append('.myEDOBut[disabled] { border: 2px outset ButtonFace; background: #ddd; background-color: #ddd; color: grey !important; cursor: default; }')
-                    .append('.offButt { background: linear-gradient(to left, #085078 , #85D8CE); }')
-                    .append('.myEDOBut:hover { background: linear-gradient(to left, #141E30 , #243B55); }')
+                    .append('.offButt { background: linear-gradient(to left, #085078 , #85D8CE) !important; }')
+                    .append('.myEDOBut:hover { background: linear-gradient(to left, #141E30 , #243B55) !important; }')
                     // legend styles
                     .append('.legendTitle { font-weight: bold; }')
                     .append('.legendContent { padding: 5px; }')
@@ -500,7 +500,7 @@
             },
             cacheDOM: function () {
                 this.$cm = unsafeWindow.ContextManager;
-                this.webID = this.$cm.getDealershipName();
+                this.webID = this.$cm.getWebId();
             },
             displayData: function () {
                 webID.config.$webID.html(this.webID);
@@ -1444,50 +1444,6 @@
                 return function () {
                     jQuery(currentLink).toggleClass('linkChecked');
                 };
-            }
-        },
-
-        // ------------------------------------------------------------------------------------------------------------------------
-        // ---------------------------------------- Show Autofill Tags ----------------------------------------
-        // ------------------------------------------------------------------------------------------------------------------------
-        showAutofill = {
-            init: function () {
-                this.createElements();
-                this.cacheDOM();
-                this.addTool();
-                this.bindEvents();
-            },
-            // ----------------------------------------
-            // tier 1 functions
-            // ----------------------------------------
-            createElements: function () {
-                showAutofill.config = {
-                    $activateButt: jQuery('<button>').attr({
-                        class: 'myEDOBut',
-                        id: 'showAutofill',
-                        title: 'Show Autofill Tags'
-                    }).text('Show Autofill')
-                };
-            },
-            cacheDOM: function () {
-                this.$toolsPanel = jQuery('#mainTools');
-                this.$cm = unsafeWindow.ContextManager;
-                this.siteURL = this.$cm.getUrl();
-                this.pageName = this.$cm.getPageName();
-            },
-            addTool: function () {
-                this.$toolsPanel.append(showAutofill.config.$activateButt);
-            },
-            bindEvents: function () {
-                showAutofill.config.$activateButt.on('click', this.showAutofill.bind(this));
-            },
-            // ----------------------------------------
-            // tier 2 functions
-            // ----------------------------------------
-            showAutofill: function () {
-                var auto = '?disableAutofill=true',
-                    openThis = this.siteURL + this.pageName + auto;
-                GM_openInTab(openThis, 'active');
             }
         },
 
@@ -2651,7 +2607,8 @@
 
             var curLink = $pageLinks[j],
                 $curLink = jQuery(curLink),
-                curURL = jQuery.trim($curLink.attr('href'));
+                curURL = jQuery.trim($curLink.attr('href')),
+                hrefLength = curURL.length;
 
             // skip javascript links
             if (curURL.indexOf('javascript') >= 0) {
@@ -2699,15 +2656,14 @@
                 if ((curURL.indexOf(findThis2) >= 0) && (curURL.indexOf(findThis2) < length)) {
                     curURL = curURL.replace(findThis, baseURL);
                 }
-            } else {
+            }
+
+            // check urls for '/'
+            if (curURL.indexOf('//') === 0) {
                 // check URL if it begins with /, signifying the link is a relative path URL
-                // check URL if it doesn't have the normal http://www, also signifying the link is a relative path URL
-                // TETRA SPECIFIC
-                // add complete URL for testing purposes
-                //            if ((linkURL.indexOf('/') === 0) || !checkHref(linkURL)) {
-                //            if (curURL.indexOf('/') === 0) {
-                //                curURL = baseURL + curURL;
-                //            }
+                curURL = curURL.slice(2, hrefLength);
+            } else if (curURL.indexOf('/') === 0) {
+                curURL = curURL.slice(1, hrefLength);
             }
 
             // test links
@@ -3573,8 +3529,10 @@
                 // toggled ON
                 if (hidePreviewToolbar) {
                     this.$toolbarStyles.append(' #previewToolBarFrame { display: none; }');
+                    this.$toolbarStyles.append(' .preview-wrapper { display: none; }');
                 } else {
                     this.$toolbarStyles.append(' #previewToolBarFrame { display: block; }');
+                    this.$toolbarStyles.append(' .preview-wrapper { display: block; }');
                 }
             },
             toggleOff: function () {
@@ -3727,7 +3685,6 @@
                     imageChecker.init(); // initialize image checker tool
                     linkChecker.init(); // initialize link checker tool
                     showNavigation.init(); // initialize show navigation tool
-                    showAutofill.init(); // initialize show autofill tool
                     spellCheck.init(); // initialize spell check tool
                     speedtestPage.init(); // initialize page test tool
                     // 404 checker button
