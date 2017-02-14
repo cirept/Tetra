@@ -9,7 +9,7 @@
 // @require https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js
 // @require https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @require https://use.fontawesome.com/3953f47d82.js
-// @require https://cdn.rawgit.com/cirept/Tetra/v2.7.7/toolBox.js
+// @require https://cdn.rawgit.com/cirept/Tetra/v2.7.7.2/toolBox.js
 // @author Eric Tanaka
 // @grant GM_openInTab
 // @grant GM_setClipboard
