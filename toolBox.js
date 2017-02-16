@@ -98,26 +98,28 @@
                         id: 'urlModTitle',
                         title: 'Click to Minimize / Maximize'
                     }).text('URL Modifiers'),
-                    $urlModTools: {},
 
                     // ----------------------------------------
                     // test elements
                     // ----------------------------------------
-                    $runURL: jQuery('<input>').attr({
-                        id: 'runURL',
-                        class: 'myEDOBut',
-                        value: 'Auto Apply Parameters'
-                    }).css({
-                        background: 'black'
-                    }),
+                    //                    $runURL: jQuery('<input>').attr({
+                    //                        id: 'runURL',
+                    //                        class: 'myEDOBut',
+                    //                        value: 'Auto Apply Parameters'
+                    //                    }).css({
+                    //                        background: 'black'
+                    //                    }),
                     $autoApplyContainer: jQuery('<div>').attr({
                         id: 'autoApplyInput',
                         class: 'toggleTool'
+                    }).css({
+                        background: 'teal'
                     }),
                     $autoApplyTitle: jQuery('<div>').css({
                         color: 'black',
-                        'line-height': '15px'
-                    }).text('autoApply Parameters?'),
+                        'line-height': '15px',
+                        'font-weight': 'bold'
+                    }).text('Auto Apply Modifiers?'),
                     $autoApplyIcon: jQuery('<div>').attr({
                         id: 'autoApplyIcon'
                     }),
@@ -159,10 +161,10 @@
                     // off button styles
                     .append('.oddEDObutts {background: linear-gradient(to left, #6190E8 , #A7BFE8);}')
                     // default button styles
-                    .append('.myEDOBut { border: 2px solid rgb(0,0,0); border-radius: 5px; color: #ffffff !important; font-family: "Montserrat"; font-size: 11px; top: 15%; margin: 1px 0px 0px 10px; padding: 4px 0px; position: relative; text-transform: lowercase; width: 120px; }')
+                    .append('.myEDOBut { border: 2px solid rgb(0,0,0); border-radius: 5px; color: #ffffff !important; cursor: pointer; font-family: "Montserrat"; font-size: 11px; top: 15%; margin: 1px 0px 0px 10px; padding: 4px 0px; position: relative; text-transform: lowercase; width: 120px; }')
                     .append('.myEDOBut.notWorking { background: purple; }')
                     .append('.myEDOBut.offButt { width: 90%; height: 50px; }')
-                    .append('.myEDOBut[disabled] { border: 2px outset ButtonFace; background: #ddd; background-color: #ddd; color: grey !important; cursor: default; }')
+                    .append('.myEDOBut[disabled] { border: 2px outset ButtonFace; background: #ddd; background-color: #ddd; color: grey !important; cursor: not-allowed; }')
                     .append('.offButt { background: linear-gradient(to left, #085078 , #85D8CE) !important; }')
                     .append('.myEDOBut:hover { background: linear-gradient(to left, #141E30 , #243B55) !important; }')
                     // legend styles
@@ -193,13 +195,13 @@
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
-                QAtoolbox.config.$autoApplyIcon
-                    .append(QAtoolbox.config.$FAtoggle);
-                QAtoolbox.config.$autoApplyContainer
-                    .append(QAtoolbox.config.$autoApplyTitle)
-                    .append(QAtoolbox.config.$autoApplyIcon);
-                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$runURL);
-                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$autoApplyContainer);
+                QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyTitle);
+                QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyIcon);
+
+                QAtoolbox.config.$autoApplyIcon.append(QAtoolbox.config.$FAtoggle);
+
+                //                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$runURL);
+                QAtoolbox.config.$urlModPanel.append(QAtoolbox.config.$autoApplyContainer);
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
@@ -236,7 +238,7 @@
                 // test stuff
                 // ----------------------------------------
                 QAtoolbox.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
-                QAtoolbox.config.$runURL.on('click', this.runURL);
+                //                QAtoolbox.config.$runURL.on('click', this.runURL);
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
@@ -282,101 +284,53 @@
                 $toggle.addClass('fa-toggle-on');
             },
             applyParameters: function () {
-                //                console.log('inside apply parameters');
-                var urlParameters = {
-                        nextGen: nextGenToggle.returnParameters(),
-                        m4CheckTog: m4Check.returnParameters(),
-                        desktop: desktopToggle.returnParameters(),
-                        autofill: autofillToggle.returnParameters()
-                    },
-                    urlParameters2 = [
+                var urlParameters = [
                         nextGenToggle.returnParameters(),
                         m4Check.returnParameters(),
-                        desktopToggle.returnParameters(),
                         autofillToggle.returnParameters()
                     ],
-                    key = '',
                     findThis = '',
                     z = 0,
-                    urlArrayLength = urlParameters2.length,
-                    url = window.location.href,
-                    keepRunning = true; //,
-                //                    findMe = nextGen + '|' + m4CheckTog + '|' + desktop + '|' + autofill,
-                //                    regex = new RegExp(findMe, 'gi');
-
-                // ----------------------------------------
-                // TO DO ************************************************************************
-                // HAVE TO CREATE A FUNCTION TO FIND EACH PARAMETER IN THE URL THAT IS TOGGLED ON
-                // ----------------------------------------
-
-                //                for (key in urlParameters) {
-                //                    findThis = urlParameters[key];
-                //                }
-
-                //                for (z; z < urlArrayLength; z += 1) {
-                //                    findThis = urlParameters2[z];
-                //                    console.log(findThis);
-                //                }
+                    urlArrayLength = urlParameters.length,
+                    url = window.location.href + '?device=immobile',
+                    $cm = unsafeWindow.ContextManager,
+                    siteURL = $cm.getUrl(),
+                    pageName = $cm.getPageName(),
+                    newURL = siteURL + pageName + '?device=immobile';
 
                 console.log(url);
                 console.log('----------------------------------------');
 
-                do {
-                    for (z; z < urlArrayLength; z += 1) {
-                        findThis = urlParameters2[z];
-                        //                    console.log(findThis);
-                        console.log('start search for : ' + findThis);
-                        if (!findThis) {
-                            console.log('value is empty : skip');
-                            continue;
-                        }
+                for (z; z < urlArrayLength; z += 1) {
+                    findThis = urlParameters[z];
+                    console.log('start search for : ' + findThis);
+                    var bool = this.searchURL(findThis, url);
 
-                        var bool = this.searchURL(findThis, url);
-
-                        if (bool) {
-                            console.log('match found');
-                            keepRunning = false;
-
-                            // do nothing
-                        } else if (!bool) {
-                            console.log('add parameter to url');
-                            url += findThis;
-                            console.log(url);
-                            keepRunning = true;
-                            continue;
-                        }
-                        keepRunning = false;
+                    if (findThis === '') {
+                        console.log('value is empty : skip');
+                        continue;
+                    } else if (bool) {
+                        console.log('match found');
+                        // do nothing
+                    } else if (!bool) {
+                        console.log('add parameter to url');
+                        url += findThis;
+                        console.log(url);
+                        continue;
                     }
-                    keepRunning = false;
-                } while (keepRunning);
+                }
 
                 console.log('should only run when all parameters have been added to the URL');
                 console.log(url);
-
-                //                console.log('keep running after URL replace? : ' + keepRunning);
-                //                // determine when to stop checking the URL
-                //                if (!keepRunning) {
-                //                    console.log('should only run when all parameters have been added to the URL');
-                //                    //                        window.location.href = url;
-                //                }
-
-                //                window.location.href = url;
-
-                //                console.log(regex);
-                //                if (!url.match(regex)) {
-                //                    this.runURL();
-                //                    console.log('match not found');
-                //                } else if (url.match(regex)) {
-                //                    console.log('match found');
-                //                }
+                if (window.location.href !== url) {
+                    //                    window.location.href = url;
+                }
                 // ----------------------------------------
                 // TEST
                 // ----------------------------------------
             },
             searchURL: function (findThis, url) {
-                console.log('find this : ' + findThis);
                 if (url.indexOf(findThis) >= 0) {
-                    console.log('match found');
                     return true;
                 }
                 return false;
@@ -385,29 +339,29 @@
             // run URL button - option 1
             // ----------------------------------------
             runURL: function () {
-                var //url = window.location.href,
-                    addThis = '',
+                var url = window.location.href,
+                    addThis = '?device=immobile', // start with device = immobile to force the desktop view
                     newURL = '',
                     $cm = unsafeWindow.ContextManager,
                     siteURL = $cm.getUrl(),
                     pageName = $cm.getPageName();
 
+                console.log('current site URL : ' + url);
                 console.log(nextGenToggle.returnParameters());
                 console.log(m4Check.returnParameters());
-                console.log(desktopToggle.returnParameters());
+                //                console.log(desktopToggle.returnParameters());
                 console.log(autofillToggle.returnParameters());
 
                 addThis += nextGenToggle.returnParameters();
                 addThis += m4Check.returnParameters();
-                addThis += desktopToggle.returnParameters();
+                //                addThis += desktopToggle.returnParameters();
                 addThis += autofillToggle.returnParameters();
 
-                console.log(addThis);
+                console.log('add these new parameters : ' + addThis);
                 //        newURL = url + addThis;
-                //                newURL = siteURL + pageName + '?' + addThis;
-                newURL = url + addThis;
-                console.log(newURL);
-
+                newURL = siteURL + pageName + addThis;
+                //                newURL = siteURL + addThis;
+                console.log('newURL : ' + newURL);
                 window.location.href = newURL;
             },
             // ----------------------------------------
@@ -571,7 +525,8 @@
             },
             addTool: function () {
                 // add to main toolbox
-                this.$toolBoxContainer.append(pageInformation.config.$pageInfoContainer);
+                this.$toolBoxContainer.prepend(pageInformation.config.$pageInfoContainer);
+                //                this.$toolBoxContainer.append(pageInformation.config.$pageInfoContainer);
             },
             addStyles: function () {
                 // apply module styles to main tool bar style tag
@@ -671,16 +626,15 @@
                         id: 'dealerNameContainer'
                     }),
                     // dealership name title
-                    $dealerNameTitle: jQuery('<label>')
-                        .addClass('tbLabel')
-                        .text('Dealer Name'),
+                    $dealerNameTitle: jQuery('<label>').attr({
+                        class: 'tbLabel'
+                    }).text('Dealer Name'),
                     // dealership name display
-                    $dealerName: jQuery('<div>')
-                        .addClass('tbInfo')
-                        .attr({
-                            title: 'Copy Dealership Name',
-                            id: 'dealerName'
-                        })
+                    $dealerName: jQuery('<div>').attr({
+                        class: 'tbInfo',
+                        title: 'Copy Dealership Name',
+                        id: 'dealerName'
+                    })
                 };
             },
             buildTool: function () {
@@ -2675,7 +2629,7 @@
         // tier 2 functions
         // ----------------------------------------
         viewMobile: function () {
-            var auto = '?device=mobile',
+            var auto = '?device=mobile&nextGen=false',
                 openThis = this.siteURL + this.pageName + auto;
             GM_openInTab(openThis, 'active');
         },
@@ -3031,13 +2985,13 @@
                 nextGenToggle.config = {
                     $nextGenToggleContainer: jQuery('<div>').attr({
                         id: 'nextGenToggleInput',
-                        class: 'toggleTool'
+                        class: 'toggleTool',
+                        title: 'Apply NextGen=true'
                     }),
                     $nextGenToggleTitle: jQuery('<div>').css({
-                            color: 'black',
-                            'line-height': '15px'
-                        })
-                        .text('nextGen Parameters?'),
+                        color: 'black',
+                        'line-height': '15px'
+                    }).text('nextGen parameters?'),
                     $nextGenToggleIcon: jQuery('<div>').attr({
                         id: 'nextGenToggleIcon'
                     }),
@@ -3080,7 +3034,7 @@
             },
             returnParameters: function () {
                 if (this.getChecked()) {
-                    console.log('returning parameter');
+                    //                    console.log('returning parameter');
                     return '&nextGen=true';
                 }
                 return '';
@@ -3203,13 +3157,13 @@
                 m4Check.config = {
                     $m4Container: jQuery('<div>').attr({
                         id: 'm4Input',
-                        class: 'toggleTool'
+                        class: 'toggleTool',
+                        title: 'Apply relative and comments parameters'
                     }),
                     $m4CheckTitle: jQuery('<div>').css({
-                            color: 'black',
-                            'line-height': '15px'
-                        })
-                        .text('M4 Parameters?'),
+                        color: 'black',
+                        'line-height': '15px'
+                    }).text('M4 Parameters?'),
                     $m4Checkbox: jQuery('<div>').attr({
                         id: 'm4toggle'
                     }),
@@ -3335,13 +3289,13 @@
                 autofillToggle.config = {
                     $autofillToggleContainer: jQuery('<div>').attr({
                         id: 'autofillToggleInput',
-                        class: 'toggleTool'
+                        class: 'toggleTool',
+                        title: 'Show all autofill tags on page'
                     }),
                     $autofillToggleTitle: jQuery('<div>').css({
-                            color: 'black',
-                            'line-height': '15px'
-                        })
-                        .text('show autofill tags?'),
+                        color: 'black',
+                        'line-height': '15px'
+                    }).text('show autofill tags?'),
                     $autofillToggleIcon: jQuery('<div>').attr({
                         id: 'autofillToggleIcon'
                     }),
@@ -3450,139 +3404,138 @@
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- force desktop site toggle ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
-        desktopToggle = {
-            init: function () {
-                this.createElements();
-                this.buildTool();
-                this.setToggle();
-                this.cacheDOM();
-                this.addTool();
-                this.bindEvents();
-                this.hideFeature();
-            },
-            // ----------------------------------------
-            // tier 1 functions
-            // ----------------------------------------
-            createElements: function () {
-                desktopToggle.config = {
-                    $desktopToggleContainer: jQuery('<div>').attr({
-                        id: 'desktopToggleInput',
-                        class: 'toggleTool'
-                    }),
-                    $desktopToggleTitle: jQuery('<div>').css({
-                            color: 'black',
-                            'line-height': '15px'
-                        })
-                        .text('force desktop site?'),
-                    $desktopToggleIcon: jQuery('<div>').attr({
-                        id: 'desktopToggleIcon'
-                    }),
-                    $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
-                };
-            },
-            buildTool: function () {
-                desktopToggle.config.$desktopToggleIcon
-                    .append(desktopToggle.config.$FAtoggle);
-                desktopToggle.config.$desktopToggleContainer
-                    .append(desktopToggle.config.$desktopToggleTitle)
-                    .append(desktopToggle.config.$desktopToggleIcon);
-            },
-            setToggle: function () {
-                // get value of custom variable and set toggles accordingly
-                if (this.getChecked()) {
-                    this.toggleOn();
-                    this.applyParameters();
-                } else {
-                    this.toggleOff();
-                }
-            },
-            cacheDOM: function () {
-                this.$toolsPanel = jQuery('#urlModTools');
-            },
-            addTool: function () {
-                // add to main toolbox
-                this.$toolsPanel.append(desktopToggle.config.$desktopToggleContainer);
-            },
-            bindEvents: function () {
-                // bind FA toggle with 'flipTheSwitch' action
-                desktopToggle.config.$desktopToggleContainer.on('click', this.flipTheSwitch.bind(this));
-            },
-            hideFeature: function () {
-                // hides feature if viewing live site
-                if (this.siteState() === 'LIVE') {
-                    desktopToggle.config.$desktopToggleContainer.toggle();
-                }
-            },
-            returnParameters: function () {
-                var applyParameter = this.getChecked();
-                if (applyParameter) {
-                    return '&device=immobile';
-                }
-                return '';
-            },
-            // ----------------------------------------
-            // tier 2 functions
-            // ----------------------------------------
-            getChecked: function () {
-                // grabs isNextGen value
-                var a = GM_getValue('forceDesktop', false);
-                return a;
-            },
-            toggleOn: function () {
-                // set toggle on image
-                var $toggle = desktopToggle.config.$FAtoggle;
-                $toggle.removeClass('fa-toggle-off');
-                $toggle.addClass('fa-toggle-on');
-            },
-            applyParameters: function () {
-                /*
-                var hasParameters = this.hasParameters(),
-                    siteState = this.siteState(),
-                    forceDesktop = this.getChecked();
-                // apply parameters only if DOESN'T already have parameters &&
-                // site state IS NOT LIVE &&
-                // toggled ON
-                if ((!hasParameters) && (siteState !== 'LIVE') && (forceDesktop)) {
-                    window.location.search += '&device=immobile';
-                }
-                if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
+        /*
+            desktopToggle = {
+                init: function () {
+                    this.createElements();
+                    this.buildTool();
+                    this.setToggle();
+                    this.cacheDOM();
+                    this.addTool();
+                    this.bindEvents();
+                    this.hideFeature();
+                },
+                // ----------------------------------------
+                // tier 1 functions
+                // ----------------------------------------
+                createElements: function () {
+                    desktopToggle.config = {
+                        $desktopToggleContainer: jQuery('<div>').attr({
+                            id: 'desktopToggleInput',
+                            class: 'toggleTool'
+                        }),
+                        $desktopToggleTitle: jQuery('<div>').css({
+                                color: 'black',
+                                'line-height': '15px'
+                            })
+                            .text('force desktop site?'),
+                        $desktopToggleIcon: jQuery('<div>').attr({
+                            id: 'desktopToggleIcon'
+                        }),
+                        $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+                    };
+                },
+                buildTool: function () {
+                    desktopToggle.config.$desktopToggleIcon
+                        .append(desktopToggle.config.$FAtoggle);
+                    desktopToggle.config.$desktopToggleContainer
+                        .append(desktopToggle.config.$desktopToggleTitle)
+                        .append(desktopToggle.config.$desktopToggleIcon);
+                },
+                setToggle: function () {
+                    // get value of custom variable and set toggles accordingly
+                    if (this.getChecked()) {
+                        this.toggleOn();
+                        this.applyParameters();
+                    } else {
+                        this.toggleOff();
+                    }
+                },
+                cacheDOM: function () {
+                    this.$toolsPanel = jQuery('#urlModTools');
+                },
+                addTool: function () {
+                    // add to main toolbox
+                    this.$toolsPanel.append(desktopToggle.config.$desktopToggleContainer);
+                },
+                bindEvents: function () {
+                    // bind FA toggle with 'flipTheSwitch' action
+                    desktopToggle.config.$desktopToggleContainer.on('click', this.flipTheSwitch.bind(this));
+                },
+                hideFeature: function () {
+                    // hides feature if viewing live site
+                    if (this.siteState() === 'LIVE') {
+                        desktopToggle.config.$desktopToggleContainer.toggle();
+                    }
+                },
+                returnParameters: function () {
+                    var applyParameter = this.getChecked();
+                    if (applyParameter) {
+                        return '&device=immobile';
+                    }
+                    return '';
+                },
+                // ----------------------------------------
+                // tier 2 functions
+                // ----------------------------------------
+                getChecked: function () {
+                    // grabs isNextGen value
+                    var a = GM_getValue('forceDesktop', false);
+                    return a;
+                },
+                toggleOn: function () {
+                    // set toggle on image
+                    var $toggle = desktopToggle.config.$FAtoggle;
+                    $toggle.removeClass('fa-toggle-off');
+                    $toggle.addClass('fa-toggle-on');
+                },
+                applyParameters: function () {
+                    var hasParameters = this.hasParameters(),
+                        siteState = this.siteState(),
+                        forceDesktop = this.getChecked();
+                    // apply parameters only if DOESN'T already have parameters &&
+                    // site state IS NOT LIVE &&
+                    // toggled ON
+                    if ((!hasParameters) && (siteState !== 'LIVE') && (forceDesktop)) {
+                        window.location.search += '&device=immobile';
+                    }
+                    if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
 
-                }
-                */
-            },
-            toggleOff: function () {
-                // set toggle off image
-                var $toggle = desktopToggle.config.$FAtoggle;
-                $toggle.removeClass('fa-toggle-on');
-                $toggle.addClass('fa-toggle-off');
-            },
-            flipTheSwitch: function () {
-                // set saved variable to opposite of current value
-                this.setChecked(!this.getChecked());
-                // set toggle
-                this.setToggle();
-            },
-            // ----------------------------------------
-            // tier 3 functions
-            // ----------------------------------------
-            hasParameters: function () {
-                // determine if site URL already has custom parameters
-                if (window.location.href.indexOf('&device=immobile') >= 0) {
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-            siteState: function () {
-                // return page variable
-                return unsafeWindow.ContextManager.getVersion();
-            },
-            setChecked: function (bool) {
-                // sets forceDesktop value
-                GM_setValue('forceDesktop', bool);
-            }
-        },
-
+                    }
+    },
+    toggleOff: function () {
+        // set toggle off image
+        var $toggle = desktopToggle.config.$FAtoggle;
+        $toggle.removeClass('fa-toggle-on');
+        $toggle.addClass('fa-toggle-off');
+    },
+    flipTheSwitch: function () {
+        // set saved variable to opposite of current value
+        this.setChecked(!this.getChecked());
+        // set toggle
+        this.setToggle();
+    },
+    // ----------------------------------------
+    // tier 3 functions
+    // ----------------------------------------
+    hasParameters: function () {
+        // determine if site URL already has custom parameters
+        if (window.location.href.indexOf('&device=immobile') >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+    siteState: function () {
+        // return page variable
+        return unsafeWindow.ContextManager.getVersion();
+    },
+    setChecked: function (bool) {
+        // sets forceDesktop value
+        GM_setValue('forceDesktop', bool);
+    }
+},
+    */
         /* ************************************************************************************************************************ */
         /* **************************************** TOGGLE TOOLS **************************************** */
         /* ************************************************************************************************************************ */
@@ -3976,7 +3929,7 @@
                     nextGenToggle.init(); // initialize nextGen toggle
                     m4Check.init(); // initialize milestone 4 module check box
                     autofillToggle.init(); // initialize autofill toggle
-                    desktopToggle.init(); // initialize desktop toggle
+                    //                    desktopToggle.init(); // initialize desktop toggle
 
                     dynamicDisplay.init(); // initialize display information tool
 
