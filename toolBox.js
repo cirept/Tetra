@@ -1,6 +1,5 @@
 /*jslint debug: false*/
 /*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, GM_listValues, document, console */
-
 // 1. reorganized code - placed code in related areas
 (function () {
     "use strict";
@@ -16,7 +15,6 @@
                 this.attachTools();
                 this.bindEvents();
                 this.showPanels();
-
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
@@ -98,17 +96,16 @@
                         id: 'urlModTitle',
                         title: 'Click to Minimize / Maximize'
                     }).text('URL Modifiers'),
-
                     // ----------------------------------------
                     // test elements
                     // ----------------------------------------
-                    //                    $runURL: jQuery('<input>').attr({
-                    //                        id: 'runURL',
-                    //                        class: 'myEDOBut',
-                    //                        value: 'Auto Apply Parameters'
-                    //                    }).css({
-                    //                        background: 'black'
-                    //                    }),
+                    $runURL: jQuery('<input>').attr({
+                        id: 'runURL',
+                        class: 'myEDOBut',
+                        value: 'Auto Apply Parameters'
+                    }).css({
+                        background: 'black'
+                    }),
                     $autoApplyContainer: jQuery('<div>').attr({
                         id: 'autoApplyInput',
                         class: 'toggleTool'
@@ -127,8 +124,6 @@
                     // ----------------------------------------
                     // test elements
                     // ----------------------------------------
-
-
                     // ----------------------------------------
                     // Toolbar Resources
                     // ----------------------------------------
@@ -176,7 +171,6 @@
                     .append('.hint { font-size: 10px; font-style: italic; line-height: 10px; margin: 10px 0 0 0; }')
                     // toggle style
                     .append('.toggleTool { background: linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255)); border-top: 1px solid #999999; cursor: pointer; } '); // end
-
             },
             buildPanel: function () {
                 // attach title and tools panel to tool container
@@ -191,21 +185,17 @@
                 // attach title and URL Mod panel to URL Mod container
                 QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$urlModTitle);
                 QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$urlModPanel);
-
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
                 QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyTitle);
                 QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyIcon);
-
                 QAtoolbox.config.$autoApplyIcon.append(QAtoolbox.config.$FAtoggle);
-
-                //                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$runURL);
+                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$runURL);
                 QAtoolbox.config.$urlModPanel.append(QAtoolbox.config.$autoApplyContainer);
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
-
                 // attach tools panel to tool container
                 QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$mainToolsContainer);
                 QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$otherToolsContainer);
@@ -233,17 +223,15 @@
                 QAtoolbox.config.$togglesTitle.on('click', this.saveState);
                 QAtoolbox.config.$urlModTitle.on('click', this.toggleFeature);
                 QAtoolbox.config.$urlModTitle.on('click', this.saveState);
-
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
                 QAtoolbox.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
-                //                QAtoolbox.config.$runURL.on('click', this.runURL);
+                QAtoolbox.config.$runURL.on('click', this.runURL);
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
             },
-
             // ----------------------------------------
             // test stuff
             // ----------------------------------------
@@ -274,7 +262,7 @@
             },
             getChecked: function () {
                 // grabs isNextGen value
-                var a = GM_getValue('autoApplyParameters', false);
+                var a = GM_getValue('autoApplyParameters', false); // jshint ignore:line
                 return a;
             },
             toggleOn: function () {
@@ -289,42 +277,80 @@
                         m4Check.returnParameters(),
                         autofillToggle.returnParameters()
                     ],
+                    urlParameters2 = {
+                        nextGenToggle: nextGenToggle.returnParameters(),
+                        m4Check: m4Check.returnParameters(),
+                        autofillToggle: autofillToggle.returnParameters()
+                    },
                     findThis = '',
                     z = 0,
                     urlArrayLength = urlParameters.length,
-                    url = window.location.href + '?device=immobile',
+                    url = window.location.href,
                     $cm = unsafeWindow.ContextManager,
                     siteURL = $cm.getUrl(),
                     pageName = $cm.getPageName(),
-                    newURL = siteURL + pageName + '?device=immobile';
-
+                    newURL = siteURL + pageName + '?device=immobile',
+                    counter = 0,
+                    allPresent = false,
+                    key = '';
                 console.log(url);
                 console.log('----------------------------------------');
 
-                for (z; z < urlArrayLength; z += 1) {
-                    findThis = urlParameters[z];
+
+                //                for (z; z < urlArrayLength; z += 1) {
+                //                    findThis = urlParameters[z];
+                //                    console.log('start search for : ' + findThis);
+                //                    var bool = this.searchURL(findThis, url);
+                //                    if (findThis === '') {
+                //                        console.log('value is empty : skip');
+                //                        counter += 1;
+                //                        //                        continue;
+                //                    } else {
+                //                        // if value is not empty
+                //                        if (bool) {
+                //                            console.log('match found');
+                //                            //                            counter += 1;
+                //                            // do nothing
+                //                        } else if (!bool) {
+                //                            console.log('add parameter to url');
+                //                            newURL += findThis;
+                //                            console.log(newURL);
+                //                            //                        continue;
+                //                        }
+                //                    }
+                //                }
+
+                for (key in urlParameters2) {
+                    findThis = urlParameters[key];
                     console.log('start search for : ' + findThis);
                     var bool = this.searchURL(findThis, url);
-
                     if (findThis === '') {
                         console.log('value is empty : skip');
-                        continue;
-                    } else if (bool) {
-                        console.log('match found');
-                        // do nothing
-                    } else if (!bool) {
-                        console.log('add parameter to url');
-                        url += findThis;
-                        console.log(url);
-                        continue;
+                        counter += 1;
+                        //                        continue;
+                    } else {
+                        // if value is not empty
+                        if (bool) {
+                            console.log('match found');
+                            //                            counter += 1;
+                            // do nothing
+                        } else if (!bool) {
+                            console.log('add parameter to url');
+                            newURL += findThis;
+                            console.log(newURL);
+                            //                        continue;
+                        }
                     }
                 }
 
+
                 console.log('should only run when all parameters have been added to the URL');
-                console.log(url);
-                if (window.location.href !== url) {
-                    //                    window.location.href = url;
-                }
+                console.log(newURL);
+                console.log('counter : ' + counter + ' = Array length : ' + urlArrayLength);
+                console.log(newURL);
+                //                if (counter === urlArrayLength) {
+                //                    window.location.href = newURL;
+                //                }
                 // ----------------------------------------
                 // TEST
                 // ----------------------------------------
@@ -345,18 +371,15 @@
                     $cm = unsafeWindow.ContextManager,
                     siteURL = $cm.getUrl(),
                     pageName = $cm.getPageName();
-
                 console.log('current site URL : ' + url);
                 console.log(nextGenToggle.returnParameters());
                 console.log(m4Check.returnParameters());
                 //                console.log(desktopToggle.returnParameters());
                 console.log(autofillToggle.returnParameters());
-
                 addThis += nextGenToggle.returnParameters();
                 addThis += m4Check.returnParameters();
                 //                addThis += desktopToggle.returnParameters();
                 addThis += autofillToggle.returnParameters();
-
                 console.log('add these new parameters : ' + addThis);
                 //        newURL = url + addThis;
                 newURL = siteURL + pageName + addThis;
@@ -369,7 +392,7 @@
             // ----------------------------------------
             setChecked: function (bool) {
                 // sets isNextGen value
-                GM_setValue('autoApplyParameters', bool);
+                GM_setValue('autoApplyParameters', bool); // jshint ignore:line
             },
             // ----------------------------------------
             // run URL button ^^^^^^^
@@ -379,7 +402,6 @@
                 var variables = this.variableList,
                     state = '',
                     key = '';
-
                 for (key in variables) {
                     switch (key) {
                     case 'mainTools':
@@ -408,25 +430,22 @@
             // tier 2 functions
             // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(),
+                var allVariables = GM_listValues(), // jshint ignore:line
                     length = allVariables.length,
                     a = 0,
                     varList = {},
                     key = '',
                     value = '';
-
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false);
+                    value = GM_getValue(key, false); // jshint ignore:line
                     varList[key] = value;
                 }
-
                 return varList;
             },
             toggleFeature: function (event) {
                 var id = jQuery(event.target).attr('id');
-
                 switch (id) {
                 case 'mainToolsTitle':
                     return QAtoolbox.config.$mainToolsPanel.slideToggle('1000');
@@ -441,9 +460,9 @@
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
+                    currState = GM_getValue(vName, false); // jshint ignore:line
                 // sets usingM4 value
-                GM_setValue(vName, !currState);
+                GM_setValue(vName, !currState); // jshint ignore:line
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -463,11 +482,9 @@
                 QAtoolbox.config.$otherToolsPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
             }
         },
-
         /* ************************************************************************************************************************ */
         /* **************************************** PAGE INFO TOOLS **************************************** */
         /* ************************************************************************************************************************ */
-
         // ---------------------------------------------------------------
         // --------------------- Page Information Panel ---------------------
         // ---------------------------------------------------------------
@@ -511,7 +528,6 @@
                     .append(dealerName.init())
                     .append(webID.init())
                     .append(pageName.init());
-
                 // attach to continer
                 pageInformation.config.$pageInfoContainer
                     .append(pageInformation.config.$pageInfoTitle)
@@ -548,7 +564,6 @@
                 var variables = this.variableList,
                     state = '',
                     key = '';
-
                 for (key in variables) {
                     if (key === 'pageInfo') {
                         state = variables[key] ? 'show' : 'hide';
@@ -560,17 +575,16 @@
             // tier 2 functions
             // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(),
+                var allVariables = GM_listValues(), // jshint ignore:line
                     length = allVariables.length,
                     a = 0,
                     varList = {},
                     key = '',
                     value = '';
-
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false);
+                    value = GM_getValue(key, false); // jshint ignore:line
                     varList[key] = value;
                 }
                 return varList;
@@ -581,9 +595,9 @@
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
+                    currState = GM_getValue(vName, false); // jshint ignore:line
                 // sets usingM4 value
-                GM_setValue(vName, !currState);
+                GM_setValue(vName, !currState); // jshint ignore:line
             },
             hoverEffect: function (event) {
                 // apply hover effects
@@ -593,7 +607,7 @@
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text');
+                GM_setClipboard(copyThisText, 'text'); // jshint ignore:line
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -607,7 +621,6 @@
                 }
             }
         },
-
         // ---------------------------------------------------------------
         // --------------------- Dealership Name ---------------------
         // ---------------------------------------------------------------
@@ -653,7 +666,6 @@
                 return panel;
             }
         },
-
         // ---------------------------------------------------------------
         // --------------------- Web Id ---------------------
         // ---------------------------------------------------------------
@@ -710,10 +722,9 @@
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text');
+                GM_setClipboard(copyThisText, 'text'); // jshint ignore:line
             }
         },
-
         // ---------------------------------------------------------------
         // --------------------- Page Name ---------------------
         // ---------------------------------------------------------------
@@ -796,14 +807,12 @@
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text');
+                GM_setClipboard(copyThisText, 'text'); // jshint ignore:line
             }
         },
-
         /* ************************************************************************************************************************ */
         /* **************************************** QA TOOLS **************************************** */
         /* ************************************************************************************************************************ */
-
         // ---------------------------------------------------------------
         // --------------------- QA Tools Panel ---------------------
         // ---------------------------------------------------------------
@@ -844,7 +853,6 @@
                 //                    .append(dealerName.init())
                 //                    .append(webID.init())
                 //                    .append(pageName.init());
-
                 // attach to continer
                 qaTools.config.$mainToolsContainer
                     .append(qaTools.config.$mainToolsTitle)
@@ -876,7 +884,6 @@
                 var variables = this.variableList,
                     state = '',
                     key = '';
-
                 for (key in variables) {
                     if (key === 'mainTools') {
                         state = variables[key] ? 'show' : 'hide';
@@ -888,17 +895,16 @@
             // tier 2 functions
             // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(),
+                var allVariables = GM_listValues(), // jshint ignore:line
                     length = allVariables.length,
                     a = 0,
                     varList = {},
                     key = '',
                     value = '';
-
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false);
+                    value = GM_getValue(key, false); // jshint ignore:line
                     varList[key] = value;
                 }
                 return varList;
@@ -909,9 +915,9 @@
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
+                    currState = GM_getValue(vName, false); // jshint ignore:line
                 // sets usingM4 value
-                GM_setValue(vName, !currState);
+                GM_setValue(vName, !currState); // jshint ignore:line
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -925,7 +931,6 @@
                 }
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- image checker ----------------------------------------
         // ------------------------------------------------------------------------------------------------------------------------
@@ -1000,7 +1005,6 @@
                 var $contentArray = imageChecker.config.$legendContent,
                     key = '',
                     value = '';
-
                 // loop through Legend Content list
                 for (key in $contentArray) {
                     value = $contentArray[key];
@@ -1017,11 +1021,9 @@
                 this.cacheDOM();
                 // add tool styles
                 this.addStyles();
-
                 var iaLength = this.imageArrayLength,
                     a = 0,
                     $this;
-
                 // loop through allImages and check for alt text
                 for (a; a < iaLength; a += 1) {
                     $this = this.$allImages[a];
@@ -1042,7 +1044,6 @@
             removeHighlights: function () {
                 var iaLength = this.imageArrayLength,
                     a = 0;
-
                 // removes special overlay class on images
                 for (a; a < iaLength; a += 1) {
                     this.toggleOverlayClass(this.$allImages[a]);
@@ -1142,7 +1143,6 @@
                 jQuery(currentImage).toggleClass('overlaid');
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- link checker ----------------------------------------
         //------------------------------------------------------------------------------------------------------------------------
@@ -1228,7 +1228,6 @@
                     key = '',
                     value = '',
                     $listItem;
-
                 // loop through Legend Content list
                 for (key in $contentArray) {
                     value = $contentArray[key];
@@ -1236,7 +1235,6 @@
                     $listItem = jQuery('<li>').attr({
                         class: 'legendContent ' + key
                     }).append(value);
-
                     // attach to legend list
                     linkChecker.config.$legendList.append($listItem);
                 }
@@ -1246,22 +1244,18 @@
                 // have to load here to compensate for lazy loaded widgets
                 this.cacheDOM();
                 this.addStyles();
-
                 var length = this.linksArrayLength,
                     a = 0,
                     $currentLink,
                     $image,
                     isImageLink;
-
                 // verify all links
                 for (a; a < length; a += 1) {
-
                     $currentLink = jQuery(this.$allLinks[a]);
                     $image = $currentLink.find('img');
                     isImageLink = this.isImageLink($image);
                     // add default class
                     this.togClass($currentLink, 'siteLink');
-
                     // if image link add div overlay
                     if (isImageLink) {
                         this.addDivOverlay($currentLink, $image);
@@ -1472,7 +1466,6 @@
                     return true;
                 }
                 return false;
-
             },
             // ----------------------------------------
             // tier 5 functions
@@ -1489,7 +1482,6 @@
                 this.$divOverlay.append(this.linkTitle);
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- Show Navigation (highlight major pages) ----------------------------------------
         //------------------------------------------------------------------------------------------------------------------------
@@ -1582,10 +1574,8 @@
             // tier 2 functions
             // ----------------------------------------
             buildLegendContent: function () {
-
                 var $contentArray = showNavigation.config.$legendContent,
                     key;
-
                 // loop through Legend Content list
                 for (key in $contentArray) {
                     var value = $contentArray[key];
@@ -1598,27 +1588,23 @@
                 }
             },
             toggleFeatures: function () {
-
                 this.$navTabsLinks.toggleClass('subNav');
                 this.$navTabs.find('a[href*=Form], a[href*=ContactUs], a[href=HoursAndDirections], a[href*=VehicleSearchResults]').toggleClass('majorPage');
                 this.$navTabs.toggleClass('showNav');
                 showNavigation.config.$legend.slideToggle('1000');
             },
             toggleDisable: function () {
-
                 showNavigation.config.$activateButt.prop('disabled', function (index, value) {
                     return !value;
                 });
             },
             bindClicks: function () {
-
                 var i = 0;
                 for (i; i < this.nlLength; i++) {
                     jQuery(this.$navTabsLinks[i]).on('click', this.linkChecked(this.$navTabsLinks[i]));
                 }
             },
             unbindClicks: function () {
-
                 var i = 0;
                 for (i; i < this.nlLength; i++) {
                     jQuery(this.$navTabsLinks[i]).off('click');
@@ -1630,13 +1616,11 @@
             // tier 3 functions
             // ----------------------------------------
             linkChecked: function (currentLink) {
-
                 return function () {
                     jQuery(currentLink).toggleClass('linkChecked');
                 };
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- Spell Check ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -1676,7 +1660,7 @@
             // ----------------------------------------
             spellCheck: function () {
                 var openThis = this.buildURL();
-                GM_openInTab(openThis, 'active');
+                GM_openInTab(openThis, 'active'); // jshint ignore:line
             },
             // ----------------------------------------
             // tier 3 functions
@@ -1693,7 +1677,6 @@
                 return URL;
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- Test WebPage ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -1716,7 +1699,7 @@
                         id: 'testPage',
                         title: 'Queue up a Page Test'
                     }).text('Web Page Test'),
-                    email: GM_getValue('email', 'your.name@cdk.com'),
+                    email: GM_getValue('email', 'your.name@cdk.com'), // jshint ignore:line
                     $emailTitle: jQuery('<div>').text('Enter your email'),
                     $emailInput: jQuery('<input>').attr({
                         id: 'email',
@@ -1799,12 +1782,12 @@
             storeData: function () {
                 // save user input
                 var userEmail = jQuery('#email').val();
-                GM_setValue('email', userEmail);
+                GM_setValue('email', userEmail); // jshint ignore:line
             },
             sendPage: function () {
                 var browser = jQuery('#bSelect option:selected').val(),
                     browserName = jQuery('#bSelect option:selected').text(),
-                    email = GM_getValue('email'),
+                    email = GM_getValue('email'), // jshint ignore:line
                     params = {
                         k: 'A.1b40e6dc41916bd77b0541187ac9e74b',
                         runs: '3',
@@ -1813,15 +1796,12 @@
                         location: 'Dulles' + browser
                     },
                     newTab;
-
                 // build url
                 jQuery.each(params, function (index, value) {
                     speedtestPage.config.testURL += index + '=' + value + '&';
                 });
-
                 var desktopURL = speedtestPage.config.testURL + 'url=' + this.siteURL + this.pageName + '?device=immobile';
                 var mobileURL = speedtestPage.config.testURL + 'url=' + this.siteURL + this.pageName + '?device=mobile';
-
                 // alert user
                 if (confirm('----------------------------------------\n' +
                         'Test the Desktop and Mobile site?\n' +
@@ -1834,11 +1814,9 @@
                 }
             }
         };
-
     /* ************************************************************************************************************************ */
     /* **************************************** OTHER TOOLS **************************************** */
     /* ************************************************************************************************************************ */
-
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- SEO Simplify ----------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------
@@ -1847,7 +1825,6 @@
         id: 'simpleSEO',
         title: 'Simplify My SEO Text'
     }).text('SEO Simplify');
-
     $seo_butt.click(function () {
         var seoSimplify = (function () {
             var oems = [
@@ -2510,7 +2487,6 @@
             jQuery("#inputContainer").remove();
         });
     });
-
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- add widget outlines ----------------------------------------
     // ------------------------------------------------------------------------------------------------------------------------
@@ -2520,10 +2496,8 @@
         id: 'widgetOutline',
         title: 'Show Widget Outlines'
     }).text('Show Widgets');
-
     $wo_butt.click(function () {
         var $toolbarStyles = jQuery('#qa_toolbox');
-
         $toolbarStyles
         // styles data content
             .append('.showWidgetData:after { content: attr(data-content); position: absolute; top: 0; bottom: 0; left: 0; text-align: center; z-index: 100; margin: auto; background: linear-gradient(to right, rgba(80, 201, 195, .85) , rgba(150, 222, 218, .85)); color: black; font-weight: bold; font-size: 15px; }')
@@ -2531,52 +2505,42 @@
             .append('.hideColorblock { z - index: -1 !important; }')
             // end of addStyles
         ; // end
-
         // made to you will be able to remove it later
         jQuery('.masonry-brick').addClass('outlineWidget');
         // made to you will be able to remove it later
         jQuery('div[class*=colorBlock]').addClass('hideColorblock');
-
         jQuery('body .cell .CobaltEditableWidget').each(function () {
             jQuery(this).addClass('showWidgetData');
-
             var widgetID = jQuery(this).attr('id');
             var w = jQuery(this).width(),
                 h = jQuery(this).height();
-
             jQuery(this).on('click', copyWidgetID);
             jQuery(this).attr({
                 title: 'Click to Copy Widget ID'
             });
-
             jQuery(this).append(function () {
                 jQuery(this).attr({
                     'data-content': widgetID + ' ::: ' + w + 'px X ' + h + 'px'
                 });
             });
-
             // dynamically adjust the data content
             $toolbarStyles
                 .append('#' + widgetID + ':after { height: ' + h + 'px; width: ' + w + 'px; }');
         });
-
         jQuery('body .cell .CobaltWidget').each(function () {
             jQuery(this).addClass('showWidgetData');
             var widgetID = jQuery(this).attr('id');
             var w = jQuery(this).width(),
                 h = jQuery(this).height();
-
             jQuery(this).on('click', copyWidgetID);
             jQuery(this).attr({
                 title: 'Click to Copy Widget ID'
             });
-
             jQuery(this).append(function () {
                 jQuery(this).attr({
                     'data-content': widgetID + ' :: ' + w + 'px X ' + h + 'px'
                 });
             });
-
             // dynamically adjust the data content
             $toolbarStyles
                 .append('#' + widgetID + ':after { height: ' + h + 'px; width: ' + w + 'px; }');
@@ -2587,10 +2551,9 @@
                 widgetID = $widget.attr('id');
             // make element blink for verification purposes
             $widget.fadeIn(300).fadeOut(300).fadeIn(300);
-            GM_setClipboard(widgetID, 'text');
+            GM_setClipboard(widgetID, 'text'); // jshint ignore:line
         }
     });
-
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- View Mobile Site ----------------------------------------
     // ------------------------------------------------------------------------------------------------------------------------
@@ -2631,10 +2594,9 @@
         viewMobile: function () {
             var auto = '?device=mobile&nextGen=false',
                 openThis = this.siteURL + this.pageName + auto;
-            GM_openInTab(openThis, 'active');
+            GM_openInTab(openThis, 'active'); // jshint ignore:line
         },
     };
-
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- broken link checker ----------------------------------------
     // ------------------------------------------------------------------------------------------------------------------------
@@ -2643,9 +2605,7 @@
         id: '404checker',
         title: '404 Checker'
     }).text('404 Checker');
-
     $404checker_butt.on('click', function () {
-
         // ---------------------------------------- disable 404 button to prevent multi clicking
         toggleDisable();
 
@@ -2654,7 +2614,6 @@
                 return !value;
             });
         }
-
         // ---------------------------------------- build legend
         var $legend = jQuery('<div>').attr({
                 class: 'legend'
@@ -2681,7 +2640,6 @@
                 class: 'subText hint'
             }).text('* Manually Check Link'),
             $legendContainer = jQuery('#legendContainer'); // cache dom
-
         buildLegend();
         $legendContainer.append($legend);
         showLegend();
@@ -2699,14 +2657,12 @@
             // fill list
             buildLegendContent();
         }
-
         // add click event to remove button
         $offButt.on('click', showLegend);
 
         function buildLegendContent() {
             var $contentArray = $legendContent,
                 key;
-
             // loop through Legend Content list
             for (key in $contentArray) {
                 var value = $contentArray[key];
@@ -2714,7 +2670,6 @@
                 var $listItem = jQuery('<li>').attr({
                     class: 'legendContent ' + key
                 }).append(value);
-
                 // attach to legend list
                 $legendList.append($listItem);
             }
@@ -2724,12 +2679,9 @@
             $legend.slideToggle('1000');
         }
         // ---------------------------------------- build legend end
-
         var $toolbarStyles = jQuery('#qa_toolbox');
-
         $toolbarStyles
         // styles of colored overlay placed on images
-
             .append('.otherDomain { background: linear-gradient(to left, #00C9FF , #92FE9D) !important; -moz-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); -webkit-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); color: #000000 !important; }')
             .append('.framedIn { background: linear-gradient(to left, #F7971E , #FFD200) !important; color: #000000 !important; }')
             .append('.brokenURL { background: linear-gradient(to left, #FFAFBD , #ffc3a0) !important; color: #000000 !important; }')
@@ -2739,7 +2691,6 @@
             .append('#checkContainer { text-align: center; background: white; border: 1px solid #000000; }')
             // end of addStyles
         ; // end
-
         var cm = unsafeWindow.ContextManager,
             webID = cm.getWebId(),
             siteID = cm.getSiteId(),
@@ -2763,10 +2714,8 @@
             $hint = jQuery('<div>').attr({
                 class: 'hint'
             }).text('refresh page before running 404 checker again');
-
         // attach hint
         $legend.append($hint);
-
         // split web-id
         function z(webID) {
             var x = webID.split('-');
@@ -2775,8 +2724,6 @@
         // ----------------------------------------
         // added to module pattern ^^^
         // ----------------------------------------
-
-
         // attach display area to tool box
         $legend.before($container);
         // show thinking icon
@@ -2785,21 +2732,16 @@
             $message.append($iconContainer).append($thinking);
             $container.append($message);
         });
-
         var testComplete = 1;
         var totalTests = $pageLinks.length;
         // test each link on the page
-
         var j = 0;
         var pageLinksLength = $pageLinks.length;
-
         for (j; j < pageLinksLength; j++) {
-
             var curLink = $pageLinks[j],
                 $curLink = jQuery(curLink),
                 curURL = jQuery.trim($curLink.attr('href')),
                 hrefLength = curURL.length;
-
             // skip javascript links
             if (curURL.indexOf('javascript') >= 0) {
                 continue;
@@ -2815,7 +2757,6 @@
                 $curLink.addClass('brokenURL');
                 continue;
             }
-
             // test if link is a complete URL
             // eg. http://www.blahblah.com/
             // skip iteration if not correct format
@@ -2823,7 +2764,6 @@
                 $curLink.addClass('otherDomain');
                 continue;
             }
-
             // test if link if href contains f_ or //:
             // f_ will frame in the URL which may cause viewing issues if URL is an interior page.
             // skip iteration if not correct format
@@ -2831,7 +2771,6 @@
                 $curLink.addClass('framedIn');
                 continue;
             }
-
             var curWindow = window.location.href;
             if (curWindow.indexOf('nextGen=true') > -1) {
                 // check URL if using relative path
@@ -2847,7 +2786,6 @@
                     curURL = curURL.replace(findThis, baseURL);
                 }
             }
-
             // check urls for '/'
             if (curURL.indexOf('//') === 0) {
                 // check URL if it begins with /, signifying the link is a relative path URL
@@ -2855,7 +2793,6 @@
             } else if (curURL.indexOf('/') === 0) {
                 curURL = curURL.slice(1, hrefLength);
             }
-
             // test links
             testLink(curURL, curLink);
         }
@@ -2871,14 +2808,12 @@
                 crossDomain: false,
                 method: 'get',
                 success: function () { //pass an anonymous callback function
-
                     // checks to see if link is an image link
                     // adds a div overlay if is an image link
                     hasImage = $curLink.has('img').length;
                     if (hasImage) {
                         isImageLink = true;
                     }
-
                     // if is an image link add class to div overlay
                     // else add class to a tag
                     if (isImageLink) {
@@ -2893,7 +2828,6 @@
                                 position: 'absolute',
                                 'z-index': 1
                             });
-
                         $img.attr('style', 'position: relative;');
                         $curLink.prepend($linkOverlay);
                         success($linkOverlay, isImageLink);
@@ -2918,7 +2852,6 @@
                 }
             });
         }
-
         // fire after ALL ajax requests have been completed
         jQuery(document).ajaxStop(function () {
             $message.empty();
@@ -2954,17 +2887,14 @@
         }
 
         function checkHref2(linkURL) {
-
             if ((linkURL.indexOf('f_') > -1) || (linkURL.indexOf('//:') > -1)) {
                 return true;
             }
         }
     });
-
     /* ************************************************************************************************************************ */
     /* **************************************** URL MODIFIER TOOLS **************************************** */
     /* ************************************************************************************************************************ */
-
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- next gen toggle ----------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------
@@ -3044,7 +2974,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs isNextGen value
-                var a = GM_getValue('isNextGen', false);
+                var a = GM_getValue('isNextGen', false); // jshint ignore:line
                 return a;
             },
             toggleOn: function () {
@@ -3063,17 +2993,14 @@
                 // apply parameters only if DOESN'T already have parameters &&
                 // site state IS NOT LIVE &&
                 // toggled ON
-
                 // view NEXTGEN site
                 if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
                     // if nextgen IS NOT in the URL, add nextGen=true
                     window.location.search += '&nextGen=true';
                 }
-
                 if ((hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
                     // if the URL HAS nextGen= BUT it isn't set to true
                     url = window.location.href;
-
                     if (url.indexOf('nextGen=false') > 0) {
                         // nextGen false parameter detected UPDATE to true
                         newURL = url.replace('nextGen=false', 'nextGen=true');
@@ -3082,12 +3009,10 @@
                         // if next gen = true, do nothing
                     }
                 }
-
                 // view TETRA site
                 if ((hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
                     // if parameters FOUND IN URL and NEXTGEN turned off
                     url = window.location.href;
-
                     if (url.indexOf('nextGen=true') > 0) {
                         // next gen parameter = TRUE
                         newURL = url.replace('nextGen=true', 'nextGen=false');
@@ -3096,7 +3021,6 @@
                         // if next gen = FALSE, do nothing
                     }
                 }
-
                 // if URL DOES NOT HAVE PARAMETERS and toggle is turned off
                 if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
                     // if nextgen IS NOT in the URL, add nextGen=false
@@ -3133,10 +3057,9 @@
             },
             setChecked: function (bool) {
                 // sets isNextGen value
-                GM_setValue('isNextGen', bool);
+                GM_setValue('isNextGen', bool); // jshint ignore:line
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- m4 checkbox toggle ----------------------------------------
         // ------------------------------------------------------------------------------------------------------------------------
@@ -3214,7 +3137,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs usingM4 value
-                var a = GM_getValue('usingM4', false);
+                var a = GM_getValue('usingM4', false); // jshint ignore:line
                 return a;
             },
             toggleOn: function () {
@@ -3265,10 +3188,9 @@
             },
             setChecked: function (bool) {
                 // sets usingM4 value
-                GM_setValue('usingM4', bool);
+                GM_setValue('usingM4', bool); // jshint ignore:line
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- autofill toggle ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -3346,7 +3268,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs applyAutofill value
-                var a = GM_getValue('applyAutofill', false);
+                var a = GM_getValue('applyAutofill', false); // jshint ignore:line
                 return a;
             },
             toggleOn: function () {
@@ -3397,10 +3319,9 @@
             },
             setChecked: function (bool) {
                 // sets applyAutofill value
-                GM_setValue('applyAutofill', bool);
+                GM_setValue('applyAutofill', bool); // jshint ignore:line
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- force desktop site toggle ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -3500,7 +3421,6 @@
                         window.location.search += '&device=immobile';
                     }
                     if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
-
                     }
     },
     toggleOff: function () {
@@ -3539,7 +3459,6 @@
         /* ************************************************************************************************************************ */
         /* **************************************** TOGGLE TOOLS **************************************** */
         /* ************************************************************************************************************************ */
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- Refresh Page toggle ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -3657,15 +3576,14 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs useRefreshButton value
-                var a = GM_getValue('useRefreshButton', false);
+                var a = GM_getValue('useRefreshButton', false); // jshint ignore:line
                 return a;
             },
             setChecked: function (bool) {
                 // sets useRefreshButton value
-                GM_setValue('useRefreshButton', bool);
+                GM_setValue('useRefreshButton', bool); // jshint ignore:line
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- hide preview toolbar toggle ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -3739,7 +3657,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs isNextGen value
-                var a = GM_getValue('hidePreviewToolbar', false);
+                var a = GM_getValue('hidePreviewToolbar', false); // jshint ignore:line
                 return a;
             },
             toggleOn: function () {
@@ -3778,10 +3696,9 @@
             // ----------------------------------------
             setChecked: function (bool) {
                 // sets hidePreviewToolbar value
-                GM_setValue('hidePreviewToolbar', bool);
+                GM_setValue('hidePreviewToolbar', bool); // jshint ignore:line
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- dynamic panel ----------------------------------------
         // ------------------------------------------------------------------------------------------------------------------------
@@ -3879,7 +3796,6 @@
                 // add to main toolbox
                 this.$toolBoxContainer.append(dynamicDisplay.config.$displayPanel);
                 this.$toolBoxContainer.before(dynamicDisplay.config.$showToolbox);
-
                 this.$toolBoxContainer.append(dynamicDisplay.config.$hide);
             },
             bindEvents: function () {
@@ -3897,7 +3813,6 @@
                 this.$toolBoxContainer.slideToggle('1000');
             }
         },
-
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- initialize toolbox ----------------------------------------
         // ------------------------------------------------------------------------------------------------------------------------
@@ -3906,7 +3821,6 @@
                 if (!this.editMode() && this.isCDKsite() && !this.isMobile()) {
                     QAtoolbox.init(); // initialize toolbox
                     pageInformation.init(); // initialize page Information tool
-
                     // ----- main tools ----- //
                     imageChecker.init(); // initialize image checker tool
                     linkChecker.init(); // initialize link checker tool
@@ -3915,24 +3829,19 @@
                     speedtestPage.init(); // initialize page test tool
                     // 404 checker button
                     jQuery('#mainTools').append($404checker_butt);
-
                     // ----- other tools ----- //
                     viewMobile.init(); // initialize view mobile tool
                     jQuery('#otherTools').append($seo_butt);
                     jQuery('#otherTools').append($wo_butt);
-
                     // ----- toggle tools ----- //
                     refreshPage.init(); // initialize refresh page
                     previewToolbarToggle.init(); // initialize desktop toggle
-
                     // ----- URL modifier tools ----- //
                     nextGenToggle.init(); // initialize nextGen toggle
                     m4Check.init(); // initialize milestone 4 module check box
                     autofillToggle.init(); // initialize autofill toggle
                     //                    desktopToggle.init(); // initialize desktop toggle
-
                     dynamicDisplay.init(); // initialize display information tool
-
                     // style buttons in toolbox
                     QAtoolbox.styleTools();
                 }
@@ -3956,10 +3865,8 @@
                 return unsafeWindow.editMode;
             }
         };
-
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- START TOOLBOX PROGRAM ----------------------------------------
     // ------------------------------------------------------------------------------------------------------------------------
     runProgram.init();
-
 })();
