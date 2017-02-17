@@ -18,6 +18,7 @@
                 // test stuff
                 // ----------------------------------------
                 this.setToggle();
+                this.hidePanel();
             },
             // ----------------------------------------
             // tier 1 functions
@@ -198,6 +199,8 @@
                 this.body = jQuery('body');
                 this.phoneWrapper = jQuery('body .phone-wrapper');
                 this.variableList = this.programData();
+                this.$cm = unsafeWindow.ContextManager;
+                this.isLive = this.$cm.isLive();
             },
             attachTools: function () {
                 this.head.append(QAtoolbox.config.$toolbarStyles);
@@ -222,9 +225,14 @@
             // ----------------------------------------
             // test stuff
             // ----------------------------------------
+            hidePanel: function () {
+                if (this.isLive) {
+                    QAtoolbox.config.$urlModContainer.remove();
+                }
+            },
             setToggle: function () {
                 // get value of custom variable and set toggles accordingly
-                if (this.getChecked()) {
+                if (this.getChecked() && !this.isLive) {
                     this.toggleOn();
                     this.applyParameters();
                 } else {
