@@ -17,7 +17,6 @@
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
-                //                console.log('going to run setToggle');
                 this.setToggle();
             },
             // ----------------------------------------
@@ -98,18 +97,12 @@
                     // ----------------------------------------
                     // test elements
                     // ----------------------------------------
-                    $runURL: jQuery('<input>').attr({
-                        id: 'runURL',
-                        class: 'myEDOBut',
-                        value: 'Auto Apply Parameters'
-                    }).css({
-                        background: 'black'
-                    }),
                     $autoApplyContainer: jQuery('<div>').attr({
                         id: 'autoApplyInput',
-                        class: 'toggleTool'
+                        class: 'toggleTool',
+                        title: 'will auto apply URL modifiers to current URL\n*please reload the page to update the URL to current settings*'
                     }).css({
-                        background: 'teal'
+                        background: 'linear-gradient(to top, #abbaab , #ffffff)'
                     }),
                     $autoApplyTitle: jQuery('<div>').css({
                         color: 'black',
@@ -190,7 +183,6 @@
                 QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyTitle);
                 QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyIcon);
                 QAtoolbox.config.$autoApplyIcon.append(QAtoolbox.config.$FAtoggle);
-                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$runURL);
                 QAtoolbox.config.$urlModPanel.append(QAtoolbox.config.$autoApplyContainer);
                 // ----------------------------------------
                 // test stuff
@@ -226,16 +218,9 @@
                 // test stuff
                 // ----------------------------------------
                 QAtoolbox.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
-                QAtoolbox.config.$runURL.on('click', this.runURL);
-                // ----------------------------------------
-                // test stuff
-                // ----------------------------------------
             },
             // ----------------------------------------
             // test stuff
-            // ----------------------------------------
-            // ----------------------------------------
-            // run URL button - option 2
             // ----------------------------------------
             setToggle: function () {
                 // get value of custom variable and set toggles accordingly
@@ -252,6 +237,8 @@
                 var $toggle = QAtoolbox.config.$FAtoggle;
                 $toggle.removeClass('fa-toggle-on');
                 $toggle.addClass('fa-toggle-off');
+                console.log('autofill toggle off');
+                console.log('----------------------------------------');
             },
             flipTheSwitch: function () {
                 // set saved variable to opposite of current value
@@ -263,13 +250,13 @@
                 // grabs isNextGen value
                 var a = GM_getValue('autoApplyParameters', false);
                 return a;
-
             },
             toggleOn: function () {
                 // set toggle on image
                 var $toggle = QAtoolbox.config.$FAtoggle;
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
+                console.log('autofill toggle on');
             },
             applyParameters: function () {
                 var urlParameters2 = {
@@ -277,25 +264,15 @@
                         'relative=': m4Check.returnParameters(),
                         'disableAutofill=': autofillToggle.returnParameters()
                     },
-                    hasParameters = {
-                        nextGenToggle: false,
-                        m4Check: false,
-                        autofillToggle: false
-                    },
                     findThis = '',
                     url = window.location.href,
                     key = '',
                     matchesFound = [],
-                    newURL = '',
                     foundThis = false;
-
                 console.log(url);
-                //                console.log(urlParameters2);
-
+                console.log('----------------------------------------');
                 for (key in urlParameters2) {
-
                     findThis = key;
-                    console.log('findThis : ' + findThis);
                     // this works with current URL
                     // will check to see if current URL has all the variables with it
                     // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
@@ -303,23 +280,19 @@
                     if (url.indexOf('?') === -1) {
                         url += '?';
                     }
-
                     // force the page to reload in DESKTOP SITE
                     // no downside to NEXT GEN SITES
                     if (url.indexOf('device=immobile') === -1) {
                         url += '&device=immobile';
                     }
-
                     // determine search term is empty
                     // this will mean that the toggle is turned off
                     if (findThis === undefined || findThis === '') {
                         console.log('value is empty : skip');
                     } else {
-
                         // search url for KEY
                         //
                         foundThis = this.searchURL(key, url);
-
                         //--------------------------------------------------------
                         //next gen searches
                         //--------------------------------------------------------
@@ -329,6 +302,7 @@
                             if (url.indexOf('nextGen=false') >= 0) {
                                 console.log('turning parameter on');
                                 url = url.replace('nextGen=false', 'nextGen=true');
+                                matchesFound.push(false);
                             }
                             // if 'parameter is set to true'
                             else if (url.indexOf('nextGen=true') >= 0) {
@@ -337,47 +311,46 @@
                             }
                         }
                         // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is OFF'
-                        if (key === 'nextGen=' && foundThis && !urlParameters2[key]) {
+                        else if (key === 'nextGen=' && foundThis && !urlParameters2[key]) {
                             // if 'parameter is set to true'
                             if (url.indexOf('nextGen=true') >= 0) {
-                                console.log('turning parameter off');
                                 url = url.replace('nextGen=true', 'nextGen=false');
+                                console.log('turning parameter off : ' + url);
+                                matchesFound.push(false);
                             }
                             // if 'parameter is set to false'
                             else if (url.indexOf('nextGen=false') >= 0) {
                                 // do nothing
-                                console.log('parameter already turned off');
+                                console.log('parameter turned off');
                             }
                         }
-
                         // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is ON'
-                        if (key === 'nextGen=' && !foundThis && urlParameters2[key]) {
+                        else if (key === 'nextGen=' && !foundThis && urlParameters2[key]) {
                             // Add parameter to url string
                             console.log('adding parameter and turning on');
                             url += '&nextGen=true';
                         }
-
                         // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
-                        if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) {
+                        else if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) {
                             // do nothing
                             console.log('parameter not enabled');
                         }
-
                         //--------------------------------------------------------
                         //autofill searches
                         //--------------------------------------------------------
+                        // PARAMETER FOUND IN URL
                         // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is ON'
-                        if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) {
+                        else if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) {
                             // if 'parameter is set to false'
                             if (url.indexOf('disableAutofill=false') >= 0) {
-                                console.log('turning on parameter');
+                                console.log('parameter exists, turned on');
                                 url = url.replace('disableAutofill=false', 'disableAutofill=true');
                                 matchesFound.push(false);
                             }
                             // if 'parameter is set to true'
                             else if (url.indexOf('disableAutofill=true') >= 0) {
                                 // do nothing
-                                console.log('parameter already turned on');
+                                console.log('parameter exists, already turned on');
                                 matchesFound.push(true);
                             }
                         }
@@ -385,35 +358,34 @@
                         else if (key === 'disableAutofill=' && foundThis && !urlParameters2[key]) {
                             // if 'parameter is set to true'
                             if (url.indexOf('disableAutofill=true') >= 0) {
-                                console.log('disabling parameter');
+                                console.log('parameter exists, turned off');
                                 url = url.replace('disableAutofill=true', 'disableAutofill=false');
                                 matchesFound.push(false);
                             }
                             // if 'parameter is set to false'
                             else if (url.indexOf('disableAutofill=false') >= 0) {
                                 // do nothing
-                                console.log('parameter not enabled');
+                                console.log('parameter exists, already turned off');
                                 matchesFound.push(true);
                             }
                         }
-
+                        // PARAMETER NOT FOUND IN URL
                         // if 'searching for disable autofill' AND 'parameter not found in url' AND 'toggle is ON'
                         else if (key === 'disableAutofill=' && !foundThis && urlParameters2[key]) {
                             // Add parameter to url string
-                            console.log('adding parameter and turning on');
+                            console.log('parameter added, turned on');
                             url += '&disableAutofill=true';
                             matchesFound.push(false);
                         }
-
                         // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
                         else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) {
                             // do nothing
                             console.log('parameter not enabled');
                         }
-
                         //--------------------------------------------------------
                         //m4 parameter searches
                         //--------------------------------------------------------
+                        // PARAMETER FOUND IN URL
                         // create a special search for the m4 module URL parameters
                         // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
                         else if (key === 'relative=' && foundThis && !urlParameters2[key]) {
@@ -428,38 +400,23 @@
                             console.log('parameter already turned on');
                             matchesFound.push(true);
                         }
-
                         // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
                         else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
                             // Add parameter to url string
                             url += '&comments=true&relative=true';
-                            console.log('parameter added and turned on');
+                            console.log('parameter added, turned on');
                             matchesFound.push(false);
                         }
-
                         // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
-                        else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) {
+                        else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
                             // do nothing
-                            console.log('parameter not enabled');
+                            console.log('parameter turned off');
                         }
-
-                        // if value is not empty, determine if present in URL
-                        //                        if (foundThis) {
-                        //                            console.log('match found');
-                        //                            matchesFound.push(true);
-                        //                        } else if (!foundThis) {
-                        //                            matchesFound.push(false);
-                        //                            console.log('match NOT found , adding to url');
-                        //                            url += findThis;
-                        //                            console.log('newURL : ' + url);
-                        //                        }
                     }
-                    console.log('finish search for : ' + urlParameters2[key]);
+                    console.log('finish search for : ' + key);
                     console.log('-----------');
                 }
-
                 console.log('url : ' + url);
-
                 //-------------------------------------------
                 // works
                 //-----------------------------------------
@@ -470,8 +427,6 @@
                     //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
                     findThis = urlParameters2[key];
                     console.log('start search for : ' + findThis);
-
-
                     // this works with current URL
                     // will check to see if current URL has all the variables with it
                     // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
@@ -479,19 +434,16 @@
                     if (url.indexOf('?') === -1) {
                         url += '?';
                     }
-
                     // force the page to reload in DESKTOP SITE
                     // no downside to NEXT GEN SITES
                     if (url.indexOf('device=immobile') === -1) {
                         url += '&device=immobile';
                     }
-
                     // determine search term is empty
                     // this will mean that the toggle is turned off
                     if (findThis === undefined || findThis === '') {
                         console.log('value is empty : skip');
                     } else {
-
                         foundThis = this.searchURL(findThis, url);
                         // if value is not empty, determine if present in URL
                         if (foundThis) {
@@ -507,15 +459,12 @@
                     }
                     console.log('finish search for : ' + urlParameters2[key]);
                     console.log('-----------');
-
                     // ----------------------------------------------------------------
-
                 }
                 */
                 //-------------------------------------------
                 // works
                 //-----------------------------------------
-
                 // reloadPAge
                 this.reloadPage(matchesFound, url);
             },
@@ -525,7 +474,6 @@
                 var q = 0,
                     matchLength = matchesFound.length,
                     reloadPage = true;
-
                 // loop through array to determine if page should reload
                 for (q; q < matchLength; q += 1) {
                     console.log('matchesFound : ' + matchesFound[q]);
@@ -537,10 +485,9 @@
                         break;
                     }
                 }
-
                 // if reloadPage is true reload page
                 if (reloadPage) {
-                    //                    window.location.href = url;
+                    window.location.href = url;
                     console.log('reloading page');
                 }
             },
@@ -554,42 +501,10 @@
             // ----------------------------------------
             // TEST  ^^^^
             // ----------------------------------------
-            // ----------------------------------------
-            // run URL button - option 1
-            // ----------------------------------------
-            runURL: function () {
-                var url = window.location.href,
-                    addThis = '?device=immobile', // start with device = immobile to force the desktop view
-                    newURL = '',
-                    $cm = unsafeWindow.ContextManager,
-                    siteURL = $cm.getUrl(),
-                    pageName = $cm.getPageName();
-                console.log('current site URL : ' + url);
-                console.log(nextGenToggle.returnParameters());
-                console.log(m4Check.returnParameters());
-                //                console.log(desktopToggle.returnParameters());
-                console.log(autofillToggle.returnParameters());
-                addThis += nextGenToggle.returnParameters();
-                addThis += m4Check.returnParameters();
-                //                addThis += desktopToggle.returnParameters();
-                addThis += autofillToggle.returnParameters();
-                console.log('add these new parameters : ' + addThis);
-                //        newURL = url + addThis;
-                newURL = siteURL + pageName + addThis;
-                //                newURL = siteURL + addThis;
-                console.log('newURL : ' + newURL);
-                window.location.href = newURL;
-            },
-            // ----------------------------------------
-            // test stuff
-            // ----------------------------------------
             setChecked: function (bool) {
                 // sets isNextGen value
                 GM_setValue('autoApplyParameters', bool); // jshint ignore:line
             },
-            // ----------------------------------------
-            // run URL button ^^^^^^^
-            // ----------------------------------------
             showPanels: function () {
                 // loop through variable list to find the panel title
                 var variables = this.variableList,
@@ -3731,7 +3646,8 @@
                         'line-height': '15px'
                     }).text('Refresh Button'),
                     $refreshCheckbox: jQuery('<div>').attr({
-                        id: 'refreshMetoggle'
+                        id: 'refreshMetoggle',
+                        title: 'toggle refresh button'
                     }),
                     $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
                 };
@@ -3830,7 +3746,8 @@
                 previewToolbarToggle.config = {
                     $previewToolbarToggleContainer: jQuery('<div>').attr({
                         id: 'previewToolbarToggleInput',
-                        class: 'toggleTool'
+                        class: 'toggleTool',
+                        title: 'hides PCE toolbar'
                     }),
                     $previewToolbarToggleTitle: jQuery('<div>').css({
                         color: 'black',
