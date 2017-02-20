@@ -1,7 +1,24 @@
+/*jslint browser: true, devel: true, continue: true*/
 /*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, GM_listValues, document, console */
 // 1. reorganized code - placed code in related areas
 (function () {
     "use strict";
+    // ---------------------------------------- TEST FUNCTIONS
+    function setValue(variable, val) {
+        GM_setValue(variable, val);
+    }
+
+    function clipboardCopy(variable, val) {
+        GM_setClipboard(variable, val);
+    }
+
+    function getValue(variable, val) {
+        return GM_getValue(variable, val);
+    }
+
+    function programVariables() {
+        return GM_listValues();
+    }
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- Build container for toolbox ----------------------------------------
     // ------------------------------------------------------------------------------------------------------------------------
@@ -17,7 +34,7 @@
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
-                this.setToggle();
+                //                this.setToggle();
                 this.hidePanel();
             },
             // ----------------------------------------
@@ -82,6 +99,7 @@
                     // ----------------------------------------
                     // URL Modifiers Panel
                     // ----------------------------------------
+                    /*
                     $urlModContainer: jQuery('<div>').attr({
                         class: 'toolBox',
                         id: 'urlModContainer'
@@ -95,9 +113,11 @@
                         id: 'urlModTitle',
                         title: 'Click to Minimize / Maximize'
                     }).text('URL Modifiers'),
+                    */
                     // ----------------------------------------
                     // test elements
                     // ----------------------------------------
+                    /*
                     $autoApplyContainer: jQuery('<div>').attr({
                         id: 'autoApplyInput',
                         class: 'toggleTool',
@@ -114,6 +134,7 @@
                         id: 'autoApplyIcon'
                     }),
                     $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>'),
+                    */
                     // ----------------------------------------
                     // test elements
                     // ----------------------------------------
@@ -176,6 +197,7 @@
                 QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesTitle);
                 QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesPanel);
                 // attach title and URL Mod panel to URL Mod container
+                /*
                 QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$urlModTitle);
                 QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$urlModPanel);
                 // ----------------------------------------
@@ -185,6 +207,7 @@
                 QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyIcon);
                 QAtoolbox.config.$autoApplyIcon.append(QAtoolbox.config.$FAtoggle);
                 QAtoolbox.config.$urlModPanel.append(QAtoolbox.config.$autoApplyContainer);
+                */
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
@@ -198,9 +221,12 @@
                 this.head = jQuery('head');
                 this.body = jQuery('body');
                 this.phoneWrapper = jQuery('body .phone-wrapper');
+
+                /*
                 this.variableList = this.programData();
                 this.$cm = unsafeWindow.ContextManager;
                 this.isLive = this.$cm.isLive();
+                */
             },
             attachTools: function () {
                 this.head.append(QAtoolbox.config.$toolbarStyles);
@@ -215,12 +241,16 @@
                 QAtoolbox.config.$otherToolsTitle.on('click', this.saveState);
                 QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature);
                 QAtoolbox.config.$togglesTitle.on('click', this.saveState);
+                /*
                 QAtoolbox.config.$urlModTitle.on('click', this.toggleFeature);
                 QAtoolbox.config.$urlModTitle.on('click', this.saveState);
+                */
                 // ----------------------------------------
                 // test stuff
                 // ----------------------------------------
+                /*
                 QAtoolbox.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
+                */
             },
             // ----------------------------------------
             // test stuff
@@ -230,18 +260,20 @@
                     QAtoolbox.config.$urlModContainer.remove();
                 }
             },
-            setToggle: function () {
-                // get value of custom variable and set toggles accordingly
-                if (this.getChecked() && !this.isLive) {
-                    console.log('auto apply toggle module');
-                    this.toggleOn();
-                    this.applyParameters();
-                } else if (!this.isLive) {
-                    console.log('auto apply toggle module');
-                    this.toggleOff();
-                    //                    this.applyParameters();
-                }
-            },
+            /*
+                setToggle: function () {
+                    // get value of custom variable and set toggles accordingly
+                    if (this.getChecked() && !this.isLive) {
+                        console.log('auto apply toggle module');
+                        this.toggleOn();
+                        this.applyParameters();
+                    } else if (!this.isLive) {
+                        console.log('auto apply toggle module');
+                        this.toggleOff();
+                        //                    this.applyParameters();
+                    }
+                },
+            */
             toggleOff: function () {
                 // set toggle off image
                 var $toggle = QAtoolbox.config.$FAtoggle;
@@ -250,272 +282,286 @@
                 console.log('autofill toggle off');
                 console.log('----------------------------------------');
             },
-            flipTheSwitch: function () {
-                // set saved variable to opposite of current value
-                this.setChecked(!this.getChecked());
-                // set toggle
-                this.setToggle();
-            },
-            getChecked: function () {
-                // grabs isNextGen value
-                var a = GM_getValue('autoApplyParameters', false);
-                return a;
-            },
-            toggleOn: function () {
-                // set toggle on image
-                var $toggle = QAtoolbox.config.$FAtoggle;
-                $toggle.removeClass('fa-toggle-off');
-                $toggle.addClass('fa-toggle-on');
-                console.log('autofill toggle on');
-            },
-            applyParameters: function () {
-                var urlParameters2 = {
-                        'nextGen=': nextGenToggle.returnParameters(),
-                        'relative=': m4Check.returnParameters(),
-                        'disableAutofill=': autofillToggle.returnParameters()
-                    },
-                    findThis = '',
-                    url = window.location.href,
-                    key = '',
-                    matchesFound = [],
-                    foundThis = false;
-                console.log(url);
-                console.log('----------------------------------------');
-                for (key in urlParameters2) {
-                    findThis = key;
-                    // this works with current URL
-                    // will check to see if current URL has all the variables with it
-                    // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
-                    // AN ERROR WILL BE THROWN
-                    if (url.indexOf('?') === -1) {
-                        url += '?';
-                    }
-                    // force the page to reload in DESKTOP SITE
-                    // no downside to NEXT GEN SITES
-                    if (url.indexOf('device=immobile') === -1) {
-                        url += '&device=immobile';
-                    }
-                    // determine search term is empty
-                    // this will mean that the toggle is turned off
-                    if (findThis === undefined || findThis === '') {
-                        console.log('value is empty : skip');
-                    } else {
-                        // search url for KEY
-                        //
-                        foundThis = this.searchURL(key, url);
-                        //--------------------------------------------------------
-                        //next gen searches
-                        //--------------------------------------------------------
-                        // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is ON'
-                        if (key === 'nextGen=' && foundThis && urlParameters2[key]) {
-                            // if 'parameter is set to false'
-                            if (url.indexOf('nextGen=false') >= 0) {
-                                console.log('turning parameter on');
-                                url = url.replace('nextGen=false', 'nextGen=true');
-                                matchesFound.push(false);
-                            }
-                            // if 'parameter is set to true'
-                            else if (url.indexOf('nextGen=true') >= 0) {
-                                console.log('parameter already turned on');
-                                // do nothing
-                            }
+            /*
+                flipTheSwitch: function () {
+                    // set saved variable to opposite of current value
+                    this.setChecked(!this.getChecked());
+                    // set toggle
+                    this.setToggle();
+                },
+            */
+            /*
+                getChecked: function () {
+                    // grabs isNextGen value
+                    var a = GM_getValue('autoApplyParameters', false);
+                    return a;
+                },
+                */
+            /*
+                toggleOn: function () {
+                    // set toggle on image
+                    var $toggle = QAtoolbox.config.$FAtoggle;
+                    $toggle.removeClass('fa-toggle-off');
+                    $toggle.addClass('fa-toggle-on');
+                    console.log('autofill toggle on');
+                },
+                */
+            /*
+                applyParameters: function () {
+                    var urlParameters2 = {
+                            'nextGen=': nextGenToggle.returnParameters(),
+                            'relative=': m4Check.returnParameters(),
+                            'disableAutofill=': autofillToggle.returnParameters()
+                        },
+                        findThis = '',
+                        url = window.location.href,
+                        key = '',
+                        matchesFound = [],
+                        foundThis = false;
+                    console.log(url);
+                    console.log('----------------------------------------');
+                    for (key in urlParameters2) {
+                        findThis = key;
+                        // this works with current URL
+                        // will check to see if current URL has all the variables with it
+                        // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
+                        // AN ERROR WILL BE THROWN
+                        if (url.indexOf('?') === -1) {
+                            url += '?';
                         }
-                        // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is OFF'
-                        else if (key === 'nextGen=' && foundThis && !urlParameters2[key]) {
-                            // if 'parameter is set to true'
-                            if (url.indexOf('nextGen=true') >= 0) {
-                                url = url.replace('nextGen=true', 'nextGen=false');
-                                console.log('turning parameter off : ' + url);
+                        // force the page to reload in DESKTOP SITE
+                        // no downside to NEXT GEN SITES
+                        if (url.indexOf('device=immobile') === -1) {
+                            url += '&device=immobile';
+                        }
+                        // determine search term is empty
+                        // this will mean that the toggle is turned off
+                        if (findThis === undefined || findThis === '') {
+                            console.log('value is empty : skip');
+                        } else {
+                            // search url for KEY
+                            //
+                            foundThis = this.searchURL(key, url);
+                            //--------------------------------------------------------
+                            //next gen searches
+                            //--------------------------------------------------------
+                            // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is ON'
+                            if (key === 'nextGen=' && foundThis && urlParameters2[key]) {
+                                // if 'parameter is set to false'
+                                if (url.indexOf('nextGen=false') >= 0) {
+                                    console.log('turning parameter on');
+                                    url = url.replace('nextGen=false', 'nextGen=true');
+                                    matchesFound.push(false);
+                                }
+                                // if 'parameter is set to true'
+                                else if (url.indexOf('nextGen=true') >= 0) {
+                                    console.log('parameter already turned on');
+                                    // do nothing
+                                }
+                            }
+                            // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is OFF'
+                            else if (key === 'nextGen=' && foundThis && !urlParameters2[key]) {
+                                // if 'parameter is set to true'
+                                if (url.indexOf('nextGen=true') >= 0) {
+                                    url = url.replace('nextGen=true', 'nextGen=false');
+                                    console.log('turning parameter off : ' + url);
+                                    matchesFound.push(false);
+                                }
+                                // if 'parameter is set to false'
+                                else if (url.indexOf('nextGen=false') >= 0) {
+                                    // do nothing
+                                    console.log('parameter turned off');
+                                }
+                            }
+                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is ON'
+                            else if (key === 'nextGen=' && !foundThis && urlParameters2[key]) {
+                                // Add parameter to url string
+                                console.log('adding parameter and turning on');
+                                url += '&nextGen=true';
+                            }
+                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
+                            else if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) {
+                                // do nothing
+                                console.log('parameter not enabled');
+                            }
+                            //--------------------------------------------------------
+                            //autofill searches
+                            //--------------------------------------------------------
+                            // PARAMETER FOUND IN URL
+                            // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is ON'
+                            else if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) {
+                                // if 'parameter is set to false'
+                                if (url.indexOf('disableAutofill=false') >= 0) {
+                                    console.log('parameter exists, turned on');
+                                    url = url.replace('disableAutofill=false', 'disableAutofill=true');
+                                    matchesFound.push(false);
+                                }
+                                // if 'parameter is set to true'
+                                else if (url.indexOf('disableAutofill=true') >= 0) {
+                                    // do nothing
+                                    console.log('parameter exists, already turned on');
+                                    matchesFound.push(true);
+                                }
+                            }
+                            // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is OFF'
+                            else if (key === 'disableAutofill=' && foundThis && !urlParameters2[key]) {
+                                // if 'parameter is set to true'
+                                if (url.indexOf('disableAutofill=true') >= 0) {
+                                    console.log('parameter exists, turned off');
+                                    url = url.replace('disableAutofill=true', 'disableAutofill=false');
+                                    matchesFound.push(false);
+                                }
+                                // if 'parameter is set to false'
+                                else if (url.indexOf('disableAutofill=false') >= 0) {
+                                    // do nothing
+                                    console.log('parameter exists, already turned off');
+                                    matchesFound.push(true);
+                                }
+                            }
+                            // PARAMETER NOT FOUND IN URL
+                            // if 'searching for disable autofill' AND 'parameter not found in url' AND 'toggle is ON'
+                            else if (key === 'disableAutofill=' && !foundThis && urlParameters2[key]) {
+                                // Add parameter to url string
+                                console.log('parameter added, turned on');
+                                url += '&disableAutofill=true';
                                 matchesFound.push(false);
                             }
-                            // if 'parameter is set to false'
-                            else if (url.indexOf('nextGen=false') >= 0) {
+                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
+                            else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) {
+                                // do nothing
+                                console.log('parameter not enabled');
+                            }
+                            //--------------------------------------------------------
+                            //m4 parameter searches
+                            //--------------------------------------------------------
+                            // PARAMETER FOUND IN URL
+                            // create a special search for the m4 module URL parameters
+                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
+                            else if (key === 'relative=' && foundThis && !urlParameters2[key]) {
+                                // remove ADDED parameter from URL
+                                console.log('removing parameter');
+                                url = url.replace('&comments=true&relative=true', '');
+                                matchesFound.push(false);
+                            }
+                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
+                            else if (key === 'relative=' && foundThis && urlParameters2[key]) {
+                                // do nothing
+                                console.log('parameter already turned on');
+                                matchesFound.push(true);
+                            }
+                            // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
+                            else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
+                                // Add parameter to url string
+                                url += '&comments=true&relative=true';
+                                console.log('parameter added, turned on');
+                                matchesFound.push(false);
+                            }
+                            // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
+                            else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
                                 // do nothing
                                 console.log('parameter turned off');
                             }
                         }
-                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is ON'
-                        else if (key === 'nextGen=' && !foundThis && urlParameters2[key]) {
-                            // Add parameter to url string
-                            console.log('adding parameter and turning on');
-                            url += '&nextGen=true';
+                        console.log('finish search for : ' + key);
+                        console.log('-----------');
+                    }
+                    console.log('url : ' + url);
+                    //-------------------------------------------
+                    // works
+                    //-----------------------------------------
+                    // check possible URL modifications to see if it is in URL
+                    // ---------------------------------------- commented out
+                    for (key in urlParameters2) {
+                        console.log('-----------');
+                        //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
+                        findThis = urlParameters2[key];
+                        console.log('start search for : ' + findThis);
+                        // this works with current URL
+                        // will check to see if current URL has all the variables with it
+                        // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
+                        // AN ERROR WILL BE THROWN
+                        if (url.indexOf('?') === -1) {
+                            url += '?';
                         }
-                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
-                        else if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) {
-                            // do nothing
-                            console.log('parameter not enabled');
+                        // force the page to reload in DESKTOP SITE
+                        // no downside to NEXT GEN SITES
+                        if (url.indexOf('device=immobile') === -1) {
+                            url += '&device=immobile';
                         }
-                        //--------------------------------------------------------
-                        //autofill searches
-                        //--------------------------------------------------------
-                        // PARAMETER FOUND IN URL
-                        // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is ON'
-                        else if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) {
-                            // if 'parameter is set to false'
-                            if (url.indexOf('disableAutofill=false') >= 0) {
-                                console.log('parameter exists, turned on');
-                                url = url.replace('disableAutofill=false', 'disableAutofill=true');
-                                matchesFound.push(false);
-                            }
-                            // if 'parameter is set to true'
-                            else if (url.indexOf('disableAutofill=true') >= 0) {
-                                // do nothing
-                                console.log('parameter exists, already turned on');
+                        // determine search term is empty
+                        // this will mean that the toggle is turned off
+                        if (findThis === undefined || findThis === '') {
+                            console.log('value is empty : skip');
+                        } else {
+                            foundThis = this.searchURL(findThis, url);
+                            // if value is not empty, determine if present in URL
+                            if (foundThis) {
+                                console.log('match found');
+                                hasParameters[key] = true;
                                 matchesFound.push(true);
-                            }
-                        }
-                        // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is OFF'
-                        else if (key === 'disableAutofill=' && foundThis && !urlParameters2[key]) {
-                            // if 'parameter is set to true'
-                            if (url.indexOf('disableAutofill=true') >= 0) {
-                                console.log('parameter exists, turned off');
-                                url = url.replace('disableAutofill=true', 'disableAutofill=false');
+                            } else if (!foundThis) {
                                 matchesFound.push(false);
-                            }
-                            // if 'parameter is set to false'
-                            else if (url.indexOf('disableAutofill=false') >= 0) {
-                                // do nothing
-                                console.log('parameter exists, already turned off');
-                                matchesFound.push(true);
+                                console.log('match NOT found , adding to url');
+                                url += findThis;
+                                console.log('newURL : ' + url);
                             }
                         }
-                        // PARAMETER NOT FOUND IN URL
-                        // if 'searching for disable autofill' AND 'parameter not found in url' AND 'toggle is ON'
-                        else if (key === 'disableAutofill=' && !foundThis && urlParameters2[key]) {
-                            // Add parameter to url string
-                            console.log('parameter added, turned on');
-                            url += '&disableAutofill=true';
-                            matchesFound.push(false);
-                        }
-                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
-                        else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) {
-                            // do nothing
-                            console.log('parameter not enabled');
-                        }
-                        //--------------------------------------------------------
-                        //m4 parameter searches
-                        //--------------------------------------------------------
-                        // PARAMETER FOUND IN URL
-                        // create a special search for the m4 module URL parameters
-                        // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
-                        else if (key === 'relative=' && foundThis && !urlParameters2[key]) {
-                            // remove ADDED parameter from URL
-                            console.log('removing parameter');
-                            url = url.replace('&comments=true&relative=true', '');
-                            matchesFound.push(false);
-                        }
-                        // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
-                        else if (key === 'relative=' && foundThis && urlParameters2[key]) {
-                            // do nothing
-                            console.log('parameter already turned on');
-                            matchesFound.push(true);
-                        }
-                        // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
-                        else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
-                            // Add parameter to url string
-                            url += '&comments=true&relative=true';
-                            console.log('parameter added, turned on');
-                            matchesFound.push(false);
-                        }
-                        // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
-                        else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
-                            // do nothing
-                            console.log('parameter turned off');
-                        }
+                        console.log('finish search for : ' + urlParameters2[key]);
+                        console.log('-----------');
+                        // ----------------------------------------------------------------
                     }
-                    console.log('finish search for : ' + key);
-                    console.log('-----------');
-                }
-                console.log('url : ' + url);
-                //-------------------------------------------
-                // works
-                //-----------------------------------------
-                // check possible URL modifications to see if it is in URL
-                /*
-                for (key in urlParameters2) {
-                    console.log('-----------');
-                    //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
-                    findThis = urlParameters2[key];
-                    console.log('start search for : ' + findThis);
-                    // this works with current URL
-                    // will check to see if current URL has all the variables with it
-                    // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
-                    // AN ERROR WILL BE THROWN
-                    if (url.indexOf('?') === -1) {
-                        url += '?';
-                    }
-                    // force the page to reload in DESKTOP SITE
-                    // no downside to NEXT GEN SITES
-                    if (url.indexOf('device=immobile') === -1) {
-                        url += '&device=immobile';
-                    }
-                    // determine search term is empty
-                    // this will mean that the toggle is turned off
-                    if (findThis === undefined || findThis === '') {
-                        console.log('value is empty : skip');
-                    } else {
-                        foundThis = this.searchURL(findThis, url);
-                        // if value is not empty, determine if present in URL
-                        if (foundThis) {
-                            console.log('match found');
-                            hasParameters[key] = true;
-                            matchesFound.push(true);
-                        } else if (!foundThis) {
-                            matchesFound.push(false);
-                            console.log('match NOT found , adding to url');
-                            url += findThis;
-                            console.log('newURL : ' + url);
-                        }
-                    }
-                    console.log('finish search for : ' + urlParameters2[key]);
-                    console.log('-----------');
-                    // ----------------------------------------------------------------
-                }
-                */
-                //-------------------------------------------
-                // works
-                //-----------------------------------------
-                // reloadPAge
-                this.reloadPage(matchesFound, url);
-            },
-            reloadPage: function (matchesFound, url) {
-                // determine if all parameters are found in the URL
-                // will stop the page from reloading after initial build.
-                var q = 0,
-                    matchLength = matchesFound.length,
-                    reloadPage = false;
-                // loop through array to determine if page should reload
-                for (q; q < matchLength; q += 1) {
-                    console.log('matchesFound : ' + matchesFound[q]);
-                    // if a match isn't found, break out of loop and reload the page.
-                    if (matchesFound[q]) {
+                    // ---------------------------------------- commented out ^^^^
+                    //-------------------------------------------
+                    // works
+                    //-----------------------------------------
+                    // reloadPAge
+                    this.reloadPage(matchesFound, url);
+                },
+            */
+            /*
+                reloadPage: function (matchesFound, url) {
+                    // determine if all parameters are found in the URL
+                    // will stop the page from reloading after initial build.
+                    var q = 0,
+                        matchLength = matchesFound.length,
                         reloadPage = false;
-                    } else {
-                        reloadPage = true;
-                        break;
+                    // loop through array to determine if page should reload
+                    for (q; q < matchLength; q += 1) {
+                        console.log('matchesFound : ' + matchesFound[q]);
+                        // if a match isn't found, break out of loop and reload the page.
+                        if (matchesFound[q]) {
+                            reloadPage = false;
+                        } else {
+                            reloadPage = true;
+                            break;
+                        }
                     }
-                }
-                // if reloadPage is true reload page
-                if (reloadPage) {
-                    window.location.href = url;
-                    console.log('reloading page');
-                }
-                console.log('----------------------------------------');
-            },
-            searchURL: function (findThis, url) {
-                console.log('finding ' + findThis + ' in ' + url);
-                if (url.indexOf(findThis) >= 0) {
-                    return true;
-                }
-                return false;
-            },
+                    // if reloadPage is true reload page
+                    if (reloadPage) {
+                        window.location.href = url;
+                        console.log('reloading page');
+                    }
+                    console.log('----------------------------------------');
+                },
+                */
+            /*
+                searchURL: function (findThis, url) {
+                    console.log('finding ' + findThis + ' in ' + url);
+                    if (url.indexOf(findThis) >= 0) {
+                        return true;
+                    }
+                    return false;
+                },
+                */
             // ----------------------------------------
             // TEST  ^^^^
             // ----------------------------------------
-            setChecked: function (bool) {
-                // sets isNextGen value
-                GM_setValue('autoApplyParameters', bool); // jshint ignore:line
-            },
+            /*
+                setChecked: function (bool) {
+                    // sets isNextGen value
+                    GM_setValue('autoApplyParameters', bool);
+                },
+            */
             showPanels: function () {
                 // loop through variable list to find the panel title
                 var variables = this.variableList,
@@ -548,21 +594,23 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            programData: function () {
-                var allVariables = GM_listValues(), // jshint ignore:line
-                    length = allVariables.length,
-                    a = 0,
-                    varList = {},
-                    key = '',
-                    value = '';
-                // add variables to list
-                for (a; a < length; a += 1) {
-                    key = allVariables[a];
-                    value = GM_getValue(key, false); // jshint ignore:line
-                    varList[key] = value;
-                }
-                return varList;
-            },
+            /*
+                programData: function () {
+                    var allVariables = GM_listValues(),
+                        length = allVariables.length,
+                        a = 0,
+                        varList = {},
+                        key = '',
+                        value = '';
+                    // add variables to list
+                    for (a; a < length; a += 1) {
+                        key = allVariables[a];
+                        value = GM_getValue(key, false);
+                        varList[key] = value;
+                    }
+                    return varList;
+                },
+                */
             toggleFeature: function (event) {
                 var id = jQuery(event.target).attr('id');
                 switch (id) {
@@ -579,9 +627,9 @@
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false); // jshint ignore:line
+                    currState = GM_getValue(vName, false);
                 // sets usingM4 value
-                GM_setValue(vName, !currState); // jshint ignore:line
+                GM_setValue(vName, !currState);
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -604,142 +652,6 @@
         /* ************************************************************************************************************************ */
         /* **************************************** PAGE INFO TOOLS **************************************** */
         /* ************************************************************************************************************************ */
-        // ---------------------------------------------------------------
-        // --------------------- Page Information Panel ---------------------
-        // ---------------------------------------------------------------
-        pageInformation = {
-            init: function () {
-                // initialize module
-                this.createElements();
-                this.buildPanel();
-                this.cacheDOM();
-                this.addTool();
-                this.addStyles();
-                this.bindEvents();
-                this.displayPanel();
-            },
-            // ----------------------------------------
-            // tier 1 functions
-            // ----------------------------------------
-            createElements: function () {
-                // main panel container
-                pageInformation.config = {
-                    $pageInfoContainer: jQuery('<div>').attr({
-                        class: 'toolBox',
-                        id: 'pageInfoContainer'
-                    }),
-                    // panel title
-                    $pageInfoTitle: jQuery('<div>').attr({
-                        class: 'panelTitle',
-                        id: 'pageInfoTitle',
-                        title: 'Click to Minimize/Maximize'
-                    }).text('Page Information'),
-                    // tool panel
-                    $pageInfo: jQuery('<div>').attr({
-                        class: 'toolsPanel',
-                        id: 'pageInfo'
-                    })
-                };
-            },
-            buildPanel: function () {
-                // attach panel elements to container
-                pageInformation.config.$pageInfo
-                    .append(dealerName.init())
-                    .append(webID.init())
-                    .append(pageName.init());
-                // attach to continer
-                pageInformation.config.$pageInfoContainer
-                    .append(pageInformation.config.$pageInfoTitle)
-                    .append(pageInformation.config.$pageInfo);
-            },
-            cacheDOM: function () {
-                // DOM elements
-                this.$toolbarStyles = jQuery('#qa_toolbox');
-                this.$toolBoxContainer = jQuery('#toolboxContainer');
-                this.variableList = this.programData();
-            },
-            addTool: function () {
-                // add to main toolbox
-                this.$toolBoxContainer.prepend(pageInformation.config.$pageInfoContainer);
-                //                this.$toolBoxContainer.append(pageInformation.config.$pageInfoContainer);
-            },
-            addStyles: function () {
-                // apply module styles to main tool bar style tag
-                this.$toolbarStyles
-                    .append('.tbInfo { background: linear-gradient(to right, #ECE9E6 , #FFFFFF); color: #000000 !important; clear: both; cursor: pointer; line-height: 15px; padding: 3px 0px; text-transform: none; border-top: 1px solid #000000; border-bottom: 1px solid #000000; }')
-                    .append('.tbLabel { font-weight: bold; }');
-            },
-            bindEvents: function () {
-                // minimize
-                pageInformation.config.$pageInfoTitle.on('click', this.toggleFeature);
-                pageInformation.config.$pageInfoTitle.on('click', this.saveState);
-                // hover effect
-                pageInformation.config.$pageInfo.on('mouseover mouseleave', '.tbInfo', this.hoverEffect);
-                // click
-                pageInformation.config.$pageInfo.on('click', '.tbInfo', this.copyToClipboard);
-            },
-            displayPanel: function () {
-                // loop through variable list to find the panel title
-                var variables = this.variableList,
-                    state = '',
-                    key = '';
-                for (key in variables) {
-                    if (key === 'pageInfo') {
-                        state = variables[key] ? 'show' : 'hide';
-                        this.setState(pageInformation.config.$pageInfo, state);
-                    }
-                }
-            },
-            // ----------------------------------------
-            // tier 2 functions
-            // ----------------------------------------
-            programData: function () {
-                var allVariables = GM_listValues(), // jshint ignore:line
-                    length = allVariables.length,
-                    a = 0,
-                    varList = {},
-                    key = '',
-                    value = '';
-                // add variables to list
-                for (a; a < length; a += 1) {
-                    key = allVariables[a];
-                    value = GM_getValue(key, false); // jshint ignore:line
-                    varList[key] = value;
-                }
-                return varList;
-            },
-            toggleFeature: function () {
-                return pageInformation.config.$pageInfo.slideToggle('1000');
-            },
-            saveState: function (event) {
-                // get current state
-                var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false); // jshint ignore:line
-                // sets usingM4 value
-                GM_setValue(vName, !currState); // jshint ignore:line
-            },
-            hoverEffect: function (event) {
-                // apply hover effects
-                var element = event.currentTarget;
-                jQuery(element).toggleClass('highlight');
-            },
-            copyToClipboard: function (event) {
-                // copy page info
-                var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text'); // jshint ignore:line
-            },
-            setState: function ($panel, state) {
-                if (state === 'show') {
-                    $panel.css({
-                        display: 'block'
-                    });
-                } else if (state === 'hide') {
-                    $panel.css({
-                        display: 'none'
-                    });
-                }
-            }
-        },
         // ---------------------------------------------------------------
         // --------------------- Dealership Name ---------------------
         // ---------------------------------------------------------------
@@ -841,7 +753,7 @@
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text'); // jshint ignore:line
+                GM_setClipboard(copyThisText, 'text');
             }
         },
         // ---------------------------------------------------------------
@@ -926,7 +838,143 @@
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text'); // jshint ignore:line
+                GM_setClipboard(copyThisText, 'text');
+            }
+        },
+        // ---------------------------------------------------------------
+        // --------------------- Page Information Panel ---------------------
+        // ---------------------------------------------------------------
+        pageInformation = {
+            init: function () {
+                // initialize module
+                this.createElements();
+                this.buildPanel();
+                this.cacheDOM();
+                this.addTool();
+                this.addStyles();
+                this.bindEvents();
+                this.displayPanel();
+            },
+            // ----------------------------------------
+            // tier 1 functions
+            // ----------------------------------------
+            createElements: function () {
+                // main panel container
+                pageInformation.config = {
+                    $pageInfoContainer: jQuery('<div>').attr({
+                        class: 'toolBox',
+                        id: 'pageInfoContainer'
+                    }),
+                    // panel title
+                    $pageInfoTitle: jQuery('<div>').attr({
+                        class: 'panelTitle',
+                        id: 'pageInfoTitle',
+                        title: 'Click to Minimize/Maximize'
+                    }).text('Page Information'),
+                    // tool panel
+                    $pageInfo: jQuery('<div>').attr({
+                        class: 'toolsPanel',
+                        id: 'pageInfo'
+                    })
+                };
+            },
+            buildPanel: function () {
+                // attach panel elements to container
+                pageInformation.config.$pageInfo
+                    .append(dealerName.init())
+                    .append(webID.init())
+                    .append(pageName.init());
+                // attach to continer
+                pageInformation.config.$pageInfoContainer
+                    .append(pageInformation.config.$pageInfoTitle)
+                    .append(pageInformation.config.$pageInfo);
+            },
+            cacheDOM: function () {
+                // DOM elements
+                this.$toolbarStyles = jQuery('#qa_toolbox');
+                this.$toolBoxContainer = jQuery('#toolboxContainer');
+                this.variableList = this.programData();
+            },
+            addTool: function () {
+                // add to main toolbox
+                this.$toolBoxContainer.prepend(pageInformation.config.$pageInfoContainer);
+                //                this.$toolBoxContainer.append(pageInformation.config.$pageInfoContainer);
+            },
+            addStyles: function () {
+                // apply module styles to main tool bar style tag
+                this.$toolbarStyles
+                    .append('.tbInfo { background: linear-gradient(to right, #ECE9E6 , #FFFFFF); color: #000000 !important; clear: both; cursor: pointer; line-height: 15px; padding: 3px 0px; text-transform: none; border-top: 1px solid #000000; border-bottom: 1px solid #000000; }')
+                    .append('.tbLabel { font-weight: bold; }');
+            },
+            bindEvents: function () {
+                // minimize
+                pageInformation.config.$pageInfoTitle.on('click', this.toggleFeature);
+                pageInformation.config.$pageInfoTitle.on('click', this.saveState);
+                // hover effect
+                pageInformation.config.$pageInfo.on('mouseover mouseleave', '.tbInfo', this.hoverEffect);
+                // click
+                pageInformation.config.$pageInfo.on('click', '.tbInfo', this.copyToClipboard);
+            },
+            displayPanel: function () {
+                // loop through variable list to find the panel title
+                var variables = this.variableList,
+                    state = '',
+                    key = '';
+                for (key in variables) {
+                    if (key === 'pageInfo') {
+                        state = variables[key] ? 'show' : 'hide';
+                        this.setState(pageInformation.config.$pageInfo, state);
+                    }
+                }
+            },
+            // ----------------------------------------
+            // tier 2 functions
+            // ----------------------------------------
+            programData: function () {
+                var allVariables = GM_listValues(),
+                    length = allVariables.length,
+                    a = 0,
+                    varList = {},
+                    key = '',
+                    value = '';
+                // add variables to list
+                for (a; a < length; a += 1) {
+                    key = allVariables[a];
+                    value = GM_getValue(key, false);
+                    varList[key] = value;
+                }
+                return varList;
+            },
+            toggleFeature: function () {
+                return pageInformation.config.$pageInfo.slideToggle('1000');
+            },
+            saveState: function (event) {
+                // get current state
+                var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
+                    currState = GM_getValue(vName, false);
+                // sets usingM4 value
+                GM_setValue(vName, !currState);
+            },
+            hoverEffect: function (event) {
+                // apply hover effects
+                var element = event.currentTarget;
+                jQuery(element).toggleClass('highlight');
+            },
+            copyToClipboard: function (event) {
+                // copy page info
+                var copyThisText = event.currentTarget.innerHTML;
+                GM_setClipboard(copyThisText, 'text');
+            },
+            setState: function ($panel, state) {
+                if (state === 'show') {
+                    $panel.css({
+                        display: 'block'
+                    });
+                } else if (state === 'hide') {
+                    $panel.css({
+                        display: 'none'
+                    });
+                }
             }
         },
         /* ************************************************************************************************************************ */
@@ -1014,7 +1062,7 @@
             // tier 2 functions
             // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(), // jshint ignore:line
+                var allVariables = GM_listValues(),
                     length = allVariables.length,
                     a = 0,
                     varList = {},
@@ -1023,7 +1071,7 @@
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false); // jshint ignore:line
+                    value = GM_getValue(key, false);
                     varList[key] = value;
                 }
                 return varList;
@@ -1034,9 +1082,9 @@
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false); // jshint ignore:line
+                    currState = GM_getValue(vName, false);
                 // sets usingM4 value
-                GM_setValue(vName, !currState); // jshint ignore:line
+                GM_setValue(vName, !currState);
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -1779,7 +1827,7 @@
             // ----------------------------------------
             spellCheck: function () {
                 var openThis = this.buildURL();
-                GM_openInTab(openThis, 'active'); // jshint ignore:line
+                GM_openInTab(openThis, 'active');
             },
             // ----------------------------------------
             // tier 3 functions
@@ -1818,7 +1866,7 @@
                         id: 'testPage',
                         title: 'Queue up a Page Test'
                     }).text('Web Page Test'),
-                    email: GM_getValue('email', 'your.name@cdk.com'), // jshint ignore:line
+                    email: GM_getValue('email', 'your.name@cdk.com'),
                     $emailTitle: jQuery('<div>').text('Enter your email'),
                     $emailInput: jQuery('<input>').attr({
                         id: 'email',
@@ -1901,12 +1949,12 @@
             storeData: function () {
                 // save user input
                 var userEmail = jQuery('#email').val();
-                GM_setValue('email', userEmail); // jshint ignore:line
+                GM_setValue('email', userEmail);
             },
             sendPage: function () {
                 var browser = jQuery('#bSelect option:selected').val(),
                     browserName = jQuery('#bSelect option:selected').text(),
-                    email = GM_getValue('email'), // jshint ignore:line
+                    email = GM_getValue('email'),
                     params = {
                         k: 'A.1b40e6dc41916bd77b0541187ac9e74b',
                         runs: '3',
@@ -2670,7 +2718,7 @@
                 widgetID = $widget.attr('id');
             // make element blink for verification purposes
             $widget.fadeIn(300).fadeOut(300).fadeIn(300);
-            GM_setClipboard(widgetID, 'text'); // jshint ignore:line
+            GM_setClipboard(widgetID, 'text');
         }
     });
     // ------------------------------------------------------------------------------------------------------------------------
@@ -2713,7 +2761,7 @@
         viewMobile: function () {
             var auto = '?device=mobile&nextGen=false',
                 openThis = this.siteURL + this.pageName + auto;
-            GM_openInTab(openThis, 'active'); // jshint ignore:line
+            GM_openInTab(openThis, 'active');
         },
     };
     // ------------------------------------------------------------------------------------------------------------------------
@@ -3100,7 +3148,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs isNextGen value
-                var a = GM_getValue('isNextGen', false); // jshint ignore:line
+                var a = GM_getValue('isNextGen', false);
                 return a;
             },
             toggleOn: function () {
@@ -3114,8 +3162,6 @@
                     isNextGen = this.getChecked(),
                     url = '',
                     newURL = '';
-
-
                 // view NEXTGEN site
                 // if 'parameters not found in URL' AND 'nextGen toggle is turned on'
                 if (!hasParameters && isNextGen) {
@@ -3158,7 +3204,6 @@
                     window.location.search += '&nextGen=false';
                     console.log('nextgen parameter not found, adding and turing off');
                 }
-
                 // ----------------------------------------
                 // CURRENT WORKING CODE
                 // ----------------------------------------
@@ -3230,7 +3275,7 @@
             },
             setChecked: function (bool) {
                 // sets isNextGen value
-                GM_setValue('isNextGen', bool); // jshint ignore:line
+                GM_setValue('isNextGen', bool);
             }
         },
         // ------------------------------------------------------------------------------------------------------------------------
@@ -3328,7 +3373,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs usingM4 value
-                var a = GM_getValue('usingM4', false); // jshint ignore:line
+                var a = GM_getValue('usingM4', false);
                 return a;
             },
             toggleOn: function () {
@@ -3349,7 +3394,6 @@
                 //                if ((!hasParameters) && (siteState !== 'LIVE') && (usingM4)) {
                 //                    window.location.search += '&comments=true&relative=true';
                 //                }
-
                 // ----------------------------------------
                 // BEGIN TEST CODE
                 // ----------------------------------------
@@ -3386,7 +3430,6 @@
                 }
                 */
                 // ----------------------------------------
-
                 // usingM4 toggle TURNED ON
                 // if 'parameters not found in URL' AND 'usingM4 toggle is turned on'
                 if (!hasParameters && usingM4) {
@@ -3399,7 +3442,6 @@
                     console.log('usingM4 parameter found, do nothing');
                     // DO NOTHING
                 }
-
                 // usingM4 toggle TURNED OFF
                 // if 'parameters found in URL' 'usingM4 toggle is turned off'
                 else if (hasParameters && !usingM4) {
@@ -3414,7 +3456,6 @@
                     console.log('usingM4 parameter not found, do nothing');
                     // DO NOTHING
                 }
-
                 // ----------------------------------------
                 // END TEST CODE
                 // ----------------------------------------
@@ -3448,7 +3489,7 @@
             },
             setChecked: function (bool) {
                 // sets usingM4 value
-                GM_setValue('usingM4', bool); // jshint ignore:line
+                GM_setValue('usingM4', bool);
             }
         },
         // ------------------------------------------------------------------------------------------------------------------------
@@ -3547,7 +3588,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs applyAutofill value
-                var a = GM_getValue('applyAutofill', false); // jshint ignore:line
+                var a = GM_getValue('applyAutofill', false);
                 return a;
             },
             toggleOn: function () {
@@ -3562,8 +3603,6 @@
                 var applyAutofill = this.getChecked(),
                     url = window.location.href,
                     newURL;
-
-
                 // show autofill parameter
                 // if 'parameters not found in URL' AND 'applyAutofill toggle is turned on'
                 if (!hasParameters && applyAutofill) {
@@ -3592,7 +3631,6 @@
                 else if (hasParameters && !applyAutofill) {
                     // if 'disableAutofill FOUND IN URL' and 'applyAutofill turned off'
                     url = window.location.href;
-
                     // ----------------------------------------
                     // REMOVE PARAMETER FROM URL
                     // ----------------------------------------
@@ -3684,9 +3722,480 @@
             },
             setChecked: function (bool) {
                 // sets applyAutofill value
-                GM_setValue('applyAutofill', bool); // jshint ignore:line
+                GM_setValue('applyAutofill', bool);
             }
         },
+
+        // ---------------------------------------- URL MODIFIER
+        // ---------------------------------------------------------------
+        // --------------------- URL MODIFIER Panel ---------------------
+        // ---------------------------------------------------------------
+        urlModifiers = {
+            init: function () {
+                // initialize module
+                this.createElements();
+                this.buildPanel();
+                this.cacheDOM();
+                this.addTool();
+                //                                this.addStyles();
+                this.bindEvents(); // PROBLEM CODE!!!!!
+                this.displayPanel();
+
+                // ----------------------------------------
+                this.hidePanel();
+            },
+            // ----------------------------------------
+            // tier 1 functions
+            // ----------------------------------------
+            createElements: function () {
+                // main panel container
+                urlModifiers.config = {
+                    $urlModContainer: jQuery('<div>').attr({
+                        class: 'toolBox',
+                        id: 'urlModContainer'
+                    }),
+                    $urlModPanel: jQuery('<div>').attr({
+                        class: 'toolsPanel',
+                        id: 'urlModTools'
+                    }),
+                    $urlModTitle: jQuery('<div>').attr({
+                        class: 'panelTitle',
+                        id: 'urlModTitle',
+                        title: 'Click to Minimize / Maximize'
+                    }).text('URL Modifiers'),
+                    // ---------------------------------------- PROBABLY NOT NEEDED
+
+                    $autoApplyContainer: jQuery('<div>').attr({
+                        id: 'autoApplyInput',
+                        class: 'toggleTool',
+                        title: 'will auto apply URL modifiers to current URL\n*please reload the page to update the URL to current settings*'
+                    }).css({
+                        background: 'linear-gradient(to bottom, rgb(255,255,255) 0%, rgb(171, 186, 171) 35%, rgb(171, 186, 171) 70%, rgb(255, 255, 255) 100%)'
+                    }),
+                    $autoApplyTitle: jQuery('<div>').css({
+                        color: 'black',
+                        'line-height': '15px',
+                        'font-weight': 'bold'
+                    }).text('Auto Apply Modifiers?'),
+                    $autoApplyIcon: jQuery('<div>').attr({
+                        id: 'autoApplyIcon'
+                    }),
+                    $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>'),
+                };
+            },
+            buildPanel: function () {
+
+                // attach panel elements to container
+                urlModifiers.config.$urlModPanel
+                    .append(nextGenToggle.init())
+                    .append(m4Check.init())
+                    .append(autofillToggle.init());
+
+                urlModifiers.config.$autoApplyContainer.append(urlModifiers.config.$autoApplyTitle);
+                urlModifiers.config.$autoApplyContainer.append(urlModifiers.config.$autoApplyIcon);
+                urlModifiers.config.$autoApplyIcon.append(urlModifiers.config.$FAtoggle);
+
+                // attach title and URL Mod panel to URL Mod container
+                urlModifiers.config.$urlModContainer.append(urlModifiers.config.$urlModTitle);
+                urlModifiers.config.$urlModContainer.append(urlModifiers.config.$urlModPanel);
+                urlModifiers.config.$urlModContainer.append(urlModifiers.config.$autoApplyContainer);
+
+            },
+            cacheDOM: function () {
+                // DOM elements
+                this.variableList = this.programData();
+                this.$cm = unsafeWindow.ContextManager;
+                this.isLive = this.$cm.isLive();
+                this.$toolBoxContainer = jQuery('#toolboxContainer');
+            },
+            addTool: function () {
+                // add to main toolbox
+                this.$toolBoxContainer.append(urlModifiers.config.$urlModContainer);
+                //                this.$toolBoxContainer.append(urlModifiers.config.$pageInfoContainer);
+            },
+            addStyles: function () {
+                // apply module styles to main tool bar style tag
+                this.$toolbarStyles
+                    .append('.tbInfo { background: linear-gradient(to right, #ECE9E6 , #FFFFFF); color: #000000 !important; clear: both; cursor: pointer; line-height: 15px; padding: 3px 0px; text-transform: none; border-top: 1px solid #000000; border-bottom: 1px solid #000000; }')
+                    .append('.tbLabel { font-weight: bold; }');
+            },
+            bindEvents: function () {
+                // minimize
+                urlModifiers.config.$urlModTitle.on('click', this.toggleFeature);
+                urlModifiers.config.$urlModTitle.on('click', this.saveState);
+
+                //                urlModifiers.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
+            },
+            displayPanel: function () {
+                // loop through variable list to find the panel title
+                var variables = this.variableList,
+                    state = '',
+                    key = '';
+                for (key in variables) {
+                    if (key === 'urlModTools') {
+                        state = variables[key] ? 'show' : 'hide';
+                        this.setState(urlModifiers.config.$urlModPanel, state);
+                    }
+                }
+            },
+            hidePanel: function () {
+                if (this.isLive) {
+                    urlModifiers.config.$urlModContainer.remove();
+                }
+            },
+            // ----------------------------------------
+            // tier 2 functions
+            // ----------------------------------------
+            /*
+            flipTheSwitch: function () {
+                // set saved variable to opposite of current value
+                this.setChecked(!this.getChecked());
+                // set toggle
+                this.setToggle();
+            },
+            */
+            programData: function () {
+                //            var allVariables = GM_listValues(),
+                var allVariables = programVariables(),
+                    length = allVariables.length,
+                    a = 0,
+                    varList = {},
+                    key = '',
+                    value = '';
+                // add variables to list
+                for (a; a < length; a += 1) {
+                    key = allVariables[a];
+                    //                value = GM_getValue(key, false);
+                    value = getValue(key, false);
+                    varList[key] = value;
+                }
+                return varList;
+            },
+            toggleFeature: function () {
+                return urlModifiers.config.$urlModPanel.slideToggle('1000');
+            },
+            saveState: function (event) {
+                // get current state
+                var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
+                    //                currState = GM_getValue(vName, false);
+                    currState = getValue(vName, false);
+                // sets usingM4 value
+                //            GM_setValue(vName, !currState);
+                setValue(vName, !currState);
+            },
+            /*
+            hoverEffect: function (event) {
+                // apply hover effects
+                var element = event.currentTarget;
+                jQuery(element).toggleClass('highlight');
+            },
+            */
+            /*
+            copyToClipboard: function (event) {
+                // copy page info
+                var copyThisText = event.currentTarget.innerHTML;
+                //            GM_setClipboard(copyThisText, 'text');
+                clipboardCopy(copyThisText, 'text');
+            },
+            */
+            setState: function ($panel, state) {
+                if (state === 'show') {
+                    $panel.css({
+                        display: 'block'
+                    });
+                } else if (state === 'hide') {
+                    $panel.css({
+                        display: 'none'
+                    });
+                }
+            },
+            // ----------------------------------------
+            // tier 3
+            // ----------------------------------------
+            /*
+            setChecked: function (bool) {
+                // sets isNextGen value
+                //            GM_setValue('autoApplyParameters', bool);
+                setValue('autoApplyParameters', bool);
+            },
+            */
+            /*
+            setToggle: function () {
+                // get value of custom variable and set toggles accordingly
+                //            if (this.getChecked() && !this.isLive) {
+                if (getValue('autoApplyParameters', false) && !this.isLive) {
+                    console.log('auto apply toggle module');
+                    this.toggleOn();
+                    this.applyParameters();
+                } else if (!this.isLive) {
+                    console.log('auto apply toggle module');
+                    this.toggleOff();
+                    //                    this.applyParameters();
+                }
+            },
+            */
+            // ----------------------------------------
+            // tier 4
+            // ----------------------------------------
+            /*
+            toggleOn: function () {
+                // set toggle on image
+                var $toggle = urlModifiers.config.$FAtoggle;
+                $toggle.removeClass('fa-toggle-off');
+                $toggle.addClass('fa-toggle-on');
+                console.log('autofill toggle on');
+            },
+            */
+            /*
+            applyParameters: function () {
+                var urlParameters2 = {
+                        'nextGen=': nextGenToggle.returnParameters(),
+                        'relative=': m4Check.returnParameters(),
+                        'disableAutofill=': autofillToggle.returnParameters()
+                    },
+                    findThis = '',
+                    url = window.location.href,
+                    key = '',
+                    matchesFound = [],
+                    foundThis = false;
+                console.log(url);
+                console.log('----------------------------------------');
+                for (key in urlParameters2) {
+                    findThis = key;
+                    // this works with current URL
+                    // will check to see if current URL has all the variables with it
+                    // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
+                    // AN ERROR WILL BE THROWN
+                    if (url.indexOf('?') === -1) {
+                        url += '?';
+                    }
+                    // force the page to reload in DESKTOP SITE
+                    // no downside to NEXT GEN SITES
+                    if (url.indexOf('device=immobile') === -1) {
+                        url += '&device=immobile';
+                    }
+                    // determine search term is empty
+                    // this will mean that the toggle is turned off
+                    if (findThis === undefined || findThis === '') {
+                        console.log('value is empty : skip');
+                    } else {
+                        // search url for KEY
+                        //
+                        foundThis = this.searchURL(key, url);
+                        //--------------------------------------------------------
+                        //next gen searches
+                        //--------------------------------------------------------
+                        // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is ON'
+                        if (key === 'nextGen=' && foundThis && urlParameters2[key]) {
+                            // if 'parameter is set to false'
+                            if (url.indexOf('nextGen=false') >= 0) {
+                                console.log('turning parameter on');
+                                url = url.replace('nextGen=false', 'nextGen=true');
+                                matchesFound.push(false);
+                            }
+                            // if 'parameter is set to true'
+                            else if (url.indexOf('nextGen=true') >= 0) {
+                                console.log('parameter already turned on');
+                                // do nothing
+                            }
+                        }
+                        // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is OFF'
+                        else if (key === 'nextGen=' && foundThis && !urlParameters2[key]) {
+                            // if 'parameter is set to true'
+                            if (url.indexOf('nextGen=true') >= 0) {
+                                url = url.replace('nextGen=true', 'nextGen=false');
+                                console.log('turning parameter off : ' + url);
+                                matchesFound.push(false);
+                            }
+                            // if 'parameter is set to false'
+                            else if (url.indexOf('nextGen=false') >= 0) {
+                                // do nothing
+                                console.log('parameter turned off');
+                            }
+                        }
+                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is ON'
+                        else if (key === 'nextGen=' && !foundThis && urlParameters2[key]) {
+                            // Add parameter to url string
+                            console.log('adding parameter and turning on');
+                            url += '&nextGen=true';
+                        }
+                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
+                        else if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) {
+                            // do nothing
+                            console.log('parameter not enabled');
+                        }
+                        //--------------------------------------------------------
+                        //autofill searches
+                        //--------------------------------------------------------
+                        // PARAMETER FOUND IN URL
+                        // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is ON'
+                        else if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) {
+                            // if 'parameter is set to false'
+                            if (url.indexOf('disableAutofill=false') >= 0) {
+                                console.log('parameter exists, turned on');
+                                url = url.replace('disableAutofill=false', 'disableAutofill=true');
+                                matchesFound.push(false);
+                            }
+                            // if 'parameter is set to true'
+                            else if (url.indexOf('disableAutofill=true') >= 0) {
+                                // do nothing
+                                console.log('parameter exists, already turned on');
+                                matchesFound.push(true);
+                            }
+                        }
+                        // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is OFF'
+                        else if (key === 'disableAutofill=' && foundThis && !urlParameters2[key]) {
+                            // if 'parameter is set to true'
+                            if (url.indexOf('disableAutofill=true') >= 0) {
+                                console.log('parameter exists, turned off');
+                                url = url.replace('disableAutofill=true', 'disableAutofill=false');
+                                matchesFound.push(false);
+                            }
+                            // if 'parameter is set to false'
+                            else if (url.indexOf('disableAutofill=false') >= 0) {
+                                // do nothing
+                                console.log('parameter exists, already turned off');
+                                matchesFound.push(true);
+                            }
+                        }
+                        // PARAMETER NOT FOUND IN URL
+                        // if 'searching for disable autofill' AND 'parameter not found in url' AND 'toggle is ON'
+                        else if (key === 'disableAutofill=' && !foundThis && urlParameters2[key]) {
+                            // Add parameter to url string
+                            console.log('parameter added, turned on');
+                            url += '&disableAutofill=true';
+                            matchesFound.push(false);
+                        }
+                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
+                        else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) {
+                            // do nothing
+                            console.log('parameter not enabled');
+                        }
+                        //--------------------------------------------------------
+                        //m4 parameter searches
+                        //--------------------------------------------------------
+                        // PARAMETER FOUND IN URL
+                        // create a special search for the m4 module URL parameters
+                        // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
+                        else if (key === 'relative=' && foundThis && !urlParameters2[key]) {
+                            // remove ADDED parameter from URL
+                            console.log('removing parameter');
+                            url = url.replace('&comments=true&relative=true', '');
+                            matchesFound.push(false);
+                        }
+                        // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
+                        else if (key === 'relative=' && foundThis && urlParameters2[key]) {
+                            // do nothing
+                            console.log('parameter already turned on');
+                            matchesFound.push(true);
+                        }
+                        // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
+                        else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
+                            // Add parameter to url string
+                            url += '&comments=true&relative=true';
+                            console.log('parameter added, turned on');
+                            matchesFound.push(false);
+                        }
+                        // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
+                        else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
+                            // do nothing
+                            console.log('parameter turned off');
+                        }
+                    }
+                    console.log('finish search for : ' + key);
+                    console.log('-----------');
+                }
+                console.log('url : ' + url);
+                //-------------------------------------------
+                // works
+                //-----------------------------------------
+                // check possible URL modifications to see if it is in URL
+                // ---------------------------------------- -- disable below
+                for (key in urlParameters2) {
+                    console.log('-----------');
+                    //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
+                    findThis = urlParameters2[key];
+                    console.log('start search for : ' + findThis);
+                    // this works with current URL
+                    // will check to see if current URL has all the variables with it
+                    // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
+                    // AN ERROR WILL BE THROWN
+                    if (url.indexOf('?') === -1) {
+                        url += '?';
+                    }
+                    // force the page to reload in DESKTOP SITE
+                    // no downside to NEXT GEN SITES
+                    if (url.indexOf('device=immobile') === -1) {
+                        url += '&device=immobile';
+                    }
+                    // determine search term is empty
+                    // this will mean that the toggle is turned off
+                    if (findThis === undefined || findThis === '') {
+                        console.log('value is empty : skip');
+                    } else {
+                        foundThis = this.searchURL(findThis, url);
+                        // if value is not empty, determine if present in URL
+                        if (foundThis) {
+                            console.log('match found');
+                            hasParameters[key] = true;
+                            matchesFound.push(true);
+                        } else if (!foundThis) {
+                            matchesFound.push(false);
+                            console.log('match NOT found , adding to url');
+                            url += findThis;
+                            console.log('newURL : ' + url);
+                        }
+                    }
+                    console.log('finish search for : ' + urlParameters2[key]);
+                    console.log('-----------');
+                    // ----------------------------------------------------------------
+                }
+                // ---------------------------------------- -- diable above
+                //-------------------------------------------
+                // works
+                //-----------------------------------------
+                // reloadPAge
+                this.reloadPage(matchesFound, url);
+            },
+        */
+            /*
+            reloadPage: function (matchesFound, url) {
+                // determine if all parameters are found in the URL
+                // will stop the page from reloading after initial build.
+                var q = 0,
+                    matchLength = matchesFound.length,
+                    reloadPage = false;
+                // loop through array to determine if page should reload
+                for (q; q < matchLength; q += 1) {
+                    console.log('matchesFound : ' + matchesFound[q]);
+                    // if a match isn't found, break out of loop and reload the page.
+                    if (matchesFound[q]) {
+                        reloadPage = false;
+                    } else {
+                        reloadPage = true;
+                        break;
+                    }
+                }
+                // if reloadPage is true reload page
+                if (reloadPage) {
+                    window.location.href = url;
+                    console.log('reloading page');
+                }
+                console.log('----------------------------------------');
+            },
+            */
+            /*
+            searchURL: function (findThis, url) {
+                console.log('finding ' + findThis + ' in ' + url);
+                if (url.indexOf(findThis) >= 0) {
+                    return true;
+                }
+                return false;
+            }
+            */
+        },
+        // ---------------------------------------- END
+
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- force desktop site toggle ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -3942,12 +4451,12 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs useRefreshButton value
-                var a = GM_getValue('useRefreshButton', false); // jshint ignore:line
+                var a = GM_getValue('useRefreshButton', false);
                 return a;
             },
             setChecked: function (bool) {
                 // sets useRefreshButton value
-                GM_setValue('useRefreshButton', bool); // jshint ignore:line
+                GM_setValue('useRefreshButton', bool);
             }
         },
         // ------------------------------------------------------------------------------------------------------------------------
@@ -4024,7 +4533,7 @@
             // ----------------------------------------
             getChecked: function () {
                 // grabs isNextGen value
-                var a = GM_getValue('hidePreviewToolbar', false); // jshint ignore:line
+                var a = GM_getValue('hidePreviewToolbar', false);
                 return a;
             },
             toggleOn: function () {
@@ -4063,7 +4572,7 @@
             // ----------------------------------------
             setChecked: function (bool) {
                 // sets hidePreviewToolbar value
-                GM_setValue('hidePreviewToolbar', bool); // jshint ignore:line
+                GM_setValue('hidePreviewToolbar', bool);
             }
         },
         // ------------------------------------------------------------------------------------------------------------------------
@@ -4188,6 +4697,9 @@
                 if (!this.editMode() && this.isCDKsite() && !this.isMobile()) {
                     QAtoolbox.init(); // initialize toolbox
                     pageInformation.init(); // initialize page Information tool
+                    urlModifiers.init(); // initialize page Information tool
+
+
                     // ----- main tools ----- //
                     imageChecker.init(); // initialize image checker tool
                     linkChecker.init(); // initialize link checker tool
