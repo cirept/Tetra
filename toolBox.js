@@ -5,14 +5,17 @@
     "use strict";
     // ---------------------------------------- TEST FUNCTIONS
     function setValue(variable, val) {
+        console.log('"SET" value "' + variable + '" with "' + val + '"');
         GM_setValue(variable, val);
     }
 
-    function clipboardCopy(variable, val) {
-        GM_setClipboard(variable, val);
+    function clipboardCopy(variable) {
+        console.log('copy clipboard ' + variable);
+        GM_setClipboard(variable, 'text');
     }
 
     function getValue(variable, val) {
+        console.log('"GET" value "' + variable + '" with "' + val + '"');
         return GM_getValue(variable, val);
     }
 
@@ -3062,6 +3065,7 @@
     /* ************************************************************************************************************************ */
     /* **************************************** URL MODIFIER TOOLS **************************************** */
     /* ************************************************************************************************************************ */
+
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- next gen toggle ----------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------
@@ -3736,12 +3740,10 @@
                 this.createElements();
                 this.buildPanel();
                 this.cacheDOM();
+                this.setToggle();
                 this.addTool();
-                //                                this.addStyles();
-                this.bindEvents(); // PROBLEM CODE!!!!!
+                this.bindEvents();
                 this.displayPanel();
-
-                // ----------------------------------------
                 this.hidePanel();
             },
             // ----------------------------------------
@@ -3763,8 +3765,6 @@
                         id: 'urlModTitle',
                         title: 'Click to Minimize / Maximize'
                     }).text('URL Modifiers'),
-                    // ---------------------------------------- PROBABLY NOT NEEDED
-
                     $autoApplyContainer: jQuery('<div>').attr({
                         id: 'autoApplyInput',
                         class: 'toggleTool',
@@ -3784,7 +3784,6 @@
                 };
             },
             buildPanel: function () {
-
                 // attach panel elements to container
                 urlModifiers.config.$urlModPanel
                     .append(nextGenToggle.init())
@@ -3799,7 +3798,6 @@
                 urlModifiers.config.$urlModContainer.append(urlModifiers.config.$urlModTitle);
                 urlModifiers.config.$urlModContainer.append(urlModifiers.config.$urlModPanel);
                 urlModifiers.config.$urlModContainer.append(urlModifiers.config.$autoApplyContainer);
-
             },
             cacheDOM: function () {
                 // DOM elements
@@ -3808,23 +3806,28 @@
                 this.isLive = this.$cm.isLive();
                 this.$toolBoxContainer = jQuery('#toolboxContainer');
             },
+            setToggle: function () {
+                // get value of custom variable and set toggles accordingly
+                var currentToggle = getValue('autoApplyParameters', false);
+
+                if (currentToggle && !this.isLive) {
+                    this.toggleOn();
+                    this.applyParameters();
+                } else if (!this.isLive) {
+                    this.toggleOff();
+                    //                    this.applyParameters();
+                }
+            },
             addTool: function () {
                 // add to main toolbox
                 this.$toolBoxContainer.append(urlModifiers.config.$urlModContainer);
-                //                this.$toolBoxContainer.append(urlModifiers.config.$pageInfoContainer);
-            },
-            addStyles: function () {
-                // apply module styles to main tool bar style tag
-                this.$toolbarStyles
-                    .append('.tbInfo { background: linear-gradient(to right, #ECE9E6 , #FFFFFF); color: #000000 !important; clear: both; cursor: pointer; line-height: 15px; padding: 3px 0px; text-transform: none; border-top: 1px solid #000000; border-bottom: 1px solid #000000; }')
-                    .append('.tbLabel { font-weight: bold; }');
             },
             bindEvents: function () {
                 // minimize
                 urlModifiers.config.$urlModTitle.on('click', this.toggleFeature);
                 urlModifiers.config.$urlModTitle.on('click', this.saveState);
 
-                //                urlModifiers.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
+                urlModifiers.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
             },
             displayPanel: function () {
                 // loop through variable list to find the panel title
@@ -3846,16 +3849,7 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            /*
-            flipTheSwitch: function () {
-                // set saved variable to opposite of current value
-                this.setChecked(!this.getChecked());
-                // set toggle
-                this.setToggle();
-            },
-            */
             programData: function () {
-                //            var allVariables = GM_listValues(),
                 var allVariables = programVariables(),
                     length = allVariables.length,
                     a = 0,
@@ -3865,79 +3859,11 @@
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    //                value = GM_getValue(key, false);
                     value = getValue(key, false);
                     varList[key] = value;
                 }
                 return varList;
             },
-            toggleFeature: function () {
-                return urlModifiers.config.$urlModPanel.slideToggle('1000');
-            },
-            saveState: function (event) {
-                // get current state
-                var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    //                currState = GM_getValue(vName, false);
-                    currState = getValue(vName, false);
-                // sets usingM4 value
-                //            GM_setValue(vName, !currState);
-                setValue(vName, !currState);
-            },
-            /*
-            hoverEffect: function (event) {
-                // apply hover effects
-                var element = event.currentTarget;
-                jQuery(element).toggleClass('highlight');
-            },
-            */
-            /*
-            copyToClipboard: function (event) {
-                // copy page info
-                var copyThisText = event.currentTarget.innerHTML;
-                //            GM_setClipboard(copyThisText, 'text');
-                clipboardCopy(copyThisText, 'text');
-            },
-            */
-            setState: function ($panel, state) {
-                if (state === 'show') {
-                    $panel.css({
-                        display: 'block'
-                    });
-                } else if (state === 'hide') {
-                    $panel.css({
-                        display: 'none'
-                    });
-                }
-            },
-            // ----------------------------------------
-            // tier 3
-            // ----------------------------------------
-            /*
-            setChecked: function (bool) {
-                // sets isNextGen value
-                //            GM_setValue('autoApplyParameters', bool);
-                setValue('autoApplyParameters', bool);
-            },
-            */
-            /*
-            setToggle: function () {
-                // get value of custom variable and set toggles accordingly
-                //            if (this.getChecked() && !this.isLive) {
-                if (getValue('autoApplyParameters', false) && !this.isLive) {
-                    console.log('auto apply toggle module');
-                    this.toggleOn();
-                    this.applyParameters();
-                } else if (!this.isLive) {
-                    console.log('auto apply toggle module');
-                    this.toggleOff();
-                    //                    this.applyParameters();
-                }
-            },
-            */
-            // ----------------------------------------
-            // tier 4
-            // ----------------------------------------
-            /*
             toggleOn: function () {
                 // set toggle on image
                 var $toggle = urlModifiers.config.$FAtoggle;
@@ -3945,8 +3871,13 @@
                 $toggle.addClass('fa-toggle-on');
                 console.log('autofill toggle on');
             },
-            */
-            /*
+            toggleOff: function () {
+                // set toggle off image
+                var $toggle = urlModifiers.config.$FAtoggle;
+                $toggle.removeClass('fa-toggle-on');
+                $toggle.addClass('fa-toggle-off');
+                console.log('autofill toggle off');
+            },
             applyParameters: function () {
                 var urlParameters2 = {
                         'nextGen=': nextGenToggle.returnParameters(),
@@ -4105,69 +4036,105 @@
                     console.log('finish search for : ' + key);
                     console.log('-----------');
                 }
-                console.log('url : ' + url);
+                //                console.log('url : ' + url);
                 //-------------------------------------------
                 // works
                 //-----------------------------------------
                 // check possible URL modifications to see if it is in URL
                 // ---------------------------------------- -- disable below
-                for (key in urlParameters2) {
-                    console.log('-----------');
-                    //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
-                    findThis = urlParameters2[key];
-                    console.log('start search for : ' + findThis);
-                    // this works with current URL
-                    // will check to see if current URL has all the variables with it
-                    // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
-                    // AN ERROR WILL BE THROWN
-                    if (url.indexOf('?') === -1) {
-                        url += '?';
-                    }
-                    // force the page to reload in DESKTOP SITE
-                    // no downside to NEXT GEN SITES
-                    if (url.indexOf('device=immobile') === -1) {
-                        url += '&device=immobile';
-                    }
-                    // determine search term is empty
-                    // this will mean that the toggle is turned off
-                    if (findThis === undefined || findThis === '') {
-                        console.log('value is empty : skip');
-                    } else {
-                        foundThis = this.searchURL(findThis, url);
-                        // if value is not empty, determine if present in URL
-                        if (foundThis) {
-                            console.log('match found');
-                            hasParameters[key] = true;
-                            matchesFound.push(true);
-                        } else if (!foundThis) {
-                            matchesFound.push(false);
-                            console.log('match NOT found , adding to url');
-                            url += findThis;
-                            console.log('newURL : ' + url);
-                        }
-                    }
-                    console.log('finish search for : ' + urlParameters2[key]);
-                    console.log('-----------');
-                    // ----------------------------------------------------------------
-                }
+                //                for (key in urlParameters2) {
+                //                    console.log('-----------');
+                //                    //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
+                //                    findThis = urlParameters2[key];
+                //                    console.log('start search for : ' + findThis);
+                //                    // this works with current URL
+                //                    // will check to see if current URL has all the variables with it
+                //                    // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
+                //                    // AN ERROR WILL BE THROWN
+                //                    if (url.indexOf('?') === -1) {
+                //                        url += '?';
+                //                    }
+                //                    // force the page to reload in DESKTOP SITE
+                //                    // no downside to NEXT GEN SITES
+                //                    if (url.indexOf('device=immobile') === -1) {
+                //                        url += '&device=immobile';
+                //                    }
+                //                    // determine search term is empty
+                //                    // this will mean that the toggle is turned off
+                //                    if (findThis === undefined || findThis === '') {
+                //                        console.log('value is empty : skip');
+                //                    } else {
+                //                        foundThis = this.searchURL(findThis, url);
+                //                        // if value is not empty, determine if present in URL
+                //                        if (foundThis) {
+                //                            console.log('match found');
+                //                            hasParameters[key] = true;
+                //                            matchesFound.push(true);
+                //                        } else if (!foundThis) {
+                //                            matchesFound.push(false);
+                //                            console.log('match NOT found , adding to url');
+                //                            url += findThis;
+                //                            console.log('newURL : ' + url);
+                //                        }
+                //                    }
+                //                    console.log('finish search for : ' + urlParameters2[key]);
+                //                    console.log('-----------');
+                //                    // ----------------------------------------------------------------
+                //                }
                 // ---------------------------------------- -- diable above
                 //-------------------------------------------
                 // works
                 //-----------------------------------------
                 // reloadPAge
                 this.reloadPage(matchesFound, url);
+
             },
-        */
-            /*
+            flipTheSwitch: function () {
+                var value = getValue('autoApplyParameters', false);
+                // set saved variable to opposite of current value
+                setValue('autoApplyParameters', !value);
+                // set toggle
+                this.setToggle();
+            },
+            toggleFeature: function () {
+                return urlModifiers.config.$urlModPanel.slideToggle('1000');
+            },
+            saveState: function (event) {
+                // get current state
+                var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
+                    currState = getValue(vName, false);
+                // sets usingM4 value
+                setValue(vName, !currState);
+            },
+            setState: function ($panel, state) {
+                if (state === 'show') {
+                    $panel.css({
+                        display: 'block'
+                    });
+                } else if (state === 'hide') {
+                    $panel.css({
+                        display: 'none'
+                    });
+                }
+            },
+            // ----------------------------------------
+            // tier 3
+            // ----------------------------------------
+            searchURL: function (findThis, url) {
+                if (url.indexOf(findThis) >= 0) {
+                    return true;
+                }
+                return false;
+            },
             reloadPage: function (matchesFound, url) {
                 // determine if all parameters are found in the URL
                 // will stop the page from reloading after initial build.
                 var q = 0,
                     matchLength = matchesFound.length,
                     reloadPage = false;
+
                 // loop through array to determine if page should reload
                 for (q; q < matchLength; q += 1) {
-                    console.log('matchesFound : ' + matchesFound[q]);
                     // if a match isn't found, break out of loop and reload the page.
                     if (matchesFound[q]) {
                         reloadPage = false;
@@ -4176,23 +4143,13 @@
                         break;
                     }
                 }
+
                 // if reloadPage is true reload page
                 if (reloadPage) {
                     window.location.href = url;
                     console.log('reloading page');
                 }
-                console.log('----------------------------------------');
-            },
-            */
-            /*
-            searchURL: function (findThis, url) {
-                console.log('finding ' + findThis + ' in ' + url);
-                if (url.indexOf(findThis) >= 0) {
-                    return true;
-                }
-                return false;
             }
-            */
         },
         // ---------------------------------------- END
 
