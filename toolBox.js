@@ -3650,15 +3650,15 @@
                         //--------------------------------------------------------
                         //m4 parameter searches
                         //--------------------------------------------------------
-                        if (key === 'relative=' && foundThis && !urlParameters2[key]) { // PARAMETER FOUND IN URL
+                        if (key === 'relative=' && foundThis && urlParameters2[key]) { // PARAMETER FOUND IN URL
+                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
+                            // do nothing
+                            matchesFound.push(true);
+                        } else if (key === 'relative=' && foundThis && !urlParameters2[key]) { // PARAMETER FOUND IN URL
                             // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
                             // remove ADDED parameter from URL
                             url = url.replace('&comments=true&relative=true', '');
                             matchesFound.push(false);
-                        } else if (key === 'relative=' && foundThis && urlParameters2[key]) { // PARAMETER FOUND IN URL
-                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
-                            // do nothing
-                            matchesFound.push(true);
                         } else if (key === 'relative=' && !foundThis && urlParameters2[key]) { // PARAMETER NOT FOUND IN URL
                             // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
                             // Add parameter to url string
