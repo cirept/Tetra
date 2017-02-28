@@ -48,22 +48,6 @@
                         id: 'toolboxContainer'
                     }),
                     // ----------------------------------------
-                    // QA Tools Panel
-                    // ----------------------------------------
-                    $mainToolsContainer: jQuery('<div>').attr({
-                        class: 'toolBox',
-                        id: 'mainToolsContainer'
-                    }),
-                    $mainToolsPanel: jQuery('<div>').attr({
-                        class: 'toolsPanel',
-                        id: 'mainTools'
-                    }),
-                    $mainToolsTitle: jQuery('<div>').attr({
-                        class: 'panelTitle',
-                        id: 'mainToolsTitle',
-                        title: 'Click to Minimize/Maximize'
-                    }).text('QA Tools'),
-                    // ----------------------------------------
                     // Other Tools Panel
                     // ----------------------------------------
                     $otherToolsContainer: jQuery('<div>').attr({
@@ -144,9 +128,6 @@
                     .append('.toggleTool { background: linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255)); border-top: 1px solid #999999; cursor: pointer; } '); // end
             },
             buildPanel: function () {
-                // attach title and tools panel to tool container
-                QAtoolbox.config.$mainToolsContainer.append(QAtoolbox.config.$mainToolsTitle);
-                QAtoolbox.config.$mainToolsContainer.append(QAtoolbox.config.$mainToolsPanel);
                 // attach title and tools panel to other tool container
                 QAtoolbox.config.$otherToolsContainer.append(QAtoolbox.config.$otherToolsTitle);
                 QAtoolbox.config.$otherToolsContainer.append(QAtoolbox.config.$otherToolsPanel);
@@ -154,7 +135,6 @@
                 QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesTitle);
                 QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesPanel);
                 // attach tools panel to tool container
-                QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$mainToolsContainer);
                 QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$otherToolsContainer);
                 QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$togglesContainer);
                 QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$urlModContainer);
@@ -163,7 +143,6 @@
                 this.head = jQuery('head');
                 this.body = jQuery('body');
                 this.phoneWrapper = jQuery('body .phone-wrapper');
-                //                this.variableList = this.programData();
             },
             attachTools: function () {
                 this.head.append(QAtoolbox.config.$toolbarStyles);
@@ -172,8 +151,6 @@
                 this.body.before(QAtoolbox.config.$legendContainer);
             },
             bindEvents: function () {
-                QAtoolbox.config.$mainToolsTitle.on('click', this.toggleFeature);
-                QAtoolbox.config.$mainToolsTitle.on('click', this.saveState);
                 QAtoolbox.config.$otherToolsTitle.on('click', this.toggleFeature);
                 QAtoolbox.config.$otherToolsTitle.on('click', this.saveState);
                 QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature);
@@ -199,10 +176,6 @@
                     key = '';
                 for (key in variables) {
                     switch (key) {
-                    case 'mainTools':
-                        state = variables[key] ? 'show' : 'hide';
-                        this.setState(QAtoolbox.config.$mainToolsPanel, state);
-                        break;
                     case 'otherTools':
                         state = variables[key] ? 'show' : 'hide';
                         this.setState(QAtoolbox.config.$otherToolsPanel, state);
@@ -228,7 +201,6 @@
             // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
             // ----------------------------------------
             programData: function () {
-                //                    var allVariables = GM_listValues(),
                 var allVariables = programVariables(),
                     length = allVariables.length,
                     a = 0,
@@ -238,7 +210,6 @@
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    //                    value = GM_getValue(key, false);
                     value = getValue(key);
                     varList[key] = value;
                 }
@@ -248,8 +219,6 @@
             toggleFeature: function (event) {
                 var id = jQuery(event.target).attr('id');
                 switch (id) {
-                case 'mainToolsTitle':
-                    return QAtoolbox.config.$mainToolsPanel.slideToggle('1000');
                 case 'otherToolsTitle':
                     return QAtoolbox.config.$otherToolsPanel.slideToggle('1000');
                 case 'togglesTitle':
@@ -279,11 +248,9 @@
                     });
                 }
             },
-            styleTools: function () {
-                QAtoolbox.config.$mainToolsPanel.children('.myEDOBut:even').addClass('evenEDObutts');
-                QAtoolbox.config.$mainToolsPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
-                QAtoolbox.config.$otherToolsPanel.children('.myEDOBut:even').addClass('evenEDObutts');
-                QAtoolbox.config.$otherToolsPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
+            styleTools: function ($toolPanel) {
+                $toolPanel.children('.myEDOBut:even').addClass('evenEDObutts');
+                $toolPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
             }
         },
 
@@ -2794,15 +2761,14 @@
                 this.liveSite = this.cm.isLive();
             },
             setToggle: function () {
-                // if 'site is not live'
                 if (!this.liveSite) {
-                    // if 'nextGen is turned on'
+                    // if 'site is not live'
                     if (this.getChecked()) {
+                        // if 'nextGen is turned on'
                         // set toggle and apply parameters
                         this.toggleOn();
-                    }
-                    // if 'site is not live'
-                    else {
+                    } else {
+                        // if 'site is not live'
                         // set toggle and apply parameters
                         this.toggleOff();
                     }
@@ -2845,95 +2811,95 @@
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
             },
-            applyParameters: function () {
-                var hasParameters = this.hasParameters(),
-                    isNextGen = this.getChecked(),
-                    url = '',
-                    newURL = '';
-                // view NEXTGEN site
-                // if 'parameters not found in URL' AND 'nextGen toggle is turned on'
-                if (!hasParameters && isNextGen) {
-                    // if nextgen IS NOT in the URL, add nextGen=true
-                    window.location.search += '&nextGen=true';
-                    console.log('nextgen parameter not found, adding and turing on');
-                }
-                // if 'parameters found in URL' AND 'nextGen toggle is turned on'
-                else if (hasParameters && isNextGen) {
-                    // if 'the URL HAS nextGen=' BUT it isn't set to true
-                    url = window.location.href;
-                    if (url.indexOf('nextGen=false') > 0) {
-                        // nextGen false parameter detected UPDATE to true
-                        newURL = url.replace('nextGen=false', 'nextGen=true');
-                        console.log('nextgen parameter found, turing on');
-                        window.location.href = newURL;
-                    } else if (url.indexOf('nextGen=true') > 0) {
-                        // if next gen = true, do nothing
-                        console.log('nextgen parameter found, do nothing');
+            /*
+                applyParameters: function () {
+                    var hasParameters = this.hasParameters(),
+                        isNextGen = this.getChecked(),
+                        url = '',
+                        newURL = '';
+                    // view NEXTGEN site
+                    // if 'parameters not found in URL' AND 'nextGen toggle is turned on'
+                    if (!hasParameters && isNextGen) {
+                        // if nextgen IS NOT in the URL, add nextGen=true
+                        window.location.search += '&nextGen=true';
+                        console.log('nextgen parameter not found, adding and turing on');
                     }
-                }
-                // view TETRA site
-                // if 'parameters found in URL' AND 'nextGen toggle is turned off'
-                else if (hasParameters && !isNextGen) {
-                    // if parameters FOUND IN URL and NEXTGEN turned off
-                    url = window.location.href;
-                    if (url.indexOf('nextGen=true') > 0) {
-                        // next gen parameter = TRUE
-                        newURL = url.replace('nextGen=true', 'nextGen=false');
-                        console.log('nextgen parameter found, turing off');
-                        window.location.href = newURL;
-                    } else if (url.indexOf('nextGen=false') > 0) {
-                        // if next gen = FALSE, do nothing
-                        console.log('nextgen parameter found, do nothing');
+                    // if 'parameters found in URL' AND 'nextGen toggle is turned on'
+                    else if (hasParameters && isNextGen) {
+                        // if 'the URL HAS nextGen=' BUT it isn't set to true
+                        url = window.location.href;
+                        if (url.indexOf('nextGen=false') > 0) {
+                            // nextGen false parameter detected UPDATE to true
+                            newURL = url.replace('nextGen=false', 'nextGen=true');
+                            console.log('nextgen parameter found, turing on');
+                            window.location.href = newURL;
+                        } else if (url.indexOf('nextGen=true') > 0) {
+                            // if next gen = true, do nothing
+                            console.log('nextgen parameter found, do nothing');
+                        }
                     }
-                }
-                // if 'parameters not found in URL' AND 'nextGen toggle is turned off'
-                else if (!hasParameters && !isNextGen) {
-                    // if nextgen IS NOT in the URL, add nextGen=false
-                    window.location.search += '&nextGen=false';
-                    console.log('nextgen parameter not found, adding and turing off');
-                }
-                // ----------------------------------------
-                // CURRENT WORKING CODE
-                // ----------------------------------------
-                /*
-                // view NEXTGEN site
-                // if 'parameters not found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned on'
-                if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
-                    // if nextgen IS NOT in the URL, add nextGen=true
-                    window.location.search += '&nextGen=true';
-                }
-                // if 'parameters found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned on'
-                else if ((hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
-                    // if the URL HAS nextGen= BUT it isn't set to true
-                    url = window.location.href;
-                    if (url.indexOf('nextGen=false') > 0) {
-                        // nextGen false parameter detected UPDATE to true
-                        newURL = url.replace('nextGen=false', 'nextGen=true');
-                        window.location.href = newURL;
-                    } else if (url.indexOf('nextGen=true') > 0) {
-                        // if next gen = true, do nothing
+                    // view TETRA site
+                    // if 'parameters found in URL' AND 'nextGen toggle is turned off'
+                    else if (hasParameters && !isNextGen) {
+                        // if parameters FOUND IN URL and NEXTGEN turned off
+                        url = window.location.href;
+                        if (url.indexOf('nextGen=true') > 0) {
+                            // next gen parameter = TRUE
+                            newURL = url.replace('nextGen=true', 'nextGen=false');
+                            console.log('nextgen parameter found, turing off');
+                            window.location.href = newURL;
+                        } else if (url.indexOf('nextGen=false') > 0) {
+                            // if next gen = FALSE, do nothing
+                            console.log('nextgen parameter found, do nothing');
+                        }
                     }
-                }
-                // view TETRA site
-                // if 'parameters found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned off'
-                else if ((hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
-                    // if parameters FOUND IN URL and NEXTGEN turned off
-                    url = window.location.href;
-                    if (url.indexOf('nextGen=true') > 0) {
-                        // next gen parameter = TRUE
-                        newURL = url.replace('nextGen=true', 'nextGen=false');
-                        window.location.href = newURL;
-                    } else if (url.indexOf('nextGen=false') > 0) {
-                        // if next gen = FALSE, do nothing
+                    // if 'parameters not found in URL' AND 'nextGen toggle is turned off'
+                    else if (!hasParameters && !isNextGen) {
+                        // if nextgen IS NOT in the URL, add nextGen=false
+                        window.location.search += '&nextGen=false';
+                        console.log('nextgen parameter not found, adding and turing off');
                     }
-                }
-                // if 'parameters not found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned off'
-                else if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
-                    // if nextgen IS NOT in the URL, add nextGen=false
-                    window.location.search += '&nextGen=false';
-                }
-                */
-            },
+                    // ----------------------------------------
+                    // CURRENT WORKING CODE
+                    // ----------------------------------------
+                    //                // view NEXTGEN site
+                    //                // if 'parameters not found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned on'
+                    //                if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
+                    //                    // if nextgen IS NOT in the URL, add nextGen=true
+                    //                    window.location.search += '&nextGen=true';
+                    //                }
+                    //                // if 'parameters found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned on'
+                    //                else if ((hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
+                    //                    // if the URL HAS nextGen= BUT it isn't set to true
+                    //                    url = window.location.href;
+                    //                    if (url.indexOf('nextGen=false') > 0) {
+                    //                        // nextGen false parameter detected UPDATE to true
+                    //                        newURL = url.replace('nextGen=false', 'nextGen=true');
+                    //                        window.location.href = newURL;
+                    //                    } else if (url.indexOf('nextGen=true') > 0) {
+                    //                        // if next gen = true, do nothing
+                    //                    }
+                    //                }
+                    //                // view TETRA site
+                    //                // if 'parameters found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned off'
+                    //                else if ((hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
+                    //                    // if parameters FOUND IN URL and NEXTGEN turned off
+                    //                    url = window.location.href;
+                    //                    if (url.indexOf('nextGen=true') > 0) {
+                    //                        // next gen parameter = TRUE
+                    //                        newURL = url.replace('nextGen=true', 'nextGen=false');
+                    //                        window.location.href = newURL;
+                    //                    } else if (url.indexOf('nextGen=false') > 0) {
+                    //                        // if next gen = FALSE, do nothing
+                    //                    }
+                    //                }
+                    //                // if 'parameters not found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned off'
+                    //                else if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
+                    //                    // if nextgen IS NOT in the URL, add nextGen=false
+                    //                    window.location.search += '&nextGen=false';
+                    //                }
+                },
+            */
             toggleOff: function () {
                 // set toggle off image
                 var $toggle = nextGenToggle.config.$FAtoggle;
@@ -3068,6 +3034,7 @@
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
             },
+            /*
             applyParameters: function () {
                 var hasParameters = this.hasParameters();
                 var siteState = this.siteState();
@@ -3086,35 +3053,33 @@
                 //--------------------------------------------------------
                 //m4 parameter searches
                 //--------------------------------------------------------
-                /*
-                // PARAMETER FOUND IN URL
-                // create a special search for the m4 module URL parameters
-                // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
-                if (key === 'relative=' && foundThis && !urlParameters2[key]) {
-                    // remove ADDED parameter from URL
-                    console.log('removing parameter');
-                    url = url.replace('&comments=true&relative=true', '');
-                    matchesFound.push(false);
-                }
-                // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
-                else if (key === 'relative=' && foundThis && urlParameters2[key]) {
-                    // do nothing
-                    console.log('parameter already turned on');
-                    matchesFound.push(true);
-                }
-                // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
-                else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
-                    // Add parameter to url string
-                    url += '&comments=true&relative=true';
-                    console.log('parameter added, turned on');
-                    matchesFound.push(false);
-                }
-                // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
-                else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
-                    // do nothing
-                    console.log('parameter turned off');
-                }
-                */
+                //                // PARAMETER FOUND IN URL
+                //                // create a special search for the m4 module URL parameters
+                //                // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
+                //                if (key === 'relative=' && foundThis && !urlParameters2[key]) {
+                //                    // remove ADDED parameter from URL
+                //                    console.log('removing parameter');
+                //                    url = url.replace('&comments=true&relative=true', '');
+                //                    matchesFound.push(false);
+                //                }
+                //                // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
+                //                else if (key === 'relative=' && foundThis && urlParameters2[key]) {
+                //                    // do nothing
+                //                    console.log('parameter already turned on');
+                //                    matchesFound.push(true);
+                //                }
+                //                // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
+                //                else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
+                //                    // Add parameter to url string
+                //                    url += '&comments=true&relative=true';
+                //                    console.log('parameter added, turned on');
+                //                    matchesFound.push(false);
+                //                }
+                //                // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
+                //                else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
+                //                    // do nothing
+                //                    console.log('parameter turned off');
+                //                }
                 // ----------------------------------------
                 // usingM4 toggle TURNED ON
                 // if 'parameters not found in URL' AND 'usingM4 toggle is turned on'
@@ -3146,6 +3111,7 @@
                 // END TEST CODE
                 // ----------------------------------------
             },
+            */
             toggleOff: function () {
                 // set toggle off image
                 var $toggle = m4Check.config.$FAtoggle;
@@ -3280,6 +3246,7 @@
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
             },
+            /*
             applyParameters: function () {
                 var hasParameters = this.hasParameters();
                 //                var siteState = this.siteState();
@@ -3328,17 +3295,15 @@
                         //                        window.location.href = newURL;
                         this.reloadPage('reload', newURL);
                     }
-                    /*
-                                                if (url.indexOf('disableAutofill=true') > 0) {
-                                                    // disableAutofill parameter = TRUE
-                                                    newURL = url.replace('disableAutofill=true', 'disableAutofill=false');
-                                                    console.log('disableAutofill parameter found, turing off');
-                                                    window.location.href = newURL;
-                                                } else if (url.indexOf('disableAutofill=false') > 0) {
-                                                    // if disableAutofill = FALSE, do nothing
-                                                    console.log('disableAutofill parameter found, do nothing');
-                                                }
-                    */
+                    //                                                if (url.indexOf('disableAutofill=true') > 0) {
+                    //                                                    // disableAutofill parameter = TRUE
+                    //                                                    newURL = url.replace('disableAutofill=true', 'disableAutofill=false');
+                    //                                                    console.log('disableAutofill parameter found, turing off');
+                    //                                                    window.location.href = newURL;
+                    //                                                } else if (url.indexOf('disableAutofill=false') > 0) {
+                    //                                                    // if disableAutofill = FALSE, do nothing
+                    //                                                    console.log('disableAutofill parameter found, do nothing');
+                    //                                                }
                 }
                 // if 'parameters not found in URL' AND 'applyAutofill toggle is turned off'
                 else if (!hasParameters && !applyAutofill) {
@@ -3348,6 +3313,7 @@
                     //                    this.reloadPage('search', '&disableAutofill=false');
                 }
             },
+            */
             reloadPage: function (type, newURL) {
                 if (type === 'reload') {
                     console.log('reload page');
@@ -3455,11 +3421,11 @@
                 urlModifiers.config.$autoApplyContainer.append(urlModifiers.config.$autoApplyTitle);
                 urlModifiers.config.$autoApplyContainer.append(urlModifiers.config.$autoApplyIcon);
                 urlModifiers.config.$autoApplyIcon.append(urlModifiers.config.$FAtoggle);
+                urlModifiers.config.$urlModPanel.append(urlModifiers.config.$autoApplyContainer);
 
                 // attach title and URL Mod panel to URL Mod container
                 urlModifiers.config.$urlModContainer.append(urlModifiers.config.$urlModTitle);
                 urlModifiers.config.$urlModContainer.append(urlModifiers.config.$urlModPanel);
-                urlModifiers.config.$urlModContainer.append(urlModifiers.config.$autoApplyContainer);
             },
             cacheDOM: function () {
                 // DOM elements
@@ -4106,8 +4072,8 @@
                 if (!this.editMode() && this.isCDKsite() && !this.isMobile()) {
                     QAtoolbox.init(); // initialize toolbox
                     pageInformation.init(); // initialize page Information tool
+                    qaTools.init(); // initialize main qa tools
                     urlModifiers.init(); // initialize page Information tool
-
 
                     // ----- main tools ----- //
                     imageChecker.init(); // initialize image checker tool
@@ -4130,8 +4096,9 @@
                     autofillToggle.init(); // initialize autofill toggle
                     //                    desktopToggle.init(); // initialize desktop toggle
                     dynamicDisplay.init(); // initialize display information tool
+
                     // style buttons in toolbox
-                    QAtoolbox.styleTools();
+                    QAtoolbox.styleTools(qaTools.config.$mainToolsPanel);
                 }
             },
             isCDKsite: function () {

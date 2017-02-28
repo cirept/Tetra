@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name QA Toolbox
 // @namespace www.cobaltgroup.com/
-// @include http:*
+// @match http://*/*/?*nextGen=false*
 // @version 2.7.7.2
 // @downloadURL https://cdn.rawgit.com/cirept/Tetra/master/toolBox_meta.js
 // @run-at document-end
@@ -22,8 +22,17 @@
 // ==/UserScript==
 
 // ----------------------------------------
+// 2.8 updates
+// ----------------------------------------
+/*
+- Updated meta tag to only show the toolbar on URLs that have 'nextGen=false'
+- Updated a bunch of back end stuff.  :]
+*/
+
+// ----------------------------------------
 // 2.7.7 updates
-/* ----------------------------------------
+// ----------------------------------------
+/*
 - TOOLBAR LOOK UPDATED
 
 ---- Separated out tools into individual panel sections
@@ -34,31 +43,22 @@
 ---- Added UI effects
 
 - NEW TOOLS ADDED
-
 ---- 404 Checker Button
 -------- Will test all links on the page to verify that it works
-
 ---- View mobile site Button
 -------- Will open a new tab with the mobile site
-
 ---- Refresh button Toggle
 -------- Will refresh the site
-
 ---- Hide Preview Toolbar Toggle (nextGen Sites only)
 -------- Will hide the CDK Global PCE toolbar at the top of the site
-
 ---- NextGen Parameter toggle
 -------- Will force the nextGen site to show, if available.  Will cause site error if nextGen option for page is not available
-
 ---- m4 Parameters toggle
 -------- Will apply "&comments=true&relative=true" to current URL
-
 ---- show autofill tags toggles
 -------- Will show all autofill tags on page
-
 ---- force desktop site toggle (TETRA)
 -------- Will apply "device=immobile" to force desktop site
-
 ---- Page informaiton
 -------- Added more page details
----------------------------------------- */
+*/
