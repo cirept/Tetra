@@ -14,9 +14,9 @@
         GM_setClipboard(variable, 'text');
     }
 
-    function getValue(variable, val) {
-        console.log('"GET" value "' + variable + '" with "' + val + '"');
-        return GM_getValue(variable, val);
+    function getValue(variable) {
+        console.log('"GET" value "' + variable);
+        return GM_getValue(variable, false);
     }
 
     function programVariables() {
@@ -34,10 +34,6 @@
                 this.attachTools();
                 this.bindEvents();
                 this.showPanels();
-                // ----------------------------------------
-                // test stuff
-                // ----------------------------------------
-                //                this.setToggle();
                 this.hidePanel();
             },
             // ----------------------------------------
@@ -100,48 +96,6 @@
                         title: 'Click to Minimize/Maximize'
                     }).text('Toggles'),
                     // ----------------------------------------
-                    // URL Modifiers Panel
-                    // ----------------------------------------
-                    /*
-                    $urlModContainer: jQuery('<div>').attr({
-                        class: 'toolBox',
-                        id: 'urlModContainer'
-                    }),
-                    $urlModPanel: jQuery('<div>').attr({
-                        class: 'toolsPanel',
-                        id: 'urlModTools'
-                    }),
-                    $urlModTitle: jQuery('<div>').attr({
-                        class: 'panelTitle',
-                        id: 'urlModTitle',
-                        title: 'Click to Minimize / Maximize'
-                    }).text('URL Modifiers'),
-                    */
-                    // ----------------------------------------
-                    // test elements
-                    // ----------------------------------------
-                    /*
-                    $autoApplyContainer: jQuery('<div>').attr({
-                        id: 'autoApplyInput',
-                        class: 'toggleTool',
-                        title: 'will auto apply URL modifiers to current URL\n*please reload the page to update the URL to current settings*'
-                    }).css({
-                        background: 'linear-gradient(to bottom, rgb(255,255,255) 0%, rgb(171, 186, 171) 35%, rgb(171, 186, 171) 70%, rgb(255, 255, 255) 100%)'
-                    }),
-                    $autoApplyTitle: jQuery('<div>').css({
-                        color: 'black',
-                        'line-height': '15px',
-                        'font-weight': 'bold'
-                    }).text('Auto Apply Modifiers?'),
-                    $autoApplyIcon: jQuery('<div>').attr({
-                        id: 'autoApplyIcon'
-                    }),
-                    $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>'),
-                    */
-                    // ----------------------------------------
-                    // test elements
-                    // ----------------------------------------
-                    // ----------------------------------------
                     // Toolbar Resources
                     // ----------------------------------------
                     $toolbarStyles: jQuery('<style>').attr({
@@ -199,21 +153,6 @@
                 // attach title and toggles panel to toggles container
                 QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesTitle);
                 QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesPanel);
-                // attach title and URL Mod panel to URL Mod container
-                /*
-                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$urlModTitle);
-                QAtoolbox.config.$urlModContainer.append(QAtoolbox.config.$urlModPanel);
-                // ----------------------------------------
-                // test stuff
-                // ----------------------------------------
-                QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyTitle);
-                QAtoolbox.config.$autoApplyContainer.append(QAtoolbox.config.$autoApplyIcon);
-                QAtoolbox.config.$autoApplyIcon.append(QAtoolbox.config.$FAtoggle);
-                QAtoolbox.config.$urlModPanel.append(QAtoolbox.config.$autoApplyContainer);
-                */
-                // ----------------------------------------
-                // test stuff
-                // ----------------------------------------
                 // attach tools panel to tool container
                 QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$mainToolsContainer);
                 QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$otherToolsContainer);
@@ -224,12 +163,7 @@
                 this.head = jQuery('head');
                 this.body = jQuery('body');
                 this.phoneWrapper = jQuery('body .phone-wrapper');
-
-                /*
-                this.variableList = this.programData();
-                this.$cm = unsafeWindow.ContextManager;
-                this.isLive = this.$cm.isLive();
-                */
+                //                this.variableList = this.programData();
             },
             attachTools: function () {
                 this.head.append(QAtoolbox.config.$toolbarStyles);
@@ -244,39 +178,12 @@
                 QAtoolbox.config.$otherToolsTitle.on('click', this.saveState);
                 QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature);
                 QAtoolbox.config.$togglesTitle.on('click', this.saveState);
-                /*
-                QAtoolbox.config.$urlModTitle.on('click', this.toggleFeature);
-                QAtoolbox.config.$urlModTitle.on('click', this.saveState);
-                */
-                // ----------------------------------------
-                // test stuff
-                // ----------------------------------------
-                /*
-                QAtoolbox.config.$autoApplyContainer.on('click', this.flipTheSwitch.bind(this));
-                */
             },
-            // ----------------------------------------
-            // test stuff
-            // ----------------------------------------
             hidePanel: function () {
                 if (this.isLive) {
                     QAtoolbox.config.$urlModContainer.remove();
                 }
             },
-            /*
-                setToggle: function () {
-                    // get value of custom variable and set toggles accordingly
-                    if (this.getChecked() && !this.isLive) {
-                        console.log('auto apply toggle module');
-                        this.toggleOn();
-                        this.applyParameters();
-                    } else if (!this.isLive) {
-                        console.log('auto apply toggle module');
-                        this.toggleOff();
-                        //                    this.applyParameters();
-                    }
-                },
-            */
             toggleOff: function () {
                 // set toggle off image
                 var $toggle = QAtoolbox.config.$FAtoggle;
@@ -285,289 +192,9 @@
                 console.log('autofill toggle off');
                 console.log('----------------------------------------');
             },
-            /*
-                flipTheSwitch: function () {
-                    // set saved variable to opposite of current value
-                    this.setChecked(!this.getChecked());
-                    // set toggle
-                    this.setToggle();
-                },
-            */
-            /*
-                getChecked: function () {
-                    // grabs isNextGen value
-                    var a = GM_getValue('autoApplyParameters', false);
-                    return a;
-                },
-                */
-            /*
-                toggleOn: function () {
-                    // set toggle on image
-                    var $toggle = QAtoolbox.config.$FAtoggle;
-                    $toggle.removeClass('fa-toggle-off');
-                    $toggle.addClass('fa-toggle-on');
-                    console.log('autofill toggle on');
-                },
-                */
-            /*
-                applyParameters: function () {
-                    var urlParameters2 = {
-                            'nextGen=': nextGenToggle.returnParameters(),
-                            'relative=': m4Check.returnParameters(),
-                            'disableAutofill=': autofillToggle.returnParameters()
-                        },
-                        findThis = '',
-                        url = window.location.href,
-                        key = '',
-                        matchesFound = [],
-                        foundThis = false;
-                    console.log(url);
-                    console.log('----------------------------------------');
-                    for (key in urlParameters2) {
-                        findThis = key;
-                        // this works with current URL
-                        // will check to see if current URL has all the variables with it
-                        // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
-                        // AN ERROR WILL BE THROWN
-                        if (url.indexOf('?') === -1) {
-                            url += '?';
-                        }
-                        // force the page to reload in DESKTOP SITE
-                        // no downside to NEXT GEN SITES
-                        if (url.indexOf('device=immobile') === -1) {
-                            url += '&device=immobile';
-                        }
-                        // determine search term is empty
-                        // this will mean that the toggle is turned off
-                        if (findThis === undefined || findThis === '') {
-                            console.log('value is empty : skip');
-                        } else {
-                            // search url for KEY
-                            //
-                            foundThis = this.searchURL(key, url);
-                            //--------------------------------------------------------
-                            //next gen searches
-                            //--------------------------------------------------------
-                            // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is ON'
-                            if (key === 'nextGen=' && foundThis && urlParameters2[key]) {
-                                // if 'parameter is set to false'
-                                if (url.indexOf('nextGen=false') >= 0) {
-                                    console.log('turning parameter on');
-                                    url = url.replace('nextGen=false', 'nextGen=true');
-                                    matchesFound.push(false);
-                                }
-                                // if 'parameter is set to true'
-                                else if (url.indexOf('nextGen=true') >= 0) {
-                                    console.log('parameter already turned on');
-                                    // do nothing
-                                }
-                            }
-                            // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is OFF'
-                            else if (key === 'nextGen=' && foundThis && !urlParameters2[key]) {
-                                // if 'parameter is set to true'
-                                if (url.indexOf('nextGen=true') >= 0) {
-                                    url = url.replace('nextGen=true', 'nextGen=false');
-                                    console.log('turning parameter off : ' + url);
-                                    matchesFound.push(false);
-                                }
-                                // if 'parameter is set to false'
-                                else if (url.indexOf('nextGen=false') >= 0) {
-                                    // do nothing
-                                    console.log('parameter turned off');
-                                }
-                            }
-                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is ON'
-                            else if (key === 'nextGen=' && !foundThis && urlParameters2[key]) {
-                                // Add parameter to url string
-                                console.log('adding parameter and turning on');
-                                url += '&nextGen=true';
-                            }
-                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
-                            else if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) {
-                                // do nothing
-                                console.log('parameter not enabled');
-                            }
-                            //--------------------------------------------------------
-                            //autofill searches
-                            //--------------------------------------------------------
-                            // PARAMETER FOUND IN URL
-                            // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is ON'
-                            else if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) {
-                                // if 'parameter is set to false'
-                                if (url.indexOf('disableAutofill=false') >= 0) {
-                                    console.log('parameter exists, turned on');
-                                    url = url.replace('disableAutofill=false', 'disableAutofill=true');
-                                    matchesFound.push(false);
-                                }
-                                // if 'parameter is set to true'
-                                else if (url.indexOf('disableAutofill=true') >= 0) {
-                                    // do nothing
-                                    console.log('parameter exists, already turned on');
-                                    matchesFound.push(true);
-                                }
-                            }
-                            // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is OFF'
-                            else if (key === 'disableAutofill=' && foundThis && !urlParameters2[key]) {
-                                // if 'parameter is set to true'
-                                if (url.indexOf('disableAutofill=true') >= 0) {
-                                    console.log('parameter exists, turned off');
-                                    url = url.replace('disableAutofill=true', 'disableAutofill=false');
-                                    matchesFound.push(false);
-                                }
-                                // if 'parameter is set to false'
-                                else if (url.indexOf('disableAutofill=false') >= 0) {
-                                    // do nothing
-                                    console.log('parameter exists, already turned off');
-                                    matchesFound.push(true);
-                                }
-                            }
-                            // PARAMETER NOT FOUND IN URL
-                            // if 'searching for disable autofill' AND 'parameter not found in url' AND 'toggle is ON'
-                            else if (key === 'disableAutofill=' && !foundThis && urlParameters2[key]) {
-                                // Add parameter to url string
-                                console.log('parameter added, turned on');
-                                url += '&disableAutofill=true';
-                                matchesFound.push(false);
-                            }
-                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
-                            else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) {
-                                // do nothing
-                                console.log('parameter not enabled');
-                            }
-                            //--------------------------------------------------------
-                            //m4 parameter searches
-                            //--------------------------------------------------------
-                            // PARAMETER FOUND IN URL
-                            // create a special search for the m4 module URL parameters
-                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
-                            else if (key === 'relative=' && foundThis && !urlParameters2[key]) {
-                                // remove ADDED parameter from URL
-                                console.log('removing parameter');
-                                url = url.replace('&comments=true&relative=true', '');
-                                matchesFound.push(false);
-                            }
-                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
-                            else if (key === 'relative=' && foundThis && urlParameters2[key]) {
-                                // do nothing
-                                console.log('parameter already turned on');
-                                matchesFound.push(true);
-                            }
-                            // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
-                            else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
-                                // Add parameter to url string
-                                url += '&comments=true&relative=true';
-                                console.log('parameter added, turned on');
-                                matchesFound.push(false);
-                            }
-                            // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
-                            else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
-                                // do nothing
-                                console.log('parameter turned off');
-                            }
-                        }
-                        console.log('finish search for : ' + key);
-                        console.log('-----------');
-                    }
-                    console.log('url : ' + url);
-                    //-------------------------------------------
-                    // works
-                    //-----------------------------------------
-                    // check possible URL modifications to see if it is in URL
-                    // ---------------------------------------- commented out
-                    for (key in urlParameters2) {
-                        console.log('-----------');
-                        //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
-                        findThis = urlParameters2[key];
-                        console.log('start search for : ' + findThis);
-                        // this works with current URL
-                        // will check to see if current URL has all the variables with it
-                        // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
-                        // AN ERROR WILL BE THROWN
-                        if (url.indexOf('?') === -1) {
-                            url += '?';
-                        }
-                        // force the page to reload in DESKTOP SITE
-                        // no downside to NEXT GEN SITES
-                        if (url.indexOf('device=immobile') === -1) {
-                            url += '&device=immobile';
-                        }
-                        // determine search term is empty
-                        // this will mean that the toggle is turned off
-                        if (findThis === undefined || findThis === '') {
-                            console.log('value is empty : skip');
-                        } else {
-                            foundThis = this.searchURL(findThis, url);
-                            // if value is not empty, determine if present in URL
-                            if (foundThis) {
-                                console.log('match found');
-                                hasParameters[key] = true;
-                                matchesFound.push(true);
-                            } else if (!foundThis) {
-                                matchesFound.push(false);
-                                console.log('match NOT found , adding to url');
-                                url += findThis;
-                                console.log('newURL : ' + url);
-                            }
-                        }
-                        console.log('finish search for : ' + urlParameters2[key]);
-                        console.log('-----------');
-                        // ----------------------------------------------------------------
-                    }
-                    // ---------------------------------------- commented out ^^^^
-                    //-------------------------------------------
-                    // works
-                    //-----------------------------------------
-                    // reloadPAge
-                    this.reloadPage(matchesFound, url);
-                },
-            */
-            /*
-                reloadPage: function (matchesFound, url) {
-                    // determine if all parameters are found in the URL
-                    // will stop the page from reloading after initial build.
-                    var q = 0,
-                        matchLength = matchesFound.length,
-                        reloadPage = false;
-                    // loop through array to determine if page should reload
-                    for (q; q < matchLength; q += 1) {
-                        console.log('matchesFound : ' + matchesFound[q]);
-                        // if a match isn't found, break out of loop and reload the page.
-                        if (matchesFound[q]) {
-                            reloadPage = false;
-                        } else {
-                            reloadPage = true;
-                            break;
-                        }
-                    }
-                    // if reloadPage is true reload page
-                    if (reloadPage) {
-                        window.location.href = url;
-                        console.log('reloading page');
-                    }
-                    console.log('----------------------------------------');
-                },
-                */
-            /*
-                searchURL: function (findThis, url) {
-                    console.log('finding ' + findThis + ' in ' + url);
-                    if (url.indexOf(findThis) >= 0) {
-                        return true;
-                    }
-                    return false;
-                },
-                */
-            // ----------------------------------------
-            // TEST  ^^^^
-            // ----------------------------------------
-            /*
-                setChecked: function (bool) {
-                    // sets isNextGen value
-                    GM_setValue('autoApplyParameters', bool);
-                },
-            */
             showPanels: function () {
                 // loop through variable list to find the panel title
-                var variables = this.variableList,
+                var variables = this.programData,
                     state = '',
                     key = '';
                 for (key in variables) {
@@ -597,23 +224,27 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            /*
-                programData: function () {
-                    var allVariables = GM_listValues(),
-                        length = allVariables.length,
-                        a = 0,
-                        varList = {},
-                        key = '',
-                        value = '';
-                    // add variables to list
-                    for (a; a < length; a += 1) {
-                        key = allVariables[a];
-                        value = GM_getValue(key, false);
-                        varList[key] = value;
-                    }
-                    return varList;
-                },
-                */
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
+            programData: function () {
+                //                    var allVariables = GM_listValues(),
+                var allVariables = programVariables(),
+                    length = allVariables.length,
+                    a = 0,
+                    varList = {},
+                    key = '',
+                    value = '';
+                // add variables to list
+                for (a; a < length; a += 1) {
+                    key = allVariables[a];
+                    //                    value = GM_getValue(key, false);
+                    value = getValue(key);
+                    varList[key] = value;
+                }
+                console.log(varList);
+                return varList;
+            },
             toggleFeature: function (event) {
                 var id = jQuery(event.target).attr('id');
                 switch (id) {
@@ -627,6 +258,9 @@
                     return QAtoolbox.config.$urlModPanel.slideToggle('1000');
                 }
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
@@ -655,6 +289,7 @@
         /* ************************************************************************************************************************ */
         /* **************************************** PAGE INFO TOOLS **************************************** */
         /* ************************************************************************************************************************ */
+
         // ---------------------------------------------------------------
         // --------------------- Dealership Name ---------------------
         // ---------------------------------------------------------------
@@ -753,6 +388,9 @@
                 var element = event.currentTarget;
                 jQuery(element).toggleClass('highlight');
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
@@ -838,6 +476,9 @@
                 var element = event.currentTarget;
                 jQuery(element).toggleClass('highlight');
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
@@ -901,7 +542,6 @@
             addTool: function () {
                 // add to main toolbox
                 this.$toolBoxContainer.prepend(pageInformation.config.$pageInfoContainer);
-                //                this.$toolBoxContainer.append(pageInformation.config.$pageInfoContainer);
             },
             addStyles: function () {
                 // apply module styles to main tool bar style tag
@@ -933,6 +573,9 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             programData: function () {
                 var allVariables = GM_listValues(),
                     length = allVariables.length,
@@ -951,6 +594,9 @@
             toggleFeature: function () {
                 return pageInformation.config.$pageInfo.slideToggle('1000');
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
@@ -963,6 +609,9 @@
                 var element = event.currentTarget;
                 jQuery(element).toggleClass('highlight');
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
@@ -983,6 +632,7 @@
         /* ************************************************************************************************************************ */
         /* **************************************** QA TOOLS **************************************** */
         /* ************************************************************************************************************************ */
+
         // ---------------------------------------------------------------
         // --------------------- QA Tools Panel ---------------------
         // ---------------------------------------------------------------
@@ -1018,11 +668,6 @@
                 };
             },
             buildPanel: function () {
-                // attach panel elements to container
-                //                qaTools.config.$pageInfo
-                //                    .append(dealerName.init())
-                //                    .append(webID.init())
-                //                    .append(pageName.init());
                 // attach to continer
                 qaTools.config.$mainToolsContainer
                     .append(qaTools.config.$mainToolsTitle)
@@ -1064,6 +709,9 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             programData: function () {
                 var allVariables = GM_listValues(),
                     length = allVariables.length,
@@ -1082,6 +730,9 @@
             toggleFeature: function () {
                 return qaTools.config.$mainToolsPanel.slideToggle('1000');
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
@@ -1826,6 +1477,9 @@
                 spellCheck.config.$activateButt.on('click', this.spellCheck.bind(this));
             },
             // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
+            // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
             spellCheck: function () {
@@ -1859,6 +1513,9 @@
                 this.addTool();
                 this.bindEvents();
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             // ----------------------------------------
             // tier 1 functions
             // ----------------------------------------
@@ -1949,6 +1606,9 @@
             toggleFeature: function () {
                 speedtestPage.config.$panelContainer.slideToggle('1000');
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             storeData: function () {
                 // save user input
                 var userEmail = jQuery('#email').val();
@@ -1987,6 +1647,7 @@
     /* ************************************************************************************************************************ */
     /* **************************************** OTHER TOOLS **************************************** */
     /* ************************************************************************************************************************ */
+
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- SEO Simplify ----------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------
@@ -2716,6 +2377,9 @@
                 .append('#' + widgetID + ':after { height: ' + h + 'px; width: ' + w + 'px; }');
         });
 
+        // ----------------------------------------
+        // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+        // ----------------------------------------
         function copyWidgetID(event) {
             var $widget = jQuery(event.target),
                 widgetID = $widget.attr('id');
@@ -2760,6 +2424,9 @@
         },
         // ----------------------------------------
         // tier 2 functions
+        // ----------------------------------------
+        // ----------------------------------------
+        // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
         // ----------------------------------------
         viewMobile: function () {
             var auto = '?device=mobile&nextGen=false',
@@ -3124,7 +2791,6 @@
                         // set toggle and apply parameters
                         this.toggleOff();
                     }
-                    //                    this.applyParameters();
                 }
             },
             addTool: function () {
@@ -3149,6 +2815,9 @@
             },
             // ----------------------------------------
             // tier 2 functions
+            // ----------------------------------------
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
             // ----------------------------------------
             getChecked: function () {
                 // grabs isNextGen value
@@ -3277,6 +2946,9 @@
                 // return page variable
                 return unsafeWindow.ContextManager.getVersion();
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             setChecked: function (bool) {
                 // sets isNextGen value
                 GM_setValue('isNextGen', bool);
@@ -3351,21 +3023,12 @@
                 // bind FA toggle with 'flipTheSwitch' action
                 m4Check.config.$m4Container.on('click', this.flipTheSwitch.bind(this));
             },
-            //            hideFeature: function () {
-            //                // hides feature if viewing live site
-            //                if (this.siteState() === 'LIVE') {
-            //                    m4Check.config.$m4Container.toggle();
-            //                }
-            //            },
             ifLive: function () {
                 // remove tool if the site is live
                 if (this.liveSite) {
                     jQuery(this).remove();
                 }
             },
-            // ---------
-            //test
-            // -----------
             returnParameters: function () {
                 if (this.getChecked()) {
                     return true;
@@ -3374,6 +3037,9 @@
             },
             // ----------------------------------------
             // tier 2 functions
+            // ----------------------------------------
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
             // ----------------------------------------
             getChecked: function () {
                 // grabs usingM4 value
@@ -3491,6 +3157,9 @@
                 // return page variable
                 return unsafeWindow.ContextManager.getVersion();
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             setChecked: function (bool) {
                 // sets usingM4 value
                 GM_setValue('usingM4', bool);
@@ -3507,7 +3176,6 @@
                 this.setToggle();
                 this.addTool();
                 this.bindEvents();
-                //                this.hideFeature();
                 this.ifLive();
             },
             // ----------------------------------------
@@ -3566,21 +3234,12 @@
                 // bind FA toggle with 'flipTheSwitch' action
                 autofillToggle.config.$autofillToggleContainer.on('click', this.flipTheSwitch.bind(this));
             },
-            //            hideFeature: function () {
-            //                // hides feature if viewing live site
-            //                if (this.siteState() === 'LIVE') {
-            //                    autofillToggle.config.$autofillToggleContainer.toggle();
-            //                }
-            //            },
             ifLive: function () {
                 // remove tool if the site is live
                 if (this.liveSite) {
                     jQuery(this).remove();
                 }
             },
-            // ---------
-            //test
-            // -----------
             returnParameters: function () {
                 if (this.getChecked()) {
                     return true;
@@ -3589,6 +3248,9 @@
             },
             // ----------------------------------------
             // tier 2 functions
+            // ----------------------------------------
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
             // ----------------------------------------
             getChecked: function () {
                 // grabs applyAutofill value
@@ -3668,20 +3330,6 @@
                     //                    window.location.search += '&disableAutofill=false';
                     //                    this.reloadPage('search', '&disableAutofill=false');
                 }
-                // ----------------------------------------
-                // START WOKRING CODE
-                // ----------------------------------------
-                // apply parameters only if DOESN'T already have parameters &&
-                // site state IS NOT LIVE &&
-                // toggled ON
-                /*
-                if ((!hasParameters) && (siteState !== 'LIVE') && (applyAutofill)) {
-                    window.location.search += '&disableAutofill=true';
-                }
-                */
-                // ----------------------------------------
-                // END WORKING CODE
-                // ----------------------------------------
             },
             reloadPage: function (type, newURL) {
                 if (type === 'reload') {
@@ -3708,12 +3356,6 @@
             // tier 3 functions
             // ----------------------------------------
             hasParameters: function () {
-                // determine if site URL already has custom parameters
-                //                if (window.location.href.indexOf('&disableAutofill=false') >= 0) {
-                //                    return true;
-                //                } else {
-                //                    return false;
-                //                }
                 if (window.location.href.indexOf('disableAutofill=') >= 0) {
                     return true;
                 } else {
@@ -3724,6 +3366,9 @@
                 // return page variable
                 return unsafeWindow.ContextManager.getVersion();
             },
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             setChecked: function (bool) {
                 // sets applyAutofill value
                 GM_setValue('applyAutofill', bool);
@@ -3815,7 +3460,6 @@
                     this.applyParameters();
                 } else if (!this.isLive) {
                     this.toggleOff();
-                    //                    this.applyParameters();
                 }
             },
             addTool: function () {
@@ -4036,58 +3680,8 @@
                     console.log('finish search for : ' + key);
                     console.log('-----------');
                 }
-                //                console.log('url : ' + url);
-                //-------------------------------------------
-                // works
-                //-----------------------------------------
-                // check possible URL modifications to see if it is in URL
-                // ---------------------------------------- -- disable below
-                //                for (key in urlParameters2) {
-                //                    console.log('-----------');
-                //                    //                    console.log('key : ' + key + ' value : ' + urlParameters2[key]);
-                //                    findThis = urlParameters2[key];
-                //                    console.log('start search for : ' + findThis);
-                //                    // this works with current URL
-                //                    // will check to see if current URL has all the variables with it
-                //                    // ONE DOWNSIDE IS THAT IF THE URL DOESNT ALREADY HAVE A ? IN IT
-                //                    // AN ERROR WILL BE THROWN
-                //                    if (url.indexOf('?') === -1) {
-                //                        url += '?';
-                //                    }
-                //                    // force the page to reload in DESKTOP SITE
-                //                    // no downside to NEXT GEN SITES
-                //                    if (url.indexOf('device=immobile') === -1) {
-                //                        url += '&device=immobile';
-                //                    }
-                //                    // determine search term is empty
-                //                    // this will mean that the toggle is turned off
-                //                    if (findThis === undefined || findThis === '') {
-                //                        console.log('value is empty : skip');
-                //                    } else {
-                //                        foundThis = this.searchURL(findThis, url);
-                //                        // if value is not empty, determine if present in URL
-                //                        if (foundThis) {
-                //                            console.log('match found');
-                //                            hasParameters[key] = true;
-                //                            matchesFound.push(true);
-                //                        } else if (!foundThis) {
-                //                            matchesFound.push(false);
-                //                            console.log('match NOT found , adding to url');
-                //                            url += findThis;
-                //                            console.log('newURL : ' + url);
-                //                        }
-                //                    }
-                //                    console.log('finish search for : ' + urlParameters2[key]);
-                //                    console.log('-----------');
-                //                    // ----------------------------------------------------------------
-                //                }
-                // ---------------------------------------- -- diable above
-                //-------------------------------------------
-                // works
-                //-----------------------------------------
                 // reloadPAge
                 this.reloadPage(matchesFound, url);
-
             },
             flipTheSwitch: function () {
                 var value = getValue('autoApplyParameters', false);
@@ -4151,145 +3745,10 @@
                 }
             }
         },
-        // ---------------------------------------- END
-
-        // ------------------------------------------------------------------------------------------------------------------------
-        // ---------------------------------------- force desktop site toggle ----------------------------------------
-        //-------------------------------------------------------------------------------------------------------------------------
-        /*
-            desktopToggle = {
-                init: function () {
-                    this.createElements();
-                    this.buildTool();
-                    this.setToggle();
-                    this.cacheDOM();
-                    this.addTool();
-                    this.bindEvents();
-                    this.hideFeature();
-                },
-                // ----------------------------------------
-                // tier 1 functions
-                // ----------------------------------------
-                createElements: function () {
-                    desktopToggle.config = {
-                        $desktopToggleContainer: jQuery('<div>').attr({
-                            id: 'desktopToggleInput',
-                            class: 'toggleTool'
-                        }),
-                        $desktopToggleTitle: jQuery('<div>').css({
-                                color: 'black',
-                                'line-height': '15px'
-                            })
-                            .text('force desktop site?'),
-                        $desktopToggleIcon: jQuery('<div>').attr({
-                            id: 'desktopToggleIcon'
-                        }),
-                        $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
-                    };
-                },
-                buildTool: function () {
-                    desktopToggle.config.$desktopToggleIcon
-                        .append(desktopToggle.config.$FAtoggle);
-                    desktopToggle.config.$desktopToggleContainer
-                        .append(desktopToggle.config.$desktopToggleTitle)
-                        .append(desktopToggle.config.$desktopToggleIcon);
-                },
-                setToggle: function () {
-                    // get value of custom variable and set toggles accordingly
-                    if (this.getChecked()) {
-                        this.toggleOn();
-                        this.applyParameters();
-                    } else {
-                        this.toggleOff();
-                    }
-                },
-                cacheDOM: function () {
-                    this.$toolsPanel = jQuery('#urlModTools');
-                },
-                addTool: function () {
-                    // add to main toolbox
-                    this.$toolsPanel.append(desktopToggle.config.$desktopToggleContainer);
-                },
-                bindEvents: function () {
-                    // bind FA toggle with 'flipTheSwitch' action
-                    desktopToggle.config.$desktopToggleContainer.on('click', this.flipTheSwitch.bind(this));
-                },
-                hideFeature: function () {
-                    // hides feature if viewing live site
-                    if (this.siteState() === 'LIVE') {
-                        desktopToggle.config.$desktopToggleContainer.toggle();
-                    }
-                },
-                returnParameters: function () {
-                    var applyParameter = this.getChecked();
-                    if (applyParameter) {
-                        return '&device=immobile';
-                    }
-                    return '';
-                },
-                // ----------------------------------------
-                // tier 2 functions
-                // ----------------------------------------
-                getChecked: function () {
-                    // grabs isNextGen value
-                    var a = GM_getValue('forceDesktop', false);
-                    return a;
-                },
-                toggleOn: function () {
-                    // set toggle on image
-                    var $toggle = desktopToggle.config.$FAtoggle;
-                    $toggle.removeClass('fa-toggle-off');
-                    $toggle.addClass('fa-toggle-on');
-                },
-                applyParameters: function () {
-                    var hasParameters = this.hasParameters(),
-                        siteState = this.siteState(),
-                        forceDesktop = this.getChecked();
-                    // apply parameters only if DOESN'T already have parameters &&
-                    // site state IS NOT LIVE &&
-                    // toggled ON
-                    if ((!hasParameters) && (siteState !== 'LIVE') && (forceDesktop)) {
-                        window.location.search += '&device=immobile';
-                    }
-                    if ((!hasParameters) && (siteState !== 'LIVE') && (!forceDesktop)) {
-                    }
-    },
-    toggleOff: function () {
-        // set toggle off image
-        var $toggle = desktopToggle.config.$FAtoggle;
-        $toggle.removeClass('fa-toggle-on');
-        $toggle.addClass('fa-toggle-off');
-    },
-    flipTheSwitch: function () {
-        // set saved variable to opposite of current value
-        this.setChecked(!this.getChecked());
-        // set toggle
-        this.setToggle();
-    },
-    // ----------------------------------------
-    // tier 3 functions
-    // ----------------------------------------
-    hasParameters: function () {
-        // determine if site URL already has custom parameters
-        if (window.location.href.indexOf('&device=immobile') >= 0) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    siteState: function () {
-        // return page variable
-        return unsafeWindow.ContextManager.getVersion();
-    },
-    setChecked: function (bool) {
-        // sets forceDesktop value
-        GM_setValue('forceDesktop', bool);
-    }
-},
-    */
         /* ************************************************************************************************************************ */
         /* **************************************** TOGGLE TOOLS **************************************** */
         /* ************************************************************************************************************************ */
+
         // ------------------------------------------------------------------------------------------------------------------------
         // ---------------------------------------- Refresh Page toggle ----------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------
@@ -4406,6 +3865,9 @@
             // ----------------------------------------
             // tier 3 functions
             // ----------------------------------------
+            // ----------------------------------------
+            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
+            // ----------------------------------------
             getChecked: function () {
                 // grabs useRefreshButton value
                 var a = GM_getValue('useRefreshButton', false);
@@ -4446,7 +3908,8 @@
                     $previewToolbarToggleIcon: jQuery('<div>').attr({
                         id: 'previewToolbarToggleIcon'
                     }),
-                    $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>')
+                    $FAtoggle: jQuery('<i class="fa fa-toggle-off fa-lg"></i>'),
+                    varName: 'hidePreviewToolbar'
                 };
             },
             buildTool: function () {
@@ -4458,7 +3921,10 @@
             },
             setToggle: function () {
                 // get value of custom variable and set toggles accordingly
-                if (this.getChecked()) {
+                var varName = previewToolbarToggle.config.varName,
+                    storedValue = getValue(varName);
+
+                if (storedValue) {
                     this.toggleOn();
                     this.togglePreviewToolbar();
                 } else {
@@ -4488,11 +3954,6 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            getChecked: function () {
-                // grabs isNextGen value
-                var a = GM_getValue('hidePreviewToolbar', false);
-                return a;
-            },
             toggleOn: function () {
                 // set toggle on image
                 var $toggle = previewToolbarToggle.config.$FAtoggle;
@@ -4500,10 +3961,10 @@
                 $toggle.addClass('fa-toggle-on');
             },
             togglePreviewToolbar: function () {
-                var hidePreviewToolbar = this.getChecked();
-                // apply parameters only if DOESN'T already have parameters &&
-                // site state IS NOT LIVE &&
-                // toggled ON
+                var varName = previewToolbarToggle.config.varName,
+                    hidePreviewToolbar = getValue(varName);
+
+                // if 'hidePreviewToolbar is toggled ON'
                 if (hidePreviewToolbar) {
                     this.$toolbarStyles.append(' #previewToolBarFrame { display: none; }');
                     this.$toolbarStyles.append(' .preview-wrapper { display: none; }');
@@ -4519,17 +3980,13 @@
                 $toggle.addClass('fa-toggle-off');
             },
             flipTheSwitch: function () {
+                var varName = previewToolbarToggle.config.varName,
+                    storedValue = getValue(varName);
                 // set saved variable to opposite of current value
-                this.setChecked(!this.getChecked());
+                setValue(varName, !storedValue);
+
                 // set toggle
                 this.setToggle();
-            },
-            // ----------------------------------------
-            // tier 3 functions
-            // ----------------------------------------
-            setChecked: function (bool) {
-                // sets hidePreviewToolbar value
-                GM_setValue('hidePreviewToolbar', bool);
             }
         },
         // ------------------------------------------------------------------------------------------------------------------------
