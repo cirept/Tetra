@@ -3574,128 +3574,102 @@
                         // search url for KEY
                         //
                         foundThis = this.searchURL(key, url);
+
                         //--------------------------------------------------------
                         //next gen searches
                         //--------------------------------------------------------
-                        // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is ON'
-                        if (key === 'nextGen=' && foundThis && urlParameters2[key]) {
-                            // if 'parameter is set to false'
+                        if (key === 'nextGen=' && foundThis && urlParameters2[key]) { // PARAMETER FOUND IN URL
+                            // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is ON'
                             if (url.indexOf('nextGen=false') >= 0) {
-                                console.log('turning parameter on');
+                                // if 'parameter is set to false'
                                 url = url.replace('nextGen=false', 'nextGen=true');
                                 matchesFound.push(false);
-                            }
-                            // if 'parameter is set to true'
-                            else if (url.indexOf('nextGen=true') >= 0) {
-                                console.log('parameter already turned on');
+                            } else if (url.indexOf('nextGen=true') >= 0) {
+                                // if 'parameter is set to true'
                                 // do nothing
+                                matchesFound.push(true);
                             }
-                        }
-                        // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is OFF'
-                        else if (key === 'nextGen=' && foundThis && !urlParameters2[key]) {
-                            // if 'parameter is set to true'
+                        } else if (key === 'nextGen=' && foundThis && !urlParameters2[key]) { // PARAMETER FOUND IN URL
+                            // if 'searching for nextgen' AND 'found parameter in url' AND 'toggle is OFF'
                             if (url.indexOf('nextGen=true') >= 0) {
+                                // if 'parameter is set to true'
                                 url = url.replace('nextGen=true', 'nextGen=false');
-                                console.log('turning parameter off : ' + url);
                                 matchesFound.push(false);
-                            }
-                            // if 'parameter is set to false'
-                            else if (url.indexOf('nextGen=false') >= 0) {
+                            } else if (url.indexOf('nextGen=false') >= 0) {
+                                // if 'parameter is set to false'
                                 // do nothing
-                                console.log('parameter turned off');
+                                matchesFound.push(true);
                             }
-                        }
-                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is ON'
-                        else if (key === 'nextGen=' && !foundThis && urlParameters2[key]) {
+                        } else if (key === 'nextGen=' && !foundThis && urlParameters2[key]) { // PARAMETER NOT FOUND IN URL
+                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is ON'
                             // Add parameter to url string
-                            console.log('adding parameter and turning on');
                             url += '&nextGen=true';
-                        }
-                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
-                        else if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) {
+                            matchesFound.push(false);
+                        } else if (key === 'nextGen=' && !foundThis && !urlParameters2[key]) { // PARAMETER NOT FOUND IN URL
+                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
                             // do nothing
-                            console.log('parameter not enabled');
+                            matchesFound.push(true);
                         }
+
                         //--------------------------------------------------------
                         //autofill searches
                         //--------------------------------------------------------
-                        // PARAMETER FOUND IN URL
-                        // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is ON'
-                        else if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) {
-                            // if 'parameter is set to false'
+                        if (key === 'disableAutofill=' && foundThis && urlParameters2[key]) { // PARAMETER FOUND IN URL
+                            // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is ON'
                             if (url.indexOf('disableAutofill=false') >= 0) {
-                                console.log('parameter exists, turned on');
+                                // if 'parameter is set to false'
                                 url = url.replace('disableAutofill=false', 'disableAutofill=true');
                                 matchesFound.push(false);
-                            }
-                            // if 'parameter is set to true'
-                            else if (url.indexOf('disableAutofill=true') >= 0) {
+                            } else if (url.indexOf('disableAutofill=true') >= 0) {
+                                // if 'parameter is set to true'
                                 // do nothing
-                                console.log('parameter exists, already turned on');
                                 matchesFound.push(true);
                             }
-                        }
-                        // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is OFF'
-                        else if (key === 'disableAutofill=' && foundThis && !urlParameters2[key]) {
-                            // if 'parameter is set to true'
+                        } else if (key === 'disableAutofill=' && foundThis && !urlParameters2[key]) { // PARAMETER FOUND IN URL
+                            // if 'searching for disable autofill' AND 'found parameter in url' AND 'toggle is OFF'
                             if (url.indexOf('disableAutofill=true') >= 0) {
-                                console.log('parameter exists, turned off');
+                                // if 'parameter is set to true'
                                 url = url.replace('disableAutofill=true', 'disableAutofill=false');
                                 matchesFound.push(false);
-                            }
-                            // if 'parameter is set to false'
-                            else if (url.indexOf('disableAutofill=false') >= 0) {
+                            } else if (url.indexOf('disableAutofill=false') >= 0) {
+                                // if 'parameter is set to false'
                                 // do nothing
-                                console.log('parameter exists, already turned off');
                                 matchesFound.push(true);
                             }
-                        }
-                        // PARAMETER NOT FOUND IN URL
-                        // if 'searching for disable autofill' AND 'parameter not found in url' AND 'toggle is ON'
-                        else if (key === 'disableAutofill=' && !foundThis && urlParameters2[key]) {
+                        } else if (key === 'disableAutofill=' && !foundThis && urlParameters2[key]) { // PARAMETER NOT FOUND IN URL
+                            // if 'searching for disable autofill' AND 'parameter not found in url' AND 'toggle is ON'
                             // Add parameter to url string
-                            console.log('parameter added, turned on');
                             url += '&disableAutofill=true';
                             matchesFound.push(false);
-                        }
-                        // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
-                        else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) {
+                        } else if (key === 'disableAutofill=' && !foundThis && !urlParameters2[key]) { // PARAMETER NOT FOUND IN URL
+                            // if 'searching for nextgen' AND 'parameter not found in url' AND 'toggle is OFF'
                             // do nothing
-                            console.log('parameter not enabled');
+                            matchesFound.push(true);
                         }
+
                         //--------------------------------------------------------
                         //m4 parameter searches
                         //--------------------------------------------------------
-                        // PARAMETER FOUND IN URL
-                        // create a special search for the m4 module URL parameters
-                        // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
-                        else if (key === 'relative=' && foundThis && !urlParameters2[key]) {
+                        if (key === 'relative=' && foundThis && !urlParameters2[key]) { // PARAMETER FOUND IN URL
+                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
                             // remove ADDED parameter from URL
-                            console.log('removing parameter');
                             url = url.replace('&comments=true&relative=true', '');
                             matchesFound.push(false);
-                        }
-                        // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
-                        else if (key === 'relative=' && foundThis && urlParameters2[key]) {
+                        } else if (key === 'relative=' && foundThis && urlParameters2[key]) { // PARAMETER FOUND IN URL
+                            // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
                             // do nothing
-                            console.log('parameter already turned on');
                             matchesFound.push(true);
-                        }
-                        // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
-                        else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
+                        } else if (key === 'relative=' && !foundThis && urlParameters2[key]) { // PARAMETER NOT FOUND IN URL
+                            // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
                             // Add parameter to url string
                             url += '&comments=true&relative=true';
-                            console.log('parameter added, turned on');
                             matchesFound.push(false);
-                        }
-                        // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
-                        else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
+                        } else if (key === 'relative=' && !foundThis && !urlParameters2[key]) { // PARAMETER NOT FOUND IN URL
+                            // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
                             // do nothing
-                            console.log('parameter turned off');
+                            matchesFound.push(true);
                         }
                     }
-                    console.log('finish search for : ' + key);
-                    console.log('-----------');
                 }
                 // reloadPAge
                 this.reloadPage(matchesFound, url);
