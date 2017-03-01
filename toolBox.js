@@ -1,9 +1,12 @@
 /*jslint browser: true, devel: true, continue: true*/
 /*global jQuery, unsafeWindow, GM_setValue, GM_getValue, GM_setClipboard, GM_openInTab, window, GM_info, GM_listValues, document, console */
-// 1. reorganized code - placed code in related areas
+
 (function () {
     "use strict";
-    // ---------------------------------------- TEST FUNCTIONS
+
+    // ------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------- GLOBAL FUNCTIONS ----------------------------------------
+    // ------------------------------------------------------------------------------------------------------------------------
     function setValue(variable, val) {
         console.log('"SET" value "' + variable + '" with "' + val + '"');
         GM_setValue(variable, val);
@@ -22,6 +25,12 @@
     function programVariables() {
         return GM_listValues();
     }
+
+    function openNewTab(openThis) {
+        console.log('open ' + openThis);
+        GM_openInTab(openThis);
+    }
+
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- Build container for toolbox ----------------------------------------
     // ------------------------------------------------------------------------------------------------------------------------
@@ -1260,14 +1269,11 @@
                 spellCheck.config.$activateButt.on('click', this.spellCheck.bind(this));
             },
             // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
-            // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
             spellCheck: function () {
                 var openThis = this.buildURL();
-                GM_openInTab(openThis, 'active');
+                openNewTab(openThis);
             },
             // ----------------------------------------
             // tier 3 functions
@@ -1297,9 +1303,6 @@
                 this.addTool();
                 this.bindEvents();
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             // ----------------------------------------
             // tier 1 functions
             // ----------------------------------------
@@ -1420,8 +1423,8 @@
                         'Browser : ' + browserName + '\n' +
                         'Send Results To : ' + email + '\n' +
                         '----------------------------------------') === true) {
-                    newTab = new GM_openInTab(desktopURL, true);
-                    newTab = new GM_openInTab(mobileURL, true);
+                    newTab = openNewTab(desktopURL);
+                    newTab = openNewTab(mobileURL);
                 }
             }
         },
@@ -1581,13 +1584,10 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             viewMobile: function () {
                 var auto = '?device=mobile&nextGen=false',
                     openThis = this.siteURL + this.pageName + auto;
-                GM_openInTab(openThis, 'active');
+                openNewTab(openThis);
             },
         };
 
@@ -2333,207 +2333,196 @@
     // ------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------- broken link checker ----------------------------------------
     // ------------------------------------------------------------------------------------------------------------------------
-    var $404checker_butt = jQuery('<button>').attr({
-        class: 'myEDOBut',
-        id: '404checker',
-        title: '404 Checker'
-    }).text('404 Checker');
-    $404checker_butt.on('click', function () {
-        // ---------------------------------------- disable 404 button to prevent multi clicking
-        toggleDisable();
-
-        function toggleDisable() {
-            $404checker_butt.prop('disabled', function (index, value) {
-                return !value;
-            });
-        }
-        // ---------------------------------------- build legend
-        var $legend = jQuery('<div>').attr({
-                class: 'legend'
-            }),
-            $legendTitle = jQuery('<div>').attr({
-                class: 'legendTitle'
-            }).text('404 Link Legend'),
-            $legendList = jQuery('<ul>').attr({
-                class: 'legendList'
-            }),
-            $legendContent = {
-                'otherDomain': 'Absolute URL*',
-                'framedIn': 'f_ link',
-                'brokenURL': 'Empty URL',
-                'success': 'Link is Real',
-                'error': '404 Link',
-            },
-            $offButt = jQuery('<input>').attr({
-                type: 'button',
-                class: 'myEDOBut offButt',
-                value: 'remove legend'
-            }),
-            $subText = jQuery('<div>').attr({
-                class: 'subText hint'
-            }).text('* Manually Check Link'),
-            $legendContainer = jQuery('#legendContainer'); // cache dom
-        buildLegend();
-        $legendContainer.append($legend);
-        showLegend();
-
-        function buildLegend() {
-            $legend
-            // attach legend title
-                .append($legendTitle)
-                // attach list
-                .append($legendList)
-                // attach sub text
-                .append($subText)
-                // attach turn off button
-                .append($offButt);
+    var checkLinks = {
+        init: function () {
+            this.createElements();
+            this.cacheDOM();
+            this.buildLegend();
+            this.addTool();
+            this.bindEvents();
+            this.addStyles();
+        },
+        createElements: function () {
+            checkLinks.config = {
+                $activateButt: jQuery('<button>').attr({
+                    class: 'myEDOBut',
+                    id: '404checker',
+                    title: '404 Checker'
+                }).text('404 Link Checker'),
+                $legend: jQuery('<div>').attr({
+                    class: 'legend'
+                }),
+                $legendTitle: jQuery('<div>').attr({
+                    class: 'legendTitle'
+                }).text('Image Checker Legend'),
+                $legendList: jQuery('<ul>').attr({
+                    class: 'legendList'
+                }),
+                $legendContent: {
+                    'otherDomain': 'Absolute URL*',
+                    'framedIn': 'f_ link',
+                    'brokenURL': 'Empty URL',
+                    'success': 'Link is Real',
+                    'error': '404 Link',
+                },
+                $offButt: jQuery('<input>').attr({
+                    type: 'button',
+                    class: 'myEDOBut offButt',
+                    value: 'remove legend'
+                }),
+                $subText: jQuery('<div>').attr({
+                    class: 'subText hint'
+                }).text('* Manually Check Link'),
+                $legendContainer: jQuery('#legendContainer'),
+                $container: jQuery('<div>').attr({
+                    id: 'checkContainer',
+                }),
+                $message: jQuery('<div>').attr({
+                    id: 'checkMessage'
+                }),
+                $counter: jQuery('<div>').attr({
+                    id: 'count404'
+                }),
+                $iconContainer: jQuery('<div>').attr({
+                    id: 'iconContainer'
+                }),
+                $thinking: jQuery('<i id="loading" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'),
+                $done: jQuery('<i class="fa fa-check-circle fa-3x fa-fw"></i>'),
+                $hint: jQuery('<div>').attr({
+                    class: 'hint'
+                }).text('refresh page before running 404 checker again')
+            };
+        },
+        cacheDOM: function () {
+            this.$toolbarStyles = jQuery('#qa_toolbox');
+            this.cm = unsafeWindow.ContextManager;
+            this.webID = this.cm.getWebId();
+            this.siteID = this.cm.getSiteId();
+            this.baseURL = this.cm.getUrl();
+            this.wid = this.separateID(this.webID);
+            this.$pageLinks = jQuery('a');
+            this.$toolBoxContainer = jQuery('#toolboxContainer'); // update this to the other tools panel
+        },
+        buildLegend: function () {
+            checkLinks.config.$legend
+                .append(checkLinks.config.$legendTitle)
+                .append(checkLinks.config.$legendList)
+                .append(checkLinks.config.$subText)
+                .append(checkLinks.config.$offButt)
+                .append(checkLinks.config.$hint);
             // fill list
-            buildLegendContent();
-        }
-        // add click event to remove button
-        $offButt.on('click', showLegend);
-
-        function buildLegendContent() {
-            var $contentArray = $legendContent,
-                key;
-            // loop through Legend Content list
-            for (key in $contentArray) {
-                var value = $contentArray[key];
-                // build listing element
-                var $listItem = jQuery('<li>').attr({
-                    class: 'legendContent ' + key
-                }).append(value);
-                // attach to legend list
-                $legendList.append($listItem);
-            }
-        }
-
-        function showLegend() {
-            $legend.slideToggle('1000');
-        }
-        // ---------------------------------------- build legend end
-        var $toolbarStyles = jQuery('#qa_toolbox');
-        $toolbarStyles
-        // styles of colored overlay placed on images
-            .append('.otherDomain { background: linear-gradient(to left, #00C9FF , #92FE9D) !important; -moz-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); -webkit-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); color: #000000 !important; }')
-            .append('.framedIn { background: linear-gradient(to left, #F7971E , #FFD200) !important; color: #000000 !important; }')
-            .append('.brokenURL { background: linear-gradient(to left, #FFAFBD , #ffc3a0) !important; color: #000000 !important; }')
-            .append('.success { background: linear-gradient(to left, rgba(161, 255, 206, 0.75), rgba(250, 255, 209, 0.75)) !important; color: #000000 !important; }')
-            .append('.error { background: linear-gradient(to left, #F00000 , #DC281E) !important; color: #ffffff !important; }')
-            .append('#checkMessage { margin: 5px auto; padding: 5px; }')
-            .append('#checkContainer { text-align: center; background: white; border: 1px solid #000000; }')
-            // end of addStyles
-        ; // end
-        var cm = unsafeWindow.ContextManager,
-            webID = cm.getWebId(),
-            siteID = cm.getSiteId(),
-            baseURL = cm.getUrl(),
-            wid = z(webID),
-            $pageLinks = jQuery('a'),
-            $container = jQuery('<div>').attr({
-                id: 'checkContainer',
-            }),
-            $message = jQuery('<div>').attr({
-                id: 'checkMessage'
-            }),
-            $counter = jQuery('<div>').attr({
-                id: 'count404'
-            }),
-            $iconContainer = jQuery('<div>').attr({
-                id: 'iconContainer'
-            }),
-            $thinking = jQuery('<i id="loading" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'),
-            $done = jQuery('<i class="fa fa-check-circle fa-3x fa-fw"></i>'),
-            $hint = jQuery('<div>').attr({
-                class: 'hint'
-            }).text('refresh page before running 404 checker again');
-        // attach hint
-        $legend.append($hint);
-        // split web-id
-        function z(webID) {
-            var x = webID.split('-');
-            return x[1];
-        }
+            this.buildLegendContent();
+            // attach filled list
+            checkLinks.config.$legendContainer.append(checkLinks.config.$legend);
+            checkLinks.config.$legend.append(checkLinks.config.$container);
+        },
+        addTool: function () {
+            this.$otherToolsPanel.append(checkLinks.config.$activateButt);
+        },
+        bindEvents: function () {
+            checkLinks.config.$activateButt.on('click', this.toggleDisable);
+            checkLinks.config.$activateButt.on('click', this.showLegend);
+            checkLinks.config.$activateButt.on('click', this.ajaxStart);
+            checkLinks.config.$activateButt.on('click', this.testLinks);
+            checkLinks.config.$activateButt.on('click', this.ajaxStop);
+            checkLinks.config.$offButt.on('click', this.showLegend);
+        },
+        addStyles: function () {
+            this.$toolbarStyles
+                // styles of colored overlay placed on images
+                .append('.otherDomain { background: linear-gradient(to left, #00C9FF , #92FE9D) !important; -moz-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); -webkit-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); color: #000000 !important; }')
+                .append('.framedIn { background: linear-gradient(to left, #F7971E , #FFD200) !important; color: #000000 !important; }')
+                .append('.brokenURL { background: linear-gradient(to left, #FFAFBD , #ffc3a0) !important; color: #000000 !important; }')
+                .append('.success { background: linear-gradient(to left, rgba(161, 255, 206, 0.75), rgba(250, 255, 209, 0.75)) !important; color: #000000 !important; }')
+                .append('.error { background: linear-gradient(to left, #F00000 , #DC281E) !important; color: #ffffff !important; }')
+                .append('#checkMessage { margin: 5px auto; padding: 5px; }')
+                .append('#checkContainer { text-align: center; background: white; border: 1px solid #000000; }'); // end of addStyles
+        },
         // ----------------------------------------
-        // added to module pattern ^^^
+        // tier 1 functions
         // ----------------------------------------
-        // attach display area to tool box
-        $legend.before($container);
-        // show thinking icon
-        jQuery(document).ajaxStart(function () {
-            $message.text('checking links').append($counter);
-            $message.append($iconContainer).append($thinking);
-            $container.append($message);
-        });
-        var testComplete = 1;
-        var totalTests = $pageLinks.length;
-        // test each link on the page
-        var j = 0;
-        var pageLinksLength = $pageLinks.length;
-        for (j; j < pageLinksLength; j++) {
-            var curLink = $pageLinks[j],
-                $curLink = jQuery(curLink),
-                curURL = jQuery.trim($curLink.attr('href')),
+        testLinks: function () {
+            var j = 0,
+                pageLinksLength = this.$pageLinks.length,
+                curLink,
+                $curLink,
+                curURL,
+                hrefLength,
+                findThis,
+                findThis2,
+                length,
+                curWindow;
+
+            for (j; j < pageLinksLength; j++) {
+                curLink = this.$pageLinks[j];
+                $curLink = jQuery(curLink);
+                curURL = jQuery.trim($curLink.attr('href'));
                 hrefLength = curURL.length;
-            // skip javascript links
-            if (curURL.indexOf('javascript') >= 0) {
-                continue;
-            }
-            // test if URL is undefined
-            // skip checking link if not a web link
-            if (typeof curLink === 'undefined') {
-                $curLink.addClass('brokenURL');
-                continue;
-            } // test if URL is empty
-            // skip checking link if not a web link
-            if (curURL === '') {
-                $curLink.addClass('brokenURL');
-                continue;
-            }
-            // test if link is a complete URL
-            // eg. http://www.blahblah.com/
-            // skip iteration if not correct format
-            if (checkHref(curURL)) {
-                $curLink.addClass('otherDomain');
-                continue;
-            }
-            // test if link if href contains f_ or //:
-            // f_ will frame in the URL which may cause viewing issues if URL is an interior page.
-            // skip iteration if not correct format
-            if (checkHref2(curURL)) {
-                $curLink.addClass('framedIn');
-                continue;
-            }
-            var curWindow = window.location.href;
-            if (curWindow.indexOf('nextGen=true') > -1) {
-                // check URL if using relative path
-                // NEXT GEN SPECIFIC
-                // add complete URL for testing purposes
-                var findThis = '/' + siteID + '/',
-                    findThis2 = '/' + wid + '/',
+                // skip javascript links
+                if (curURL.indexOf('javascript') >= 0) {
+                    continue;
+                }
+                // test if URL is undefined
+                // skip checking link if not a web link
+                if (typeof curLink === 'undefined') {
+                    $curLink.addClass('brokenURL');
+                    continue;
+                } // test if URL is empty
+                // skip checking link if not a web link
+                if (curURL === '') {
+                    $curLink.addClass('brokenURL');
+                    continue;
+                }
+                // test if link is a complete URL
+                // eg. http://www.blahblah.com/
+                // skip iteration if not correct format
+                if (this.checkHref(curURL)) {
+                    $curLink.addClass('otherDomain');
+                    continue;
+                }
+                // test if link if href contains f_ or //:
+                // f_ will frame in the URL which may cause viewing issues if URL is an interior page.
+                // skip iteration if not correct format
+                if (this.checkHref2(curURL)) {
+                    $curLink.addClass('framedIn');
+                    continue;
+                }
+                curWindow = window.location.href;
+                if (curWindow.indexOf('nextGen=true') > -1) {
+                    // check URL if using relative path
+                    // NEXT GEN SPECIFIC
+                    // add complete URL for testing purposes
+                    findThis = '/' + this.siteID + '/';
+                    findThis2 = '/' + this.wid + '/';
                     length = findThis.length + 1;
-                if ((curURL.indexOf(findThis) >= 0) && (curURL.indexOf(findThis) < length)) {
-                    curURL = curURL.replace(findThis, baseURL);
+                    if ((curURL.indexOf(findThis) >= 0) && (curURL.indexOf(findThis) < length)) {
+                        curURL = curURL.replace(findThis, this.baseURL);
+                    }
+                    if ((curURL.indexOf(findThis2) >= 0) && (curURL.indexOf(findThis2) < length)) {
+                        curURL = curURL.replace(findThis, this.baseURL);
+                    }
                 }
-                if ((curURL.indexOf(findThis2) >= 0) && (curURL.indexOf(findThis2) < length)) {
-                    curURL = curURL.replace(findThis, baseURL);
+                // check urls for '/'
+                if (curURL.indexOf('//') === 0) {
+                    // check URL if it begins with /, signifying the link is a relative path URL
+                    curURL = curURL.slice(2, hrefLength);
+                } else if (curURL.indexOf('/') === 0) {
+                    curURL = curURL.slice(1, hrefLength);
                 }
+                // test links
+                this.testLink(curURL, curLink);
             }
-            // check urls for '/'
-            if (curURL.indexOf('//') === 0) {
-                // check URL if it begins with /, signifying the link is a relative path URL
-                curURL = curURL.slice(2, hrefLength);
-            } else if (curURL.indexOf('/') === 0) {
-                curURL = curURL.slice(1, hrefLength);
-            }
-            // test links
-            testLink(curURL, curLink);
-        }
-
-        function testLink(linkURL, curLink) {
-            var $curLink = jQuery(curLink),
+        },
+        testLink: function (linkURL, curLink) {
+            var testComplete = 1,
+                totalTests = this.$pageLinks.length,
+                $curLink = jQuery(curLink),
                 hasImage = 0,
-                isImageLink = false;
+                isImageLink = false,
+                $img,
+                w,
+                h,
+                $linkOverlay;
             // test each link
             jQuery.ajax({
                 url: linkURL, //be sure to check the right attribute
@@ -2550,82 +2539,408 @@
                     // if is an image link add class to div overlay
                     // else add class to a tag
                     if (isImageLink) {
-                        var $img = $curLink.find('img'),
-                            w = $img.width(),
-                            h = $img.height(),
-                            $linkOverlay = jQuery('<div>').attr({
-                                class: 'siteLink linkOverlay'
-                            }).css({
-                                width: w + 'px',
-                                height: h + 'px',
-                                position: 'absolute',
-                                'z-index': 1
-                            });
+                        $img = $curLink.find('img');
+                        w = $img.width();
+                        h = $img.height();
+                        $linkOverlay = jQuery('<div>').attr({
+                            class: 'siteLink linkOverlay'
+                        }).css({
+                            width: w + 'px',
+                            height: h + 'px',
+                            position: 'absolute',
+                            'z-index': 1
+                        });
                         $img.attr('style', 'position: relative;');
                         $curLink.prepend($linkOverlay);
-                        success($linkOverlay, isImageLink);
+                        this.success($linkOverlay, isImageLink);
                     } else {
                         $curLink.addClass('success');
-                        success($curLink, isImageLink);
+                        this.success($curLink, isImageLink);
                     }
                 },
                 error: function () {
                     //set link in red if there is any errors with link
-                    error($curLink, isImageLink);
+                    this.error($curLink, isImageLink);
                 },
                 statusCode: {
                     404: function () {
                         $curLink.addClass('error');
-                        error($curLink, isImageLink);
+                        this.error($curLink, isImageLink);
                     }
                 },
                 complete: function () {
                     testComplete++;
-                    $counter.text(testComplete + ' of ' + totalTests);
+                    checkLinks.config.$counter.text(testComplete + ' of ' + totalTests);
                 }
             });
-        }
-        // fire after ALL ajax requests have been completed
-        jQuery(document).ajaxStop(function () {
-            $message.empty();
-            $thinking.remove();
-            $message.text('all links checked');
-            $iconContainer.append($done);
-            $message.append($iconContainer);
-            $message.delay(7000).fadeOut(2000, function () {
-                $container.remove();
+        },
+        toggleDisable: function () {
+            checkLinks.config.$activateButt.prop('disabled', function (index, value) {
+                return !value;
             });
-        });
-
-        function success($this, isImageLink) {
+        },
+        buildLegendContent: function () {
+            var $contentArray = checkLinks.config.$legendContent,
+                key;
+            // loop through Legend Content list
+            for (key in $contentArray) {
+                var value = $contentArray[key];
+                // build listing element
+                var $listItem = jQuery('<li>').attr({
+                    class: 'legendContent ' + key
+                }).append(value);
+                // attach to legend list
+                checkLinks.config.$legendList.append($listItem);
+            }
+        },
+        showLegend: function () {
+            checkLinks.config.$legend.slideToggle('1000');
+        },
+        separateID: function (webID) {
+            var split = webID.split('-');
+            return split[1];
+        },
+        ajaxStart: function () {
+            jQuery(document).ajaxStart(function () {
+                checkLinks.config.$message.text('checking links').append(checkLinks.config.$counter);
+                checkLinks.config.$message.append(checkLinks.config.$iconContainer).append(checkLinks.config.$thinking);
+                checkLinks.config.$container.append(checkLinks.config.$message);
+            });
+            //        checkLinks.config.$message.text('checking links').append(checkLinks.config.$counter);
+            //        checkLinks.config.$message.append(checkLinks.config.$iconContainer).append(checkLinks.config.$thinking);
+            //        checkLinks.config.$container.append(checkLinks.config.$message);
+        },
+        ajaxStop: function () {
+            jQuery(document).ajaxStop(function () {
+                checkLinks.config.$message.empty();
+                checkLinks.config.$thinking.remove();
+                checkLinks.config.$message.text('all links checked');
+                checkLinks.config.$iconContainer.append(checkLinks.config.$done);
+                checkLinks.config.$message.append(checkLinks.config.$iconContainer);
+                checkLinks.config.$message.delay(7000).fadeOut(2000, function () {
+                    checkLinks.config.$container.remove();
+                });
+            });
+        },
+        checkHref: function (linkURL) {
+            if ((linkURL.indexOf('www') > -1) || (linkURL.indexOf('http') > -1) || (linkURL.indexOf('https') > -1)) {
+                return true;
+            }
+        },
+        checkHref2: function (linkURL) {
+            if ((linkURL.indexOf('f_') > -1) || (linkURL.indexOf('//:') > -1)) {
+                return true;
+            }
+        },
+        error: function ($this, isImageLink) {
+            var curClass = '';
+            if (isImageLink) {
+                curClass = $this.attr('class');
+            }
+            $this.addClass('error');
+        },
+        success: function ($this, isImageLink) {
             var curClass = '';
             if (isImageLink) {
                 curClass = $this.attr('class');
             }
             $this.addClass('success');
         }
+    };
+    /*
+        var $404checker_butt = jQuery('<button>').attr({
+            class: 'myEDOBut',
+            id: '404checker',
+            title: '404 Checker'
+        }).text('404 Checker');
+        $404checker_butt.on('click', function () {
+            // ---------------------------------------- disable 404 button to prevent multi clicking
+            toggleDisable();
 
-        function error($this, isImageLink) {
-            var curClass = '';
-            if (isImageLink) {
-                curClass = $this.attr('class');
+            function toggleDisable() {
+                $404checker_butt.prop('disabled', function (index, value) {
+                    return !value;
+                });
             }
-            $this.addClass('error');
-        }
+            // ---------------------------------------- build legend
+            var $legend = jQuery('<div>').attr({
+                    class: 'legend'
+                }),
+                $legendTitle = jQuery('<div>').attr({
+                    class: 'legendTitle'
+                }).text('404 Link Legend'),
+                $legendList = jQuery('<ul>').attr({
+                    class: 'legendList'
+                }),
+                $legendContent = {
+                    'otherDomain': 'Absolute URL*',
+                    'framedIn': 'f_ link',
+                    'brokenURL': 'Empty URL',
+                    'success': 'Link is Real',
+                    'error': '404 Link',
+                },
+                $offButt = jQuery('<input>').attr({
+                    type: 'button',
+                    class: 'myEDOBut offButt',
+                    value: 'remove legend'
+                }),
+                $subText = jQuery('<div>').attr({
+                    class: 'subText hint'
+                }).text('* Manually Check Link'),
+                $legendContainer = jQuery('#legendContainer'); // cache dom
+            buildLegend();
+            $legendContainer.append($legend);
+            showLegend();
 
-        function checkHref(linkURL) {
-            if ((linkURL.indexOf('www') > -1) || (linkURL.indexOf('http') > -1) || (linkURL.indexOf('https') > -1)) {
-                return true;
+            function buildLegend() {
+                $legend
+                // attach legend title
+                    .append($legendTitle)
+                    // attach list
+                    .append($legendList)
+                    // attach sub text
+                    .append($subText)
+                    // attach turn off button
+                    .append($offButt);
+                // fill list
+                buildLegendContent();
             }
-        }
+            // add click event to remove button
+            $offButt.on('click', showLegend);
 
-        function checkHref2(linkURL) {
-            if ((linkURL.indexOf('f_') > -1) || (linkURL.indexOf('//:') > -1)) {
-                return true;
+            function buildLegendContent() {
+                var $contentArray = $legendContent,
+                    key;
+                // loop through Legend Content list
+                for (key in $contentArray) {
+                    var value = $contentArray[key];
+                    // build listing element
+                    var $listItem = jQuery('<li>').attr({
+                        class: 'legendContent ' + key
+                    }).append(value);
+                    // attach to legend list
+                    $legendList.append($listItem);
+                }
             }
-        }
-    });
 
+            function showLegend() {
+                $legend.slideToggle('1000');
+            }
+            // ---------------------------------------- build legend end
+            var $toolbarStyles = jQuery('#qa_toolbox');
+            $toolbarStyles
+            // styles of colored overlay placed on images
+                .append('.otherDomain { background: linear-gradient(to left, #00C9FF , #92FE9D) !important; -moz-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); -webkit-box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); box-shadow: inset 0px 0px 0px 1px rgb(255, 55, 60); color: #000000 !important; }')
+                .append('.framedIn { background: linear-gradient(to left, #F7971E , #FFD200) !important; color: #000000 !important; }')
+                .append('.brokenURL { background: linear-gradient(to left, #FFAFBD , #ffc3a0) !important; color: #000000 !important; }')
+                .append('.success { background: linear-gradient(to left, rgba(161, 255, 206, 0.75), rgba(250, 255, 209, 0.75)) !important; color: #000000 !important; }')
+                .append('.error { background: linear-gradient(to left, #F00000 , #DC281E) !important; color: #ffffff !important; }')
+                .append('#checkMessage { margin: 5px auto; padding: 5px; }')
+                .append('#checkContainer { text-align: center; background: white; border: 1px solid #000000; }')
+                // end of addStyles
+            ; // end
+            var cm = unsafeWindow.ContextManager,
+                webID = cm.getWebId(),
+                siteID = cm.getSiteId(),
+                baseURL = cm.getUrl(),
+                wid = z(webID),
+                $pageLinks = jQuery('a'),
+                $container = jQuery('<div>').attr({
+                    id: 'checkContainer',
+                }),
+                $message = jQuery('<div>').attr({
+                    id: 'checkMessage'
+                }),
+                $counter = jQuery('<div>').attr({
+                    id: 'count404'
+                }),
+                $iconContainer = jQuery('<div>').attr({
+                    id: 'iconContainer'
+                }),
+                $thinking = jQuery('<i id="loading" class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span>'),
+                $done = jQuery('<i class="fa fa-check-circle fa-3x fa-fw"></i>'),
+                $hint = jQuery('<div>').attr({
+                    class: 'hint'
+                }).text('refresh page before running 404 checker again');
+            // attach hint
+            $legend.append($hint);
+            // split web-id
+            function z(webID) {
+                var x = webID.split('-');
+                return x[1];
+            }
+            // ----------------------------------------
+            // added to module pattern ^^^
+            // ----------------------------------------
+            // attach display area to tool box
+            $legend.before($container);
+            // show thinking icon
+            jQuery(document).ajaxStart(function () {
+                $message.text('checking links').append($counter);
+                $message.append($iconContainer).append($thinking);
+                $container.append($message);
+            });
+            var testComplete = 1;
+            var totalTests = $pageLinks.length;
+            // test each link on the page
+            var j = 0;
+            var pageLinksLength = $pageLinks.length;
+            for (j; j < pageLinksLength; j++) {
+                var curLink = $pageLinks[j],
+                    $curLink = jQuery(curLink),
+                    curURL = jQuery.trim($curLink.attr('href')),
+                    hrefLength = curURL.length;
+                // skip javascript links
+                if (curURL.indexOf('javascript') >= 0) {
+                    continue;
+                }
+                // test if URL is undefined
+                // skip checking link if not a web link
+                if (typeof curLink === 'undefined') {
+                    $curLink.addClass('brokenURL');
+                    continue;
+                } // test if URL is empty
+                // skip checking link if not a web link
+                if (curURL === '') {
+                    $curLink.addClass('brokenURL');
+                    continue;
+                }
+                // test if link is a complete URL
+                // eg. http://www.blahblah.com/
+                // skip iteration if not correct format
+                if (checkHref(curURL)) {
+                    $curLink.addClass('otherDomain');
+                    continue;
+                }
+                // test if link if href contains f_ or //:
+                // f_ will frame in the URL which may cause viewing issues if URL is an interior page.
+                // skip iteration if not correct format
+                if (checkHref2(curURL)) {
+                    $curLink.addClass('framedIn');
+                    continue;
+                }
+                var curWindow = window.location.href;
+                if (curWindow.indexOf('nextGen=true') > -1) {
+                    // check URL if using relative path
+                    // NEXT GEN SPECIFIC
+                    // add complete URL for testing purposes
+                    var findThis = '/' + siteID + '/',
+                        findThis2 = '/' + wid + '/',
+                        length = findThis.length + 1;
+                    if ((curURL.indexOf(findThis) >= 0) && (curURL.indexOf(findThis) < length)) {
+                        curURL = curURL.replace(findThis, baseURL);
+                    }
+                    if ((curURL.indexOf(findThis2) >= 0) && (curURL.indexOf(findThis2) < length)) {
+                        curURL = curURL.replace(findThis, baseURL);
+                    }
+                }
+                // check urls for '/'
+                if (curURL.indexOf('//') === 0) {
+                    // check URL if it begins with /, signifying the link is a relative path URL
+                    curURL = curURL.slice(2, hrefLength);
+                } else if (curURL.indexOf('/') === 0) {
+                    curURL = curURL.slice(1, hrefLength);
+                }
+                // test links
+                testLink(curURL, curLink);
+            }
+
+            function testLink(linkURL, curLink) {
+                var $curLink = jQuery(curLink),
+                    hasImage = 0,
+                    isImageLink = false;
+                // test each link
+                jQuery.ajax({
+                    url: linkURL, //be sure to check the right attribute
+                    type: 'HEAD',
+                    crossDomain: false,
+                    method: 'get',
+                    success: function () { //pass an anonymous callback function
+                        // checks to see if link is an image link
+                        // adds a div overlay if is an image link
+                        hasImage = $curLink.has('img').length;
+                        if (hasImage) {
+                            isImageLink = true;
+                        }
+                        // if is an image link add class to div overlay
+                        // else add class to a tag
+                        if (isImageLink) {
+                            var $img = $curLink.find('img'),
+                                w = $img.width(),
+                                h = $img.height(),
+                                $linkOverlay = jQuery('<div>').attr({
+                                    class: 'siteLink linkOverlay'
+                                }).css({
+                                    width: w + 'px',
+                                    height: h + 'px',
+                                    position: 'absolute',
+                                    'z-index': 1
+                                });
+                            $img.attr('style', 'position: relative;');
+                            $curLink.prepend($linkOverlay);
+                            success($linkOverlay, isImageLink);
+                        } else {
+                            $curLink.addClass('success');
+                            success($curLink, isImageLink);
+                        }
+                    },
+                    error: function () {
+                        //set link in red if there is any errors with link
+                        error($curLink, isImageLink);
+                    },
+                    statusCode: {
+                        404: function () {
+                            $curLink.addClass('error');
+                            error($curLink, isImageLink);
+                        }
+                    },
+                    complete: function () {
+                        testComplete++;
+                        $counter.text(testComplete + ' of ' + totalTests);
+                    }
+                });
+            }
+            // fire after ALL ajax requests have been completed
+            jQuery(document).ajaxStop(function () {
+                $message.empty();
+                $thinking.remove();
+                $message.text('all links checked');
+                $iconContainer.append($done);
+                $message.append($iconContainer);
+                $message.delay(7000).fadeOut(2000, function () {
+                    $container.remove();
+                });
+            });
+
+            function success($this, isImageLink) {
+                var curClass = '';
+                if (isImageLink) {
+                    curClass = $this.attr('class');
+                }
+                $this.addClass('success');
+            }
+
+            function error($this, isImageLink) {
+                var curClass = '';
+                if (isImageLink) {
+                    curClass = $this.attr('class');
+                }
+                $this.addClass('error');
+            }
+
+            function checkHref(linkURL) {
+                if ((linkURL.indexOf('www') > -1) || (linkURL.indexOf('http') > -1) || (linkURL.indexOf('https') > -1)) {
+                    return true;
+                }
+            }
+
+            function checkHref2(linkURL) {
+                if ((linkURL.indexOf('f_') > -1) || (linkURL.indexOf('//:') > -1)) {
+                    return true;
+                }
+            }
+        });
+    */
     /* ************************************************************************************************************************ */
     /* **************************************** URL MODIFIER TOOLS **************************************** */
     /* ************************************************************************************************************************ */
