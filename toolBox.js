@@ -15,7 +15,7 @@
     }
 
     function getValue(variable) {
-        console.log('"GET" value "' + variable);
+        //        console.log('"GET" value "' + variable);
         return GM_getValue(variable, false);
     }
 
@@ -29,12 +29,8 @@
             init: function () {
                 this.createElements();
                 this.toolbarStyles();
-                //                                this.buildPanel();
                 this.cacheDOM();
                 this.attachTools();
-                //                                this.bindEvents();
-                //                                this.showPanels();
-                //                                this.hidePanel();
             },
             // ----------------------------------------
             // tier 1 functions
@@ -47,38 +43,6 @@
                     $toolbarContainer: jQuery('<div>').attr({
                         id: 'toolboxContainer'
                     }),
-                    // ----------------------------------------
-                    // Other Tools Panel
-                    // ----------------------------------------
-                    //                                        $otherToolsContainer: jQuery('<div>').attr({
-                    //                                                class: 'toolBox',
-                    //                                                id: 'otherToolsContainer'
-                    //                                            }),
-                    //                                            $otherToolsPanel: jQuery('<div>').attr({
-                    //                                                class: 'toolsPanel',
-                    //                                                id: 'otherTools'
-                    //                                            }),
-                    //                                            $otherToolsTitle: jQuery('<div>').attr({
-                    //                                                class: 'panelTitle',
-                    //                                                id: 'otherToolsTitle',
-                    //                                                title: 'Click to Minimize/Maximize'
-                    //                                            }).text('Other Tools'),
-                    // ----------------------------------------
-                    // Toggles Panel
-                    // ----------------------------------------
-                    //                                        $togglesContainer: jQuery('<div>').attr({
-                    //                                                class: 'toolBox',
-                    //                                                id: 'togglesContainer'
-                    //                                            }),
-                    //                                            $togglesPanel: jQuery('<div>').attr({
-                    //                                                class: 'toolsPanel',
-                    //                                                id: 'toggleTools'
-                    //                                            }),
-                    //                                            $togglesTitle: jQuery('<div>').attr({
-                    //                                                class: 'panelTitle',
-                    //                                                id: 'togglesTitle',
-                    //                                                title: 'Click to Minimize/Maximize'
-                    //                                            }).text('Toggles'),
                     // ----------------------------------------
                     // Toolbar Resources
                     // ----------------------------------------
@@ -127,18 +91,6 @@
                     // toggle style
                     .append('.toggleTool { background: linear-gradient(to right, rgb(236, 233, 230) , rgb(255, 255, 255)); border-top: 1px solid #999999; cursor: pointer; } '); // end
             },
-            buildPanel: function () {
-                // attach title and tools panel to other tool container
-                //                QAtoolbox.config.$otherToolsContainer.append(QAtoolbox.config.$otherToolsTitle);
-                //                QAtoolbox.config.$otherToolsContainer.append(QAtoolbox.config.$otherToolsPanel);
-                // attach title and toggles panel to toggles container
-                QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesTitle);
-                QAtoolbox.config.$togglesContainer.append(QAtoolbox.config.$togglesPanel);
-                // attach tools panel to tool container
-                //                QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$otherToolsContainer);
-                //                QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$togglesContainer);
-                //                QAtoolbox.config.$toolbarContainer.append(QAtoolbox.config.$urlModContainer);
-            },
             cacheDOM: function () {
                 this.head = jQuery('head');
                 this.body = jQuery('body');
@@ -150,104 +102,9 @@
                 this.body.before(QAtoolbox.config.$toolbarContainer);
                 this.body.before(QAtoolbox.config.$legendContainer);
             },
-            bindEvents: function () {
-                //                QAtoolbox.config.$otherToolsTitle.on('click', this.toggleFeature);
-                //                QAtoolbox.config.$otherToolsTitle.on('click', this.saveState);
-                QAtoolbox.config.$togglesTitle.on('click', this.toggleFeature);
-                QAtoolbox.config.$togglesTitle.on('click', this.saveState);
-            },
-            hidePanel: function () {
-                if (this.isLive) {
-                    QAtoolbox.config.$urlModContainer.remove();
-                }
-            },
-            toggleOff: function () {
-                // set toggle off image
-                var $toggle = QAtoolbox.config.$FAtoggle;
-                $toggle.removeClass('fa-toggle-on');
-                $toggle.addClass('fa-toggle-off');
-                console.log('autofill toggle off');
-                console.log('----------------------------------------');
-            },
-            showPanels: function () {
-                // loop through variable list to find the panel title
-                var variables = this.programData,
-                    state = '',
-                    key = '';
-                for (key in variables) {
-                    switch (key) {
-                        //                    case 'otherTools':
-                        //                        state = variables[key] ? 'show' : 'hide';
-                        //                        this.setState(QAtoolbox.config.$otherToolsPanel, state);
-                        //                        break;
-                        //                    case 'toggleTools':
-                        //                        state = variables[key] ? 'show' : 'hide';
-                        //                        this.setState(QAtoolbox.config.$togglesPanel, state);
-                        //                        break;
-                        //                    case 'urlModTools':
-                        //                        state = variables[key] ? 'show' : 'hide';
-                        //                        this.setState(QAtoolbox.config.$urlModPanel, state);
-                        //                        break;
-                        default:
-                        // no match found
-                            break;
-                    }
-                }
-            },
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
-            programData: function () {
-                var allVariables = programVariables(),
-                    length = allVariables.length,
-                    a = 0,
-                    varList = {},
-                    key = '',
-                    value = '';
-                // add variables to list
-                for (a; a < length; a += 1) {
-                    key = allVariables[a];
-                    value = getValue(key);
-                    varList[key] = value;
-                }
-                console.log(varList);
-                return varList;
-            },
-            toggleFeature: function (event) {
-                var id = jQuery(event.target).attr('id');
-                switch (id) {
-                case 'otherToolsTitle':
-                    return QAtoolbox.config.$otherToolsPanel.slideToggle('1000');
-                case 'togglesTitle':
-                    return QAtoolbox.config.$togglesPanel.slideToggle('1000');
-                case 'urlModTitle':
-                    return QAtoolbox.config.$urlModPanel.slideToggle('1000');
-                }
-            },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
-            saveState: function (event) {
-                // get current state
-                var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
-                // sets usingM4 value
-                GM_setValue(vName, !currState);
-            },
-            setState: function ($panel, state) {
-                if (state === 'show') {
-                    $panel.css({
-                        display: 'block'
-                    });
-                } else if (state === 'hide') {
-                    $panel.css({
-                        display: 'none'
-                    });
-                }
-            },
             styleTools: function ($toolPanel) {
                 $toolPanel.children('.myEDOBut:even').addClass('evenEDObutts');
                 $toolPanel.children('.myEDOBut:odd').addClass('oddEDObutts');
@@ -322,16 +179,15 @@
                         id: 'webIDContainer'
                     }),
                     // web id title
-                    $webIDTitle: jQuery('<label>')
-                        .addClass('tbLabel')
-                        .text('Web-Id'),
+                    $webIDTitle: jQuery('<label>').attr({
+                        class: 'tbLabel'
+                    }).text('Web-Id'),
                     // web is display
-                    $webID: jQuery('<div>')
-                        .addClass('tbInfo')
-                        .attr({
-                            title: 'Copy web-id',
-                            id: 'webID'
-                        })
+                    $webID: jQuery('<div>').attr({
+                        class: 'tbInfo',
+                        title: 'Copy web-id',
+                        id: 'webID'
+                    })
                 };
             },
             buildTool: function () {
@@ -348,22 +204,6 @@
             returnTool: function () {
                 var panel = webID.config.$webIDContainer;
                 return panel;
-            },
-            // ----------------------------------------
-            // tier 2 functions
-            // ----------------------------------------
-            hoverEffect: function (event) {
-                // apply hover effects
-                var element = event.currentTarget;
-                jQuery(element).toggleClass('highlight');
-            },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
-            copyToClipboard: function (event) {
-                // copy page info
-                var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text');
             }
         },
 
@@ -386,27 +226,25 @@
                         id: 'pageNameContainer'
                     }),
                     // page name title
-                    $pageNameTitle: jQuery('<label>')
-                        .addClass('tbLabel')
-                        .text('Page Name'),
+                    $pageNameTitle: jQuery('<label>').attr({
+                        class: 'tbLabel'
+                    }).text('Page Name'),
                     // pange name display
-                    $pageName: jQuery('<div>')
-                        .addClass('tbInfo')
-                        .attr({
-                            title: 'Copy Page Name',
-                            id: 'pageName'
-                        }),
+                    $pageName: jQuery('<div>').attr({
+                        class: 'tbInfo',
+                        title: 'Copy Page Name',
+                        id: 'pageName'
+                    }),
                     // page label title
-                    $pageLabelTitle: jQuery('<label>')
-                        .addClass('tbLabel')
-                        .text('Custom Page Name'),
+                    $pageLabelTitle: jQuery('<label>').attr({
+                        class: 'tbLabel'
+                    }).text('Custom Page Name'),
                     // page label display
-                    $pageLabel: jQuery('<div>')
-                        .addClass('tbInfo')
-                        .attr({
-                            title: 'Copy Page Label',
-                            id: 'pageLabel'
-                        })
+                    $pageLabel: jQuery('<div>').attr({
+                        class: 'tbInfo',
+                        title: 'Copy Page Label',
+                        id: 'pageLabel'
+                    })
                 };
             },
             buildTool: function () {
@@ -437,22 +275,6 @@
             returnTool: function () {
                 var panel = pageName.config.$pageNameContainer;
                 return panel;
-            },
-            // ----------------------------------------
-            // tier 2 functions
-            // ----------------------------------------
-            hoverEffect: function (event) {
-                // apply hover effects
-                var element = event.currentTarget;
-                jQuery(element).toggleClass('highlight');
-            },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
-            copyToClipboard: function (event) {
-                // copy page info
-                var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text');
             }
         },
 
@@ -544,11 +366,8 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(),
+                var allVariables = programVariables(),
                     length = allVariables.length,
                     a = 0,
                     varList = {},
@@ -557,7 +376,7 @@
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false);
+                    value = getValue(key);
                     varList[key] = value;
                 }
                 return varList;
@@ -565,28 +384,22 @@
             toggleFeature: function () {
                 return pageInformation.config.$pageInfo.slideToggle('1000');
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
+                    currState = getValue(vName);
                 // sets usingM4 value
-                GM_setValue(vName, !currState);
+                setValue(vName, !currState);
             },
             hoverEffect: function (event) {
                 // apply hover effects
                 var element = event.currentTarget;
                 jQuery(element).toggleClass('highlight');
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             copyToClipboard: function (event) {
                 // copy page info
                 var copyThisText = event.currentTarget.innerHTML;
-                GM_setClipboard(copyThisText, 'text');
+                clipboardCopy(copyThisText);
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -681,11 +494,8 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(),
+                var allVariables = programVariables(),
                     length = allVariables.length,
                     a = 0,
                     varList = {},
@@ -694,7 +504,7 @@
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false);
+                    value = getValue(key);
                     varList[key] = value;
                 }
                 return varList;
@@ -702,15 +512,12 @@
             toggleFeature: function () {
                 return qaTools.config.$mainToolsPanel.slideToggle('1000');
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
+                    currState = getValue(vName);
                 // sets usingM4 value
-                GM_setValue(vName, !currState);
+                setValue(vName, !currState);
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -1583,18 +1390,15 @@
             toggleFeature: function () {
                 speedtestPage.config.$panelContainer.slideToggle('1000');
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             storeData: function () {
                 // save user input
                 var userEmail = jQuery('#email').val();
-                GM_setValue('email', userEmail);
+                setValue('email', userEmail);
             },
             sendPage: function () {
                 var browser = jQuery('#bSelect option:selected').val(),
                     browserName = jQuery('#bSelect option:selected').text(),
-                    email = GM_getValue('email'),
+                    email = getValue('email'),
                     params = {
                         k: 'A.1b40e6dc41916bd77b0541187ac9e74b',
                         runs: '3',
@@ -1702,11 +1506,8 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(),
+                var allVariables = programVariables(),
                     length = allVariables.length,
                     a = 0,
                     varList = {},
@@ -1715,7 +1516,7 @@
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false);
+                    value = getValue(key);
                     varList[key] = value;
                 }
                 return varList;
@@ -1723,15 +1524,12 @@
             toggleFeature: function () {
                 return otherTools.config.$otherToolsPanel.slideToggle('1000');
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
+                    currState = getValue(vName);
                 // sets usingM4 value
-                GM_setValue(vName, !currState);
+                setValue(vName, !currState);
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -2523,15 +2321,12 @@
                 .append('#' + widgetID + ':after { height: ' + h + 'px; width: ' + w + 'px; }');
         });
 
-        // ----------------------------------------
-        // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-        // ----------------------------------------
         function copyWidgetID(event) {
             var $widget = jQuery(event.target),
                 widgetID = $widget.attr('id');
             // make element blink for verification purposes
             $widget.fadeIn(300).fadeOut(300).fadeIn(300);
-            GM_setClipboard(widgetID, 'text');
+            clipboardCopy(widgetID);
         }
     });
 
@@ -2972,14 +2767,12 @@
                 var $toggle = urlModifiers.config.$FAtoggle;
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
-                console.log('autofill toggle on');
             },
             toggleOff: function () {
                 // set toggle off image
                 var $toggle = urlModifiers.config.$FAtoggle;
                 $toggle.removeClass('fa-toggle-on');
                 $toggle.addClass('fa-toggle-off');
-                console.log('autofill toggle off');
             },
             applyParameters: function () {
                 var urlParameters2 = {
@@ -3226,8 +3019,7 @@
             },
             setToggle: function () {
                 if (!this.liveSite) {
-                    // if 'site is not live'
-                    if (this.getChecked()) {
+                    if (this.getChecked()) { // if 'site is not live'
                         // if 'nextGen is turned on'
                         // set toggle and apply parameters
                         this.toggleOn();
@@ -3261,12 +3053,9 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             getChecked: function () {
                 // grabs isNextGen value
-                var a = GM_getValue('isNextGen', false);
+                var a = getValue('isNextGen');
                 return a;
             },
             toggleOn: function () {
@@ -3275,95 +3064,6 @@
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
             },
-            /*
-                applyParameters: function () {
-                    var hasParameters = this.hasParameters(),
-                        isNextGen = this.getChecked(),
-                        url = '',
-                        newURL = '';
-                    // view NEXTGEN site
-                    // if 'parameters not found in URL' AND 'nextGen toggle is turned on'
-                    if (!hasParameters && isNextGen) {
-                        // if nextgen IS NOT in the URL, add nextGen=true
-                        window.location.search += '&nextGen=true';
-                        console.log('nextgen parameter not found, adding and turing on');
-                    }
-                    // if 'parameters found in URL' AND 'nextGen toggle is turned on'
-                    else if (hasParameters && isNextGen) {
-                        // if 'the URL HAS nextGen=' BUT it isn't set to true
-                        url = window.location.href;
-                        if (url.indexOf('nextGen=false') > 0) {
-                            // nextGen false parameter detected UPDATE to true
-                            newURL = url.replace('nextGen=false', 'nextGen=true');
-                            console.log('nextgen parameter found, turing on');
-                            window.location.href = newURL;
-                        } else if (url.indexOf('nextGen=true') > 0) {
-                            // if next gen = true, do nothing
-                            console.log('nextgen parameter found, do nothing');
-                        }
-                    }
-                    // view TETRA site
-                    // if 'parameters found in URL' AND 'nextGen toggle is turned off'
-                    else if (hasParameters && !isNextGen) {
-                        // if parameters FOUND IN URL and NEXTGEN turned off
-                        url = window.location.href;
-                        if (url.indexOf('nextGen=true') > 0) {
-                            // next gen parameter = TRUE
-                            newURL = url.replace('nextGen=true', 'nextGen=false');
-                            console.log('nextgen parameter found, turing off');
-                            window.location.href = newURL;
-                        } else if (url.indexOf('nextGen=false') > 0) {
-                            // if next gen = FALSE, do nothing
-                            console.log('nextgen parameter found, do nothing');
-                        }
-                    }
-                    // if 'parameters not found in URL' AND 'nextGen toggle is turned off'
-                    else if (!hasParameters && !isNextGen) {
-                        // if nextgen IS NOT in the URL, add nextGen=false
-                        window.location.search += '&nextGen=false';
-                        console.log('nextgen parameter not found, adding and turing off');
-                    }
-                    // ----------------------------------------
-                    // CURRENT WORKING CODE
-                    // ----------------------------------------
-                    //                // view NEXTGEN site
-                    //                // if 'parameters not found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned on'
-                    //                if ((!hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
-                    //                    // if nextgen IS NOT in the URL, add nextGen=true
-                    //                    window.location.search += '&nextGen=true';
-                    //                }
-                    //                // if 'parameters found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned on'
-                    //                else if ((hasParameters) && (siteState !== 'LIVE') && (isNextGen)) {
-                    //                    // if the URL HAS nextGen= BUT it isn't set to true
-                    //                    url = window.location.href;
-                    //                    if (url.indexOf('nextGen=false') > 0) {
-                    //                        // nextGen false parameter detected UPDATE to true
-                    //                        newURL = url.replace('nextGen=false', 'nextGen=true');
-                    //                        window.location.href = newURL;
-                    //                    } else if (url.indexOf('nextGen=true') > 0) {
-                    //                        // if next gen = true, do nothing
-                    //                    }
-                    //                }
-                    //                // view TETRA site
-                    //                // if 'parameters found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned off'
-                    //                else if ((hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
-                    //                    // if parameters FOUND IN URL and NEXTGEN turned off
-                    //                    url = window.location.href;
-                    //                    if (url.indexOf('nextGen=true') > 0) {
-                    //                        // next gen parameter = TRUE
-                    //                        newURL = url.replace('nextGen=true', 'nextGen=false');
-                    //                        window.location.href = newURL;
-                    //                    } else if (url.indexOf('nextGen=false') > 0) {
-                    //                        // if next gen = FALSE, do nothing
-                    //                    }
-                    //                }
-                    //                // if 'parameters not found in URL' AND 'site is not the live site' AND 'nextGen toggle is turned off'
-                    //                else if ((!hasParameters) && (siteState !== 'LIVE') && (!isNextGen)) {
-                    //                    // if nextgen IS NOT in the URL, add nextGen=false
-                    //                    window.location.search += '&nextGen=false';
-                    //                }
-                },
-            */
             toggleOff: function () {
                 // set toggle off image
                 var $toggle = nextGenToggle.config.$FAtoggle;
@@ -3391,12 +3091,9 @@
                 // return page variable
                 return unsafeWindow.ContextManager.getVersion();
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             setChecked: function (bool) {
                 // sets isNextGen value
-                GM_setValue('isNextGen', bool);
+                setValue('isNextGen', bool);
             }
         },
 
@@ -3441,19 +3138,14 @@
                     .append(m4Check.config.$m4Checkbox);
             },
             setToggle: function () {
-                // if 'site is not live'
-                if (!this.liveSite) {
-                    // if 'nextGen is turned on'
-                    if (this.getChecked()) {
+                if (!this.liveSite) { // if 'site is not live'
+                    if (this.getChecked()) { // if 'nextGen is turned on'
                         // set toggle and apply parameters
                         this.toggleOn();
-                    }
-                    // if 'site is not live'
-                    else {
+                    } else { // if 'site is not live'
                         // set toggle and apply parameters
                         this.toggleOff();
                     }
-                    //                    this.applyParameters();
                 }
             },
             cacheDOM: function () {
@@ -3470,8 +3162,7 @@
                 m4Check.config.$m4Container.on('click', this.flipTheSwitch.bind(this));
             },
             ifLive: function () {
-                // remove tool if the site is live
-                if (this.liveSite) {
+                if (this.liveSite) { // remove tool if the site is live
                     jQuery(this).remove();
                 }
             },
@@ -3484,12 +3175,9 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             getChecked: function () {
                 // grabs usingM4 value
-                var a = GM_getValue('usingM4', false);
+                var a = getValue('usingM4');
                 return a;
             },
             toggleOn: function () {
@@ -3498,84 +3186,6 @@
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
             },
-            /*
-            applyParameters: function () {
-                var hasParameters = this.hasParameters();
-                var siteState = this.siteState();
-                var usingM4 = this.getChecked();
-                var url = window.location.href,
-                    newURL;
-                // apply parameters only if DOESN'T already have parameters &&
-                // site state IS NOT LIVE &&
-                // toggled ON
-                //                if ((!hasParameters) && (siteState !== 'LIVE') && (usingM4)) {
-                //                    window.location.search += '&comments=true&relative=true';
-                //                }
-                // ----------------------------------------
-                // BEGIN TEST CODE
-                // ----------------------------------------
-                //--------------------------------------------------------
-                //m4 parameter searches
-                //--------------------------------------------------------
-                //                // PARAMETER FOUND IN URL
-                //                // create a special search for the m4 module URL parameters
-                //                // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is off'
-                //                if (key === 'relative=' && foundThis && !urlParameters2[key]) {
-                //                    // remove ADDED parameter from URL
-                //                    console.log('removing parameter');
-                //                    url = url.replace('&comments=true&relative=true', '');
-                //                    matchesFound.push(false);
-                //                }
-                //                // if 'searching for m4 parameter' AND 'found parameter in url' AND 'toggle is turned on'
-                //                else if (key === 'relative=' && foundThis && urlParameters2[key]) {
-                //                    // do nothing
-                //                    console.log('parameter already turned on');
-                //                    matchesFound.push(true);
-                //                }
-                //                // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is ON'
-                //                else if (key === 'relative=' && !foundThis && urlParameters2[key]) {
-                //                    // Add parameter to url string
-                //                    url += '&comments=true&relative=true';
-                //                    console.log('parameter added, turned on');
-                //                    matchesFound.push(false);
-                //                }
-                //                // if 'searching for m4 parameter' AND 'parameter not found in url' AND 'toggle is OFF'
-                //                else if (key === 'relative=' && !foundThis && !urlParameters2[key]) {
-                //                    // do nothing
-                //                    console.log('parameter turned off');
-                //                }
-                // ----------------------------------------
-                // usingM4 toggle TURNED ON
-                // if 'parameters not found in URL' AND 'usingM4 toggle is turned on'
-                if (!hasParameters && usingM4) {
-                    // if usingM4 IS NOT in the URL, add &comments=true&relative=true
-                    console.log('usingM4 parameter added, turned on');
-                    window.location.search += '&comments=true&relative=true';
-                }
-                // if 'parameters found in URL' AND 'usingM4 toggle is turned on'
-                else if (hasParameters && usingM4) {
-                    console.log('usingM4 parameter found, do nothing');
-                    // DO NOTHING
-                }
-                // usingM4 toggle TURNED OFF
-                // if 'parameters found in URL' 'usingM4 toggle is turned off'
-                else if (hasParameters && !usingM4) {
-                    // if parameters FOUND IN URL and usingM4 turned off
-                    console.log('usingM4 parameter found, removing');
-                    newURL = url.replace('&comments=true&relative=true', '');
-                    window.location.href = newURL;
-                }
-                // if 'parameters not found in URL' AND 'usingM4 toggle is turned off'
-                else if (!hasParameters && !usingM4) {
-                    // if usingM4 parameters IS NOT in the URL
-                    console.log('usingM4 parameter not found, do nothing');
-                    // DO NOTHING
-                }
-                // ----------------------------------------
-                // END TEST CODE
-                // ----------------------------------------
-            },
-            */
             toggleOff: function () {
                 // set toggle off image
                 var $toggle = m4Check.config.$FAtoggle;
@@ -3603,12 +3213,9 @@
                 // return page variable
                 return unsafeWindow.ContextManager.getVersion();
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             setChecked: function (bool) {
                 // sets usingM4 value
-                GM_setValue('usingM4', bool);
+                setValue('usingM4', bool);
             }
         },
 
@@ -3653,19 +3260,14 @@
                     .append(autofillToggle.config.$autofillToggleIcon);
             },
             setToggle: function () {
-                // if 'site is not live'
-                if (!this.liveSite) {
-                    // if 'nextGen is turned on'
-                    if (this.getChecked()) {
+                if (!this.liveSite) { // if 'site is not live'
+                    if (this.getChecked()) { // if 'nextGen is turned on'
                         // set toggle and apply parameters
                         this.toggleOn();
-                    }
-                    // if 'site is not live'
-                    else {
+                    } else { // if 'site is not live'
                         // set toggle and apply parameters
                         this.toggleOff();
                     }
-                    //                    this.applyParameters();
                 }
             },
             cacheDOM: function () {
@@ -3696,12 +3298,9 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             getChecked: function () {
                 // grabs applyAutofill value
-                var a = GM_getValue('applyAutofill', false);
+                var a = getValue('applyAutofill');
                 return a;
             },
             toggleOn: function () {
@@ -3710,74 +3309,6 @@
                 $toggle.removeClass('fa-toggle-off');
                 $toggle.addClass('fa-toggle-on');
             },
-            /*
-            applyParameters: function () {
-                var hasParameters = this.hasParameters();
-                //                var siteState = this.siteState();
-                var applyAutofill = this.getChecked(),
-                    url = window.location.href,
-                    newURL;
-                // show autofill parameter
-                // if 'parameters not found in URL' AND 'applyAutofill toggle is turned on'
-                if (!hasParameters && applyAutofill) {
-                    // if PARAMETER IS NOT in the URL, add &disableAutofill=true
-                    //                    window.location.search += '&disableAutofill=true';
-                    this.reloadPage('search', '&disableAutofill=true');
-                    console.log('disableAutofill parameter not found, adding and turning on');
-                }
-                // if 'parameters found in URL' AND 'applyAutofill toggle is turned on'
-                else if (hasParameters && applyAutofill) {
-                    // if 'the URL HAS nextGen=' BUT it isn't set to true
-                    url = window.location.href;
-                    if (url.indexOf('&disableAutofill=false') > 0) {
-                        // applyAutofill false parameter detected UPDATE to true
-                        newURL = url.replace('&disableAutofill=false', '&disableAutofill=true');
-                        console.log('disableAutofill parameter found, turning on');
-                        //                        window.location.href = newURL;
-                        this.reloadPage('reload', newURL);
-                    } else if (url.indexOf('&disableAutofill=true') > 0) {
-                        // if disableAutofill = true, do nothing
-                        console.log('disableAutofill parameter found, do nothing');
-                    }
-                }
-                // disable autofill parameter
-                // if 'parameters found in URL' AND 'applyAutofill toggle is turned off'
-                else if (hasParameters && !applyAutofill) {
-                    // if 'disableAutofill FOUND IN URL' and 'applyAutofill turned off'
-                    url = window.location.href;
-                    // ----------------------------------------
-                    // REMOVE PARAMETER FROM URL
-                    // ----------------------------------------
-                    if (url.indexOf('&disableAutofill=true') >= 0) {
-                        newURL = url.replace('&disableAutofill=true', '');
-                        console.log('disableAutofill TRUE parameter found, removing');
-                        //                        window.location.href = newURL;
-                        this.reloadPage('reload', newURL);
-                    } else if (url.indexOf('&disableAutofill=false') >= 0) {
-                        newURL = url.replace('&disableAutofill=false', '');
-                        console.log('disableAutofill FALSE parameter found, removing');
-                        //                        window.location.href = newURL;
-                        this.reloadPage('reload', newURL);
-                    }
-                    //                                                if (url.indexOf('disableAutofill=true') > 0) {
-                    //                                                    // disableAutofill parameter = TRUE
-                    //                                                    newURL = url.replace('disableAutofill=true', 'disableAutofill=false');
-                    //                                                    console.log('disableAutofill parameter found, turing off');
-                    //                                                    window.location.href = newURL;
-                    //                                                } else if (url.indexOf('disableAutofill=false') > 0) {
-                    //                                                    // if disableAutofill = FALSE, do nothing
-                    //                                                    console.log('disableAutofill parameter found, do nothing');
-                    //                                                }
-                }
-                // if 'parameters not found in URL' AND 'applyAutofill toggle is turned off'
-                else if (!hasParameters && !applyAutofill) {
-                    // if disableAutofill IS NOT in the URL, add disableAutofill=false
-                    console.log('disableAutofill parameter not found, do nothing');
-                    //                    window.location.search += '&disableAutofill=false';
-                    //                    this.reloadPage('search', '&disableAutofill=false');
-                }
-            },
-            */
             reloadPage: function (type, newURL) {
                 if (type === 'reload') {
                     console.log('reload page');
@@ -3813,12 +3344,9 @@
                 // return page variable
                 return unsafeWindow.ContextManager.getVersion();
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             setChecked: function (bool) {
                 // sets applyAutofill value
-                GM_setValue('applyAutofill', bool);
+                setValue('applyAutofill', bool);
             }
         },
 
@@ -3902,11 +3430,8 @@
             // ----------------------------------------
             // tier 2 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             programData: function () {
-                var allVariables = GM_listValues(),
+                var allVariables = programVariables(),
                     length = allVariables.length,
                     a = 0,
                     varList = {},
@@ -3915,7 +3440,7 @@
                 // add variables to list
                 for (a; a < length; a += 1) {
                     key = allVariables[a];
-                    value = GM_getValue(key, false);
+                    value = getValue(key);
                     varList[key] = value;
                 }
                 return varList;
@@ -3923,15 +3448,12 @@
             toggleFeature: function () {
                 return toggles.config.$togglesPanel.slideToggle('1000');
             },
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             saveState: function (event) {
                 // get current state
                 var vName = jQuery(event.target).siblings('.toolsPanel').attr('id'),
-                    currState = GM_getValue(vName, false);
+                    currState = getValue(vName);
                 // sets usingM4 value
-                GM_setValue(vName, !currState);
+                setValue(vName, !currState);
             },
             setState: function ($panel, state) {
                 if (state === 'show') {
@@ -4062,17 +3584,14 @@
             // ----------------------------------------
             // tier 3 functions
             // ----------------------------------------
-            // ----------------------------------------
-            // TO DO : UPDATE THESE TO THE GLOBAL FUNCTIONS
-            // ----------------------------------------
             getChecked: function () {
                 // grabs useRefreshButton value
-                var a = GM_getValue('useRefreshButton', false);
+                var a = getValue('useRefreshButton');
                 return a;
             },
             setChecked: function (bool) {
                 // sets useRefreshButton value
-                GM_setValue('useRefreshButton', bool);
+                setValue('useRefreshButton', bool);
             }
         },
 
@@ -4182,7 +3701,6 @@
                     storedValue = getValue(varName);
                 // set saved variable to opposite of current value
                 setValue(varName, !storedValue);
-
                 // set toggle
                 this.setToggle();
             }
@@ -4202,15 +3720,14 @@
             createElements: function () {
                 // main panel container
                 dynamicDisplay.config = {
-                    $displayPanel: jQuery('<div>')
-                        .attr({
-                            class: 'toolBox',
-                            id: 'displayPanel'
-                        }),
+                    $displayPanel: jQuery('<div>').attr({
+                        class: 'toolBox',
+                        id: 'displayPanel'
+                    }),
                     // panel title
-                    $displayTitle: jQuery('<div>')
-                        .addClass('panelTitle'),
-                    //.text('Placeholder Text'),
+                    $displayTitle: jQuery('<div>').attr({
+                        class: 'panelTitle'
+                    }),
                     // display area
                     $displayArea: jQuery('<div>').attr({
                         id: 'displayArea'
@@ -4266,10 +3783,8 @@
             buildPanel: function () {
                 // attach panel elements to container
                 jQuery(dynamicDisplay.config.$displayPanel)
-                    //.append(dynamicDisplay.config.$displayTitle)
                     .append(dynamicDisplay.config.$displayArea)
                     .append(dynamicDisplay.config.$version);
-                //            .append(dynamicDisplay.config.$hideToolbox);
                 // attach icon to minimize tab
                 jQuery(dynamicDisplay.config.$showToolbox)
                     .append(dynamicDisplay.config.$icon);
