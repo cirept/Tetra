@@ -1318,8 +1318,7 @@
                     $emailInput: jQuery('<input>').attr({
                         id: 'email',
                         type: 'text',
-                        placeholder: 'your.name@cdk.com',
-                        value: this.email
+                        placeholder: 'your.name@cdk.com'
                     }).css({
                         margin: '5px 0px',
                         width: '85%'
@@ -1376,6 +1375,8 @@
                     .append(speedtestPage.config.$browserTitle)
                     .append(speedtestPage.config.$browserSelect)
                     .append(speedtestPage.config.$sendButt);
+
+                speedtestPage.config.$emailInput.text(speedtestPage.config.email);
             },
             addTool: function () {
                 this.$toolsPanel.append(speedtestPage.config.$activateButt);
