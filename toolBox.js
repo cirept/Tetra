@@ -2373,7 +2373,7 @@
                 $subText: jQuery('<div>').attr({
                     class: 'subText hint'
                 }).text('* Manually Check Link'),
-                $legendContainer: jQuery('#legendContainer'),
+                //                $legendContainer: jQuery('#legendContainer'),
                 $container: jQuery('<div>').attr({
                     id: 'checkContainer',
                 }),
@@ -2400,8 +2400,9 @@
             this.siteID = this.cm.getSiteId();
             this.baseURL = this.cm.getUrl();
             this.wid = this.separateID(this.webID);
-            this.$pageLinks = jQuery('a');
-            this.$toolBoxContainer = jQuery('#toolboxContainer'); // update this to the other tools panel
+            //            this.$toolBoxContainer = jQuery('#toolboxContainer'); // update this to the other tools panel
+            this.$toolsPanel = jQuery('#mainTools');
+            this.$legendContainer = jQuery('#legendContainer'); // cache dom
         },
         buildLegend: function () {
             checkLinks.config.$legend
@@ -2413,18 +2414,18 @@
             // fill list
             this.buildLegendContent();
             // attach filled list
-            checkLinks.config.$legendContainer.append(checkLinks.config.$legend);
+            this.$legendContainer.append(checkLinks.config.$legend);
             checkLinks.config.$legend.append(checkLinks.config.$container);
         },
         addTool: function () {
-            this.$otherToolsPanel.append(checkLinks.config.$activateButt);
+            this.$toolsPanel.append(checkLinks.config.$activateButt);
         },
         bindEvents: function () {
             checkLinks.config.$activateButt.on('click', this.toggleDisable);
             checkLinks.config.$activateButt.on('click', this.showLegend);
-            checkLinks.config.$activateButt.on('click', this.ajaxStart);
+            //            checkLinks.config.$activateButt.on('click', this.ajaxStart);
             checkLinks.config.$activateButt.on('click', this.testLinks);
-            checkLinks.config.$activateButt.on('click', this.ajaxStop);
+            //            checkLinks.config.$activateButt.on('click', this.ajaxStop);
             checkLinks.config.$offButt.on('click', this.showLegend);
         },
         addStyles: function () {
@@ -2442,19 +2443,27 @@
         // tier 1 functions
         // ----------------------------------------
         testLinks: function () {
+            console.log('testLinks entered');
             var j = 0,
-                pageLinksLength = this.$pageLinks.length,
+                //                pageLinksLength = this.pageLinksLength,
                 curLink,
                 $curLink,
                 curURL,
                 hrefLength,
                 findThis,
                 findThis2,
-                length,
-                curWindow;
+                len,
+                curWindow,
+                $pageLinks = jQuery('a'),
+                pageLinksLength = $pageLinks.length;
 
-            for (j; j < pageLinksLength; j++) {
-                curLink = this.$pageLinks[j];
+            console.log('pageLinksLength : ' + pageLinksLength);
+
+            console.log('testLinks for loop going to be entered');
+
+            for (j; j < pageLinksLength; j += 1) {
+                console.log('testLinks for loop entered');
+                curLink = $pageLinks[j];
                 $curLink = jQuery(curLink);
                 curURL = jQuery.trim($curLink.attr('href'));
                 hrefLength = curURL.length;
@@ -2494,7 +2503,7 @@
                     // add complete URL for testing purposes
                     findThis = '/' + this.siteID + '/';
                     findThis2 = '/' + this.wid + '/';
-                    length = findThis.length + 1;
+                    len = findThis.length + 1;
                     if ((curURL.indexOf(findThis) >= 0) && (curURL.indexOf(findThis) < length)) {
                         curURL = curURL.replace(findThis, this.baseURL);
                     }
@@ -2509,13 +2518,15 @@
                 } else if (curURL.indexOf('/') === 0) {
                     curURL = curURL.slice(1, hrefLength);
                 }
+                console.log('curURL : ' + curURL);
+                console.log('curLink : ' + curLink);
                 // test links
-                this.testLink(curURL, curLink);
+                this.testLink(curURL, curLink, pageLinksLength);
             }
         },
-        testLink: function (linkURL, curLink) {
+        testLink: function (linkURL, curLink, pageLinksLength) {
             var testComplete = 1,
-                totalTests = this.$pageLinks.length,
+                totalTests = pageLinksLength,
                 $curLink = jQuery(curLink),
                 hasImage = 0,
                 isImageLink = false,
@@ -4149,7 +4160,8 @@
                     showNavigation.init(); // initialize show navigation tool
                     spellCheck.init(); // initialize spell check tool
                     speedtestPage.init(); // initialize page test tool
-                    jQuery('#mainTools').append($404checker_butt); // 404 checker button
+                    checkLinks.init(); // initialize page test tool
+                    //                    jQuery('#mainTools').append($404checker_butt); // 404 checker button
 
                     // ----- other tools ----- //
                     otherTools.init(); // initialize other tools
